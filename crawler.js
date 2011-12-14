@@ -150,7 +150,7 @@ var Crawler = function(domain,initialPath,interval,processor) {
 		if (roughURLScan) {
 			roughURLScan.forEach(function(item) {
 				item = item.replace(/^href=['"]?/i,"");
-				
+
 				if (item.match(/^\s*#/)) {
 					// Bookmark URL
 					return false;
@@ -327,47 +327,11 @@ var Crawler = function(domain,initialPath,interval,processor) {
 	// Crawl init
 	this.crawl = function() {
 		var pendingCount = crawler.queue.countWithStatus("queued");
-		
-		var incompleteCount =
-				crawler.queue
-					.reduce(function(prev,current) {
-						return current.status !== "queued" && !current.fetched ? ++prev : prev;
-					},0);
-		
-		var itemsComplete = crawler.queue.complete();
 		var currentFetchIndex;
-
-		var notfoundCount	= crawler.queue.countWithStatus("notfound");
-		var redirectCount	= crawler.queue.countWithStatus("redirected");
-		var failedCount		= crawler.queue.countWithStatus("failed");
-		var downloadedCount	= crawler.queue.countWithStatus("downloaded");
-		var headersCount	= crawler.queue.countWithStatus("headers");
-
-		var queueLength = crawler.queue.length;
-		
-		console.log("CRAWLING, %d items unspooled, %d items incomplete, %d open requests, %d items complete, %d total. %d% Complete.",
-						pendingCount,
-						incompleteCount,
-						openRequests,
-						itemsComplete,
-						queueLength,
-						Math.round((itemsComplete/queueLength)*1000)/10);
-		
-		console.log("Downloaded: %d, %d% | Headers: %d, %d% | 404: %d, %d% | Redirect: %d, %d% | Failed: %d, %d%",
-						downloadedCount,
-						Math.round((downloadedCount/itemsComplete)*1000)/10,
-						headersCount,
-						Math.round((headersCount/queueLength)*1000)/10,
-						notfoundCount,
-						Math.round((notfoundCount/itemsComplete)*1000)/10,
-						redirectCount,
-						Math.round((redirectCount/itemsComplete)*1000)/10,
-						failedCount,
-						Math.round((failedCount/itemsComplete)*1000)/10);
 
 		if (pendingCount && openRequests < crawler.maxConcurrency) {
 			currentFetchIndex = getNextQueueItem();
-			console.log("spooling ",currentFetchIndex);
+			
 			if (currentFetchIndex !== null) {
 				fetchQueueItem(currentFetchIndex);
 			}

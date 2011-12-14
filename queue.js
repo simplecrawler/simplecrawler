@@ -168,7 +168,11 @@ FetchQueue.prototype.defrost = function(filename) {
 				}
 			}
 		}
-	} catch(error) {}
+
+		return true;
+	} catch(error) {
+		return false;
+	}
 };
 
 exports.queue = FetchQueue;
