@@ -139,9 +139,10 @@ var Crawler = function(domain,initialPath,interval,processor) {
 	// (if there are actually any in the resource, otherwise it'll return an empty array)
 	function discoverResources(resourceData,resourceURL) {
 		var resources = [];
-
+		
 		// do stuff
 		// general idea at this stage is get all hrefs, srcs
+		// list of allowed protocols
 
 		// Dumping something rough in here
 		var roughURLScan = resourceData.match(/href=['"]?([^"'\s>]+)/ig);
@@ -158,7 +159,7 @@ var Crawler = function(domain,initialPath,interval,processor) {
 				
 				item = item.split("#").shift();
 
-				if (item.replace(/\s+/,"").length && !item.match(/^javascript:/) && !item.match(/^mailto:/) && !item.match(/\.css$/) && !item.match(/\.rtf$/) && !item.match(/\.doc$/) && !item.match(/\.docx$/) && !item.match(/\.pdf$/)) {
+				if (item.replace(/\s+/,"").length && !item.match(/^javascript:/) && !item.match(/^mailto:/)) {
 					if (!resources.reduce(function(prev,current) {
 							return prev || current === item;
 						},false)) {
@@ -358,3 +359,7 @@ Crawler.prototype.stop = function() {
 // EXPORTS
 exports.FetchQueue = FetchQueue;
 exports.Crawler = Crawler;
+
+
+
+
