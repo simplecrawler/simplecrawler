@@ -8,7 +8,7 @@ var http = require("http"),
 	https = require("https");
 
 // Crawler Constructor
-var Crawler = function(domain,initialPath,interval,processor) {
+var Crawler = function(domain,initialPath,interval) {
 	// SETTINGS TO STUFF WITH (not here! Do it when you create a `new Crawler()`)
 	// Domain to crawl
 	this.domain				= domain.replace(/^www\./i,"") || "";
@@ -25,11 +25,8 @@ var Crawler = function(domain,initialPath,interval,processor) {
 	// Maximum request concurrency. Be sensible. Five ties in with node's default maxSockets value.
 	this.maxConcurrency		= 5;
 
-	// User specified function for processing returned resource data
-	this.processor			= processor && processor instanceof Function ? processor : function() {};
-
 	// User Agent
-	this.userAgent			= "Node/SimpleCrawler 0.1 (cgiffard,deewr)";
+	this.userAgent			= "Node/SimpleCrawler 0.1 (http://www.github.com/cgiffard/node-simplecrawler)";
 
 	// Queue for requests - FetchQueue gives us stats and other sugar (but it's basically just an array)
 	this.queue				= new FetchQueue();
@@ -39,6 +36,27 @@ var Crawler = function(domain,initialPath,interval,processor) {
 
 	// Treat WWW subdomain the same as the main domain (and don't count it as a separate subdomain)
 	this.ignoreWWWDomain	= true;
+	
+	// Supported Protocols
+	this.allowedProtocols = [
+		/^http(s)?\:/ig,					// HTTP & HTTPS
+		/^(rss|atom|feed)(\+xml)?\:/ig		// RSS / XML
+	];
+
+	// Max file size to download/store
+	this.maxResourceSize	= 1024 * 1024 * 16; // 16mb
+	
+	// Supported MIME-types
+	// Matching MIME-types will be scanned for links
+	this.supportedMimeTypes = [
+		/^text\//i,
+		/^application\/(rss)?[\+\/\-]?xml/i,
+		/^application\/javascript/i,
+		/^xml/i
+	];
+	
+	// Download linked, but unsupported files (binary - images, documents, etc)
+	this.downloadUnsupported = true;
 
 	// STATE (AND OTHER) VARIABLES NOT TO STUFF WITH
 	this.commenced = false;
@@ -134,37 +152,64 @@ var Crawler = function(domain,initialPath,interval,processor) {
 			"path": path
 		};
 	}
-
+	
+	// Determines whether the protocol is supported, given a URL
+	function protocolSupported(URL) {
+		var supported = false;
+		
+		if (URL.match(/^[a-z0-9]+\:/i)) {
+			crawler.allowedProtocols.forEach(function(protocolCheck) {
+				if (!!protocolCheck.exec(URL)) {
+					supported = true;
+				}
+			});
+			
+			return supported;
+		} else {
+			return true;
+		}
+	}
+	
+	// Determines whether the mimetype is supported, given a... mimetype
+	function mimeTypeSupported(MIMEType) {
+		var supported = false;
+		
+		crawler.supportedMimeTypes.forEach(function(mimeCheck) {
+			if (!!mimeCheck.exec(MIMEType)) {
+				supported = true;
+			}
+		});
+		
+		return supported;
+	
+	}
+	
 	// Input some text/html and this function will return a bunch of URLs for queueing
 	// (if there are actually any in the resource, otherwise it'll return an empty array)
-	function discoverResources(resourceData,resourceURL) {
-		var resources = [];
-		
-		// do stuff
-		// general idea at this stage is get all hrefs, srcs
-		// list of allowed protocols
+	function discoverResources(resourceData,queueItem) {
+		var resources = [], resourceText = resourceData.toString("utf8");
 
-		// Dumping something rough in here
-		var roughURLScan = resourceData.match(/href=['"]?([^"'\s>]+)/ig);
+		// Rough scan for URLs
+		var roughURLScan = resourceText.match(/(href|src)=['"]?([^"'\s>]+)/ig);
 
 		// Clean links
 		if (roughURLScan) {
-			roughURLScan.forEach(function(item) {
-				item = item.replace(/^href=['"]?/i,"");
-
-				if (item.match(/^\s*#/)) {
+			roughURLScan.forEach(function(URL) {
+				URL = URL.replace(/^(href|src)=['"]?/i,"").replace(/^\s*/,"");
+				
+				if (URL.match(/^\s*#/)) {
 					// Bookmark URL
 					return false;
 				}
 				
-				item = item.split("#").shift();
+				URL = URL.split("#").shift();
 
-				if (item.replace(/\s+/,"").length && !item.match(/^javascript:/) && !item.match(/^mailto:/)) {
+				if (URL.replace(/\s+/,"").length && protocolSupported(URL)) {
 					if (!resources.reduce(function(prev,current) {
-							return prev || current === item;
+							return prev || current === URL;
 						},false)) {
 						
-						resources.push(item);
+						resources.push(URL);
 					}
 				}
 			});
@@ -175,11 +220,11 @@ var Crawler = function(domain,initialPath,interval,processor) {
 
 	// Input some text/html and this function will delegate resource discovery, check link validity
 	// and queue up resources for downloading!
-	function queueLinkedItems(resourceData,resourceURL) {
-		var urlList = discoverResources(resourceData,resourceURL);
+	function queueLinkedItems(resourceData,queueItem) {
+		var urlList = discoverResources(resourceData,queueItem);
 
 		urlList.forEach(function(url) {
-			var URLData = processURL(url,resourceURL);
+			var URLData = processURL(url,queueItem);
 
 			// URL Parser decided this URL was junky. Next please!
 			if (!URLData) {
@@ -193,8 +238,9 @@ var Crawler = function(domain,initialPath,interval,processor) {
 				(crawler.scanSubdomains && URLData.domain.indexOf(crawler.domain) === URLData.domain.length - crawler.domain.length)) {
 				
 				try {
-					crawler.queue.add(URLData.protocol,URLData.domain,URLData.port,URLData.path);
-					crawler.emit("queueadd");
+					if (crawler.queue.add(URLData.protocol,URLData.domain,URLData.port,URLData.path)) {
+						crawler.emit("queueadd",crawler.queue[crawler.queue.length-1]);
+					}
 				} catch(error) {
 					crawler.emit("error",error);
 				}
@@ -205,12 +251,13 @@ var Crawler = function(domain,initialPath,interval,processor) {
 	// Fetch a queue item
 	function fetchQueueItem(index) {
 		openRequests ++;
-
-		// console.log("\tFETCHING %s",crawler.queue[index].url);
+		
+		// Emit fetchstart event
+		crawler.emit("fetchstart",crawler.queue[index]);
 
 		// Variable declarations
 		var fetchData = false, requestOptions, clientRequest, timeCommenced, timeHeadersReceived, timeDataReceived, parsedURL;
-		var responseData = "", responseLength;
+		var responseBuffer, responseLength, responseLengthReceived, contentType;
 
 		// Mark as spooled
 		crawler.queue[index].status = "spooled";
@@ -220,7 +267,10 @@ var Crawler = function(domain,initialPath,interval,processor) {
 		requestOptions = {
 			host: crawler.queue[index].domain,
 			port: crawler.queue[index].port,
-			path: crawler.queue[index].path
+			path: crawler.queue[index].path,
+			headers: {
+				"User-Agent": crawler.userAgent
+			}
 		};
 
 		// Record what time we started this request
@@ -228,20 +278,29 @@ var Crawler = function(domain,initialPath,interval,processor) {
 
 		// Get the resource!
 		clientRequest = client.get(requestOptions,function(response) {
+			var dataReceived = false;
+			responseLengthReceived = 0;
+			
 			// Record what time we first received the header information
 			timeHeadersReceived = (new Date().getTime());
-
-			crawler.emit("headersreceived");
 
 			// Save timing and content some header information into queue
 			crawler.queue[index].stateData.requestLatency = (timeHeadersReceived - timeCommenced);
 			crawler.queue[index].stateData.requestTime = (timeHeadersReceived - timeCommenced);
-			crawler.queue[index].stateData.contentLength = responseLength = response.headers["content-length"];
+			crawler.queue[index].stateData.contentLength = responseLength = parseInt(response.headers["content-length"],10);
+			crawler.queue[index].stateData.contentType = contentType = response.headers["content-type"];
 			crawler.queue[index].stateData.code = response.statusCode;
 
 			// Save entire headers, in less scannable way
 			crawler.queue[index].stateData.headers = response.headers;
-
+			
+			// Emit header receive event
+			crawler.emit("fetchheaders",crawler.queue[index],response);
+			
+			// Ensure response length is reasonable...
+			responseLength = responseLength > 0 ? responseLength : crawler.maxResourceSize;
+			crawler.queue[index].stateData.contentLength = responseLength;
+			
 			// Function for dealing with 200 responses
 			function processReceivedData() {
 				if (!crawler.queue[index].fetched) {
@@ -251,66 +310,124 @@ var Crawler = function(domain,initialPath,interval,processor) {
 					crawler.queue[index].status = "downloaded";
 					crawler.queue[index].stateData.downloadTime = (timeDataReceived - timeHeadersReceived);
 					crawler.queue[index].stateData.requestTime = (timeDataReceived - timeCommenced);
-
-					crawler.emit("itemreceived");
-					queueLinkedItems(responseData,crawler.queue[index]);
-
-					// Try to run the user's processor. Wrap so we don't explode in the instance of an error
-					if (crawler.processor instanceof Function) {
-						try {
-							crawler.processor(crawler.queue[index].url, index, responseData);
-						} catch(error) {
-							crawler.emit("error",error);
+					crawler.queue[index].stateData.actualDataSize = responseBuffer.length;
+					crawler.queue[index].stateData.sentIncorrectSize = responseBuffer.length !== responseLength;
+					
+					crawler.emit("fetchcomplete",crawler.queue[index],responseBuffer,response);
+					
+					// We only process the item if it's of a valid mimetype
+					if (mimeTypeSupported(contentType)) {
+						queueLinkedItems(responseBuffer,crawler.queue[index]);
+					} else {
+						if (!contentType.match(/^image\//)) {
+							console.log("DECIDED %s (%s) didn't have a good mimetype",crawler.queue[index].url,contentType);
 						}
 					}
-
+					
 					openRequests --;
+				}
+			}
+			
+			function receiveData(chunk) {
+				if (chunk && chunk.length && !dataReceived) {
+					if (responseLengthReceived + chunk.length > responseBuffer.length) {
+						// Oh dear. We've been sent more data than we were initially told.
+						// This could be a mis-calculation, or a streaming resource.
+						// Let's increase the size of our buffer to match, as long as it isn't
+						// larger than our maximum resource size.
+						
+						if (responseLengthReceived + chunk.length <= crawler.maxResourceSize) {
+							// Start by creating a new buffer, which will be our main buffer going forward...
+							var tmpNewBuffer = new Buffer(responseLengthReceived + chunk.length);
+						
+							// Copy all our old data into it...
+							responseBuffer.copy(tmpNewBuffer,0,0,responseBuffer.length);
+						
+							// And now the new chunk
+							chunk.copy(tmpNewBuffer,responseBuffer.length,0,chunk.length);
+						
+							// And now make the response buffer our new buffer, leaving the original for GC
+							responseBuffer = tmpNewBuffer;
+							
+						} else {
+							// Oh dear oh dear! The response is not only more data than we were initially told,
+							// but it also exceeds the maximum amount of data we're prepared to download per resource.
+							// Throw error event and ignore.
+							//
+							// We'll then deal with the data that we have.
+							
+							crawler.emit("fetchdataerror",crawler.queue[index],response);
+						}
+					} else {
+						// Copy the chunk data into our main buffer
+						chunk.copy(responseBuffer,responseLengthReceived,0,chunk.length);
+					}
+					
+					// Increment our data received counter
+					responseLengthReceived += chunk.length;
+				}
+				
+
+				if ((responseLengthReceived >= responseLength || response.complete) && !dataReceived) {
+					// Slice the buffer to chop off any unused space
+					responseBuffer = responseBuffer.slice(0,responseLengthReceived);
+					
+					dataReceived = true;
+					processReceivedData();
 				}
 			}
 
 			// If we should just go ahead and get the data
-			if (response.statusCode >= 200 && response.statusCode < 300) {
+			if (response.statusCode >= 200 && response.statusCode < 300 && responseLength <= crawler.maxResourceSize) {
 				crawler.queue[index].status = "headers";
-
-				response.on("data",function(chunk) {
-					responseData += chunk.toString("utf8");
-
-					if (responseData.length >= responseLength) {
-						processReceivedData();
-					}
-				});
-
-				response.on("end",function(chunk) {
-					processReceivedData();
-				});
+				
+				// Create a buffer with our response length
+				responseBuffer = new Buffer(responseLength);
+				
+				response.on("data",receiveData);
+				response.on("end",receiveData);
 
 			// If we should queue a redirect
 			} else if (response.statusCode >= 300 && response.statusCode < 400 && response.headers.location) {
 				crawler.queue[index].fetched = true;
 				crawler.queue[index].status = "redirected";
-
+				
 				// Parse the redirect URL ready for adding to the queue...
 				parsedURL = processURL(response.headers.location,crawler.queue[index]);
-
+				
+				// Emit redirect event
+				crawler.emit("fetchredirect",crawler.queue[index],parsedURL,response);
+				
+				// Queue up new URL
 				crawler.queue.add(parsedURL.protocol,parsedURL.domain,parsedURL.port,parsedURL.path);
-
+				
 				openRequests --;
 			// Ignore this request, but record that we had a 404
 			} else if (response.statusCode === 404) {
 				crawler.queue[index].fetched = true;
 				crawler.queue[index].status = "notfound";
+				
+				// Emit 404 event
+				crawler.emit("fetch404",crawler.queue[index],response);
+				
 				openRequests --;
 			// And oh dear. Handle this one as well. (other 400s, 500s, etc)
 			} else {
 				crawler.queue[index].fetched = true;
 				crawler.queue[index].status = "failed";
+				
+				// Emit 5xx / 4xx event
+				crawler.emit("fetcherror",crawler.queue[index],response);
+				
 				openRequests --;
 			}
 		});
 
 		clientRequest.on("error",function(errorData) {
 			openRequests --;
-			crawler.emit("requesterror",errorData);
+			
+			// Emit 5xx / 4xx event
+			crawler.emit("fetchclienterror",crawler.queue[index],errorData);
 
 			crawler.queue[index].fetched = true;
 			crawler.queue[index].stateData.code = 599;
