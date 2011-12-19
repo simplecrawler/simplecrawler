@@ -318,10 +318,6 @@ var Crawler = function(domain,initialPath,interval) {
 					// We only process the item if it's of a valid mimetype
 					if (mimeTypeSupported(contentType)) {
 						queueLinkedItems(responseBuffer,crawler.queue[index]);
-					} else {
-						if (!contentType.match(/^image\//)) {
-							console.log("DECIDED %s (%s) didn't have a good mimetype",crawler.queue[index].url,contentType);
-						}
 					}
 					
 					openRequests --;
