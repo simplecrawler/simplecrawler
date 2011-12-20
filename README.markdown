@@ -11,7 +11,7 @@ Simplecrawler is designed to provide the most basic possible API for crawling we
 * Provides basic statistics on network performance
 * Uses buffers for fetching and managing data, preserving binary data (except when discovering links)
 
-#####Note
+####Note
 You can't install simplecrawler via npm yet. I'll package it up once I'm happy the documentation is solid.
 
 ### Getting Started
@@ -96,7 +96,7 @@ Fired when a request dies locally for some reason. The error data is returned as
 * `complete`
 Fired when the crawler completes processing all the items in its queue, and does not find any more to add. This event returns no arguments.
 
-##### A note about HTTP error conditions
+####A note about HTTP error conditions
 By default, simplecrawler does not download the response body when it encounters an HTTP error status in the response. If you need this information, you can listen to simplecrawler's error events, and through node's native `data` event (`response.on("data",function(chunk) {...})`) you can save the information yourself.
 
 If this is annoying, and you'd really like to retain error pages by default, let me know. I didn't include it because I didn't need it - but if it's important to people I might put it back in. :)
