@@ -1,3 +1,127 @@
-Probably best not to touch this yet, as I haven't really cleaned it up for production use.
+# Simple web-crawler for node.js
 
-If you're brave...
+Simplecrawler is designed to provide the most basic possible API for crawling websites, while being as flexible and robust as possible. I wrote simplecrawler to archive, analyse, and search some very large websites. It has happily chewed through 50,000 pages and written tens of gigabytes to disk without issue.
+
+### What does simplecrawler do?
+
+* Provides a very simple event driven API using `EventEmitter`
+* Extremely configurable base for writing your own crawler
+* Provides some simple logic for autodetecting linked resources - which you can replace or augment
+* Has a flexible queue system which can be frozen to disk and defrosted
+* Provides basic statistics on network performance
+* Uses buffers for fetching and managing data, preserving binary data (except when discovering links)
+
+#####Note
+You can't install simplecrawler via npm yet. I'll package it up once I'm happy the documentation is solid.
+
+### Getting Started
+
+Creating a new crawler is very simple. First you'll need to include it:
+
+```javascript
+var Crawler = require("node-simplecrawler").Crawler;
+```
+
+Then create your crawler:
+
+```javascript
+var myCrawler = new Crawler("www.example.com");
+```
+
+Nonstandard port? HTTPS? Want to start archiving a specific path? No problem:
+
+```javascript
+myCrawler.initialPath = "/archive";
+myCrawler.initialPort = 8080;
+myCrawler.initialProtocol = "https";
+```
+
+And of course, you're probably wanting to ensure you don't take down your webserver. Decrease the concurrency from five simultaneous requests - and increase the request interval from the default 250ms like this:
+
+```javascript
+myCrawler.interval = 10000; // Ten seconds
+myCrawler.maxConcurrency = 1;
+```
+
+For brevity, you may also specify the initial path and request interval when creating the crawler:
+
+```javascript
+var myCrawler = new Crawler("www.example.com","/",300);
+```
+
+### Running the crawler
+
+First, you'll need to set up an event listener to get the fetched data:
+
+```javascript
+myCrawler.on("fetchcomplete",function(queueItem, responseBuffer, response) {
+	console.log("I just received %s (%d bytes)",queueItem.url,responseBuffer.length);
+	console.log("It was a resource of type %s",response.headers['content-type']);
+	
+	// Do something with the data in responseBuffer
+});
+```
+
+Then, when you're satisfied you're ready to go, start the crawler! It'll run through its queue finding linked
+resources on the domain to download, until it can't find any more.
+
+```javascript
+myCrawler.start();
+```
+
+Of course, once you've got that down pat, there's a fair bit more you can listen for...
+
+### Events
+
+* `queueadd` ( queueItem )
+Fired when a new item is automatically added to the queue (not when you manually queue an item yourself.)
+* `queueerror` ( errorData , URLData )
+Fired when an item cannot be added to the queue due to error.
+* `fetchstart` ( queueItem )
+Fired when an item is spooled for fetching.
+* `fetchheaders` ( queueItem , responseObject )
+Fired when the headers for a resource are received from the server. The node http response object is returned for your perusal.
+* `fetchcomplete` ( queueItem , responseBuffer , response )
+Fired when the resource is completely downloaded. The entire file data is provided as a buffer, as well as the response object.
+* `fetchdataerror` ( queueItem, response )
+Fired when a resource can't be downloaded, because it exceeds the maximum size we're prepared to receive (16MB by default.)
+* `fetchredirect` ( queueItem, parsedURL, response )
+Fired when a redirect header is encountered. The new URL is validated and returned as a complete canonical link to the new resource.
+* `fetch404` ( queueItem, response )
+Fired when a 404 HTTP status code is returned for a request.
+* `fetcherror` ( queueItem, response )
+Fired when an alternate 400 or 500 series HTTP status code is returned for a request.
+* `fetchclienterror` ( queueItem, errorData )
+Fired when a request dies locally for some reason. The error data is returned as the second parameter.
+* `complete`
+Fired when the crawler completes processing all the items in its queue, and does not find any more to add. This event returns no arguments.
+
+##### A note about HTTP error conditions
+By default, simplecrawler does not download the response body when it encounters an HTTP error status in the response. If you need this information, you can listen to simplecrawler's error events, and through node's native `data` event (`response.on("data",function(chunk) {...})`) you can save the information yourself.
+
+If this is annoying, and you'd really like to retain error pages by default, let me know. I didn't include it because I didn't need it - but if it's important to people I might put it back in. :)
+
+### Configuring the crawler
+
+Here's a complete list of what you can stuff with at this stage:
+
+* `crawler.domain` - The domain to scan. By default, simplecrawler will restrict all requests to this domain.
+* `crawler.initialPath` - The initial path with which the crawler will formulate its first request. Does not restrict subsequent requests.
+* `crawler.initialPort` - The initial port with which the crawler will formulate its first request. Does not restrict subsequent requests.
+* `crawler.initialProtocol` - The initial protocol with which the crawler will formulate its first request. Does not restrict subsequent requests.
+* `crawler.interval` - The interval with which the crawler will spool up new requests (one per tick.) Defaults to 250ms.
+* `crawler.maxConcurrency` - The maximum number of requests the crawler will run simultaneously. Defaults to 5 - the default number of http agents nodejs will run.
+* `crawler.userAgent` - The user agent the crawler will report. Defaults to `Node/SimpleCrawler 0.1 (http://www.github.com/cgiffard/node-simplecrawler)`.
+* `crawler.scanSubdomains` - Enables scanning subdomains (other than www) as well as the specified domain. Defaults to false.
+* `crawler.ignoreWWWDomain` - Treats the `www` domain the same as the originally specified domain. Defaults to true.
+* `crawler.discoverResources` - Use simplecrawler's internal resource discovery function. Defaults to true. (switch it off if you'd prefer to discover and queue resources yourself!)
+* `crawler.maxResourceSize` - The maximum resource size, in bytes, which will be downloaded. Defaults to 16MB.
+* `crawler.downloadUnsupported` - Simplecrawler will download files it can't parse. Defaults to true, but if you'd rather save the RAM and GC lag, switch it off.
+* `crawler.supportedMimeTypes` - An array of RegEx objects used to determine supported MIME types (types of data simplecrawler will scan for links.) If you're  not using simplecrawler's resource discovery function, this won't have any effect.
+* `crawler.allowedProtocols` - An array of RegEx objects used to determine whether a URL protocol is supported. This is to deal with nonstandard protocol handlers that regular HTTP is sometimes given, like `feed:`. It does not provide support for non-http protocols (and why would it!?)
+
+### Licence
+
+You may copy and use this library as you see fit (including commercial use) and modify it, as long as you retain my attribution comment (which includes my name, link to this github page, and library version) at the top of all script files. You may not, under any circumstances, claim you wrote this library, or remove my attribution. (Fair's fair!)
+
+I'd appreciate it if you'd contribute patches back, but you don't have to. If you do, I'll be happy to credit your conrtibutions!

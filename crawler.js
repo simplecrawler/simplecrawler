@@ -1,5 +1,7 @@
-// Simple crawler
+// Simplecrawler
 // Christopher Giffard, 2011
+//
+// http://www.github.com/cgiffard/node-simplecrawler
 
 // Queue Dependency
 var FetchQueue = require("./queue.js").queue;
@@ -245,7 +247,7 @@ var Crawler = function(domain,initialPath,interval) {
 						crawler.emit("queueadd",crawler.queue[crawler.queue.length-1]);
 					}
 				} catch(error) {
-					crawler.emit("error",error);
+					crawler.emit("queueerror",error,URLData);
 				}
 			}
 		});
@@ -476,7 +478,3 @@ Crawler.prototype.stop = function() {
 // EXPORTS
 exports.FetchQueue = FetchQueue;
 exports.Crawler = Crawler;
-
-
-
-

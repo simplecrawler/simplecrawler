@@ -1,5 +1,8 @@
-// Simple queue for crawler
-// Christopher Giffard 2011
+// Simplecrawler - queue module
+// Christopher Giffard, 2011
+//
+// http://www.github.com/cgiffard/node-simplecrawler
+
 
 var fs = require("fs");
 
