@@ -37,6 +37,9 @@ var Crawler = function(domain,initialPath,interval) {
 	// Treat WWW subdomain the same as the main domain (and don't count it as a separate subdomain)
 	this.ignoreWWWDomain	= true;
 	
+	// Use simplecrawler's internal resource discovery function (switch it off if you'd prefer to discover and queue resources yourself!)
+	this.discoverResources	= true;
+	
 	// Supported Protocols
 	this.allowedProtocols = [
 		/^http(s)?\:/ig,					// HTTP & HTTPS
@@ -316,7 +319,8 @@ var Crawler = function(domain,initialPath,interval) {
 					crawler.emit("fetchcomplete",crawler.queue[index],responseBuffer,response);
 					
 					// We only process the item if it's of a valid mimetype
-					if (mimeTypeSupported(contentType)) {
+					// and only if the crawler is set to discover its own resources
+					if (mimeTypeSupported(contentType) && crawler.discoverResources) {
 						queueLinkedItems(responseBuffer,crawler.queue[index]);
 					}
 					
