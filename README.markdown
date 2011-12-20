@@ -19,7 +19,7 @@ You can't install simplecrawler via npm yet. I'll package it up once I'm happy t
 Creating a new crawler is very simple. First you'll need to include it:
 
 ```javascript
-var Crawler = require("node-simplecrawler").Crawler;
+var Crawler = require("simplecrawler").Crawler;
 ```
 
 Then create your crawler:
