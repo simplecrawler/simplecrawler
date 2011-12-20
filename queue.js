@@ -9,7 +9,9 @@ var fs = require("fs");
 var allowedStatistics = [
 	"requestTime",
 	"requestLatency",
-	"downloadTime"
+	"downloadTime",
+	"contentLength",
+	"actualDataSize"
 ];
 
 var FetchQueue = function(){};

@@ -120,6 +120,116 @@ Here's a complete list of what you can stuff with at this stage:
 * `crawler.supportedMimeTypes` - An array of RegEx objects used to determine supported MIME types (types of data simplecrawler will scan for links.) If you're  not using simplecrawler's resource discovery function, this won't have any effect.
 * `crawler.allowedProtocols` - An array of RegEx objects used to determine whether a URL protocol is supported. This is to deal with nonstandard protocol handlers that regular HTTP is sometimes given, like `feed:`. It does not provide support for non-http protocols (and why would it!?)
 
+### The Simplecrawler Queue
+
+Simplecrawler has a queue like any other web crawler. It can be directly accessed at `crawler.queue` (assuming you called your Crawler() object `crawler`.) It provides array access, so you can get to queue items just with array notation and an index.
+
+```javascript
+crawler.queue[5];
+```
+
+It's not just an array though.
+
+#### Adding to the queue
+
+You could always just `.push` a new resource onto the queue, but you'd need to have it all in the correct format, and validate the URL yourself, and oh wouldn't that be a pain. Instead, use the `queue.add` function provided for your convenience:
+
+```javascript
+crawler.queue.add(protocol,domain,port,path);
+```
+
+That's it! It's basically just a URL, but comma separated (that's how you can remember the order.)
+
+#### Queue items
+
+Because when working with simplecrawler, you'll constantly be handed queue items, it helps to know what's inside them. These are the properties every queue item is expected to have:
+
+* `url` - The complete, canonical URL of the resource.
+* `protocol` - The protocol of the resource (http, https)
+* `domain` - The full domain of the resource
+* `port` - The port of the resource
+* `path` - The bit of the URL after the domain - includes the querystring.
+* `fetched` - Has the request for this item been completed? You can monitor this as requests are processed.
+* `status` - The internal status of the item, always a string. This can be one of:
+	* `queued` - The resource is in the queue to be fetched, but nothing's happened to it yet.
+	* `spooled` - A request has been made to the remote server, but we're still waiting for a response.
+	* `headers` - The headers for the resource have been received.
+	* `downloaded` - The item has been entirely downloaded.
+	* `redirected` - The resource request returned a 300 series response, with a Location header and a new URL.
+	* `notfound` - The resource could not be found. (404)
+	* `failed` - An error occurred when attempting to fetch the resource.
+* `stateData` - An object containing state data and other information about the request:
+	* `requestLatency` - The time taken for headers to be received after the request was made.
+	* `requestTime` - The total time taken for the request (including download time.)
+	* `downloadTime` - The total time taken for the resource to be downloaded.
+	* `contentLength` - The length (in bytes) of the returned content. Calculated based on the `content-length` header.
+	* `contentType` - The MIME type of the content.
+	* `code` - The HTTP status code returned for the request.
+	* `headers` - An object containing the header information returned by the server. This is the object node returns as part of the `response` object.
+	* `actualDataSize` - The length (in bytes) of the returned content. Calculated based on what is actually received, not the `content-length` header.
+	* `sentIncorrectSize` - True if the data length returned by the server did not match what we were told to expect by the `content-length` header.
+
+You can address these properties like you would any other object:
+
+```javascript
+crawler.queue[52].url;
+queueItem.stateData.contentLength;
+queueItem.status === "queued";
+```
+
+As you can see, you can get a lot of meta-information out about each request. The upside is, the queue actually has some convenient functions for getting simple aggregate data about the queue...
+
+#### Queue Statistics and Reporting
+
+First of all, the queue can provide some basic statistics about the network performance of your crawl (so far.) This is done live, so don't check it thirty times a second. You can test the following properties:
+
+* `requestTime`
+* `requestLatency`
+* `downloadTime`
+* `contentLength`
+* `actualDataSize`
+
+And you can get the maximum, minimum, and average values for each with the `crawler.queue.max`, `crawler.queue.min`, and `crawler.queue.avg` functions respectively. Like so:
+
+```javascript
+console.log("The maximum request latency was %dms.",crawler.queue.max("requestLatency"));
+console.log("The minimum download time was %dms.",crawler.queue.min("downloadTime"));
+console.log("The average resource size received is %d bytes.",crawler.queue.avg("actualDataSize"));
+```
+
+You'll probably often need to determine how many items in the queue have a given status at any one time, and/or retreive them. That's easy with `crawler.queue.countWithStatus` and `crawler.queue.getWithStatus`.
+
+`crawler.queue.getwithStatus` returns the number of queued items with a given status, while `crawler.queue.getWithStatus` returns an array of the queue items themselves.
+
+```javascript
+var redirectCount = crawler.queue.countWithStatus("redirected");
+
+crawler.queue.getWithStatus("failed").forEach(function(queueItem) {
+	console.log("Whoah, the request for %s failed!",queueItem.url);
+	
+	// do something...
+});
+```
+
+Then there's some even simpler convenience functions:
+
+* `crawler.queue.complete` - returns the number of queue items which have been completed (marked as fetched)
+* `crawler.queue.errors` - returns the number of requests which have failed (404s and other 400/500 errors, as well as client errors)
+
+#### Saving and reloading the queue (freeze/defrost)
+
+You'll probably want to be able to save your progress and reload it later, if your application fails or you need to abort the crawl for some reason. (Perhaps you just want to finish off for the night and pick it up tomorrow!) The `crawler.queue.freeze` and `crawler.queue.defrost` functions perform this task.
+
+**A word of warning though** - they are not CPU friendly or set up to be asynchronous, as they rely on JSON.parse and JSON.stringify. Use them only when you need to save the queue - don't call them every request or your application's performance will be incredibly poor - they block like *crazy*. That said, using them when your crawler commences and stops is perfectly reasonable.
+
+```javascript
+// Freeze queue
+crawler.queue.freeze("mysavedqueue.json");
+
+// Defrost queue
+crawler.queue.defrost("mysavedqueue.json");
+```
+
 ### Licence
 
 You may copy and use this library as you see fit (including commercial use) and modify it, as long as you retain my attribution comment (which includes my name, link to this github page, and library version) at the top of all script files. You may not, under any circumstances, claim you wrote this library, or remove my attribution. (Fair's fair!)
