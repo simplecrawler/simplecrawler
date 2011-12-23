@@ -5,6 +5,7 @@
 
 // Queue Dependency
 var FetchQueue = require("./queue.js").queue;
+var Cache = require("./cache.js").cache;
 var EventEmitter = require('events').EventEmitter;
 var http = require("http"),
 	https = require("https");
@@ -26,12 +27,19 @@ var Crawler = function(domain,initialPath,interval) {
 
 	// Maximum request concurrency. Be sensible. Five ties in with node's default maxSockets value.
 	this.maxConcurrency		= 5;
+	
+	// Maximum time we'll wait for headers
+	this.timeout			= 5 * 60 * 1000;
 
 	// User Agent
 	this.userAgent			= "Node/SimpleCrawler 0.1 (http://www.github.com/cgiffard/node-simplecrawler)";
 
 	// Queue for requests - FetchQueue gives us stats and other sugar (but it's basically just an array)
 	this.queue				= new FetchQueue();
+
+	// Do we filter by domain?
+	// Unless you want to be crawling the entire internet, I would recommend leaving this on!
+	this.filterByDomain		= true;
 
 	// Do we scan subdomains?
 	this.scanSubdomains		= false;
@@ -41,6 +49,9 @@ var Crawler = function(domain,initialPath,interval) {
 	
 	// Use simplecrawler's internal resource discovery function (switch it off if you'd prefer to discover and queue resources yourself!)
 	this.discoverResources	= true;
+	
+	// Internal cachestore
+	this.cache				= null;
 	
 	// Supported Protocols
 	this.allowedProtocols = [
@@ -158,6 +169,9 @@ var Crawler = function(domain,initialPath,interval) {
 		};
 	}
 	
+	// Make this function available externally
+	crawler.processURL = processURL;
+	
 	// Determines whether the protocol is supported, given a URL
 	function protocolSupported(URL) {
 		var supported = false;
@@ -195,7 +209,7 @@ var Crawler = function(domain,initialPath,interval) {
 		var resources = [], resourceText = resourceData.toString("utf8");
 
 		// Rough scan for URLs
-		var roughURLScan = resourceText.match(/(href|src)=['"]?([^"'\s>]+)/ig);
+		var roughURLScan = resourceText.match(/(href\s?=\s?|src\s?=\s?|url\()['"]?([^"'\s>\)]+)/ig);
 
 		// Clean links
 		if (roughURLScan) {
@@ -222,6 +236,21 @@ var Crawler = function(domain,initialPath,interval) {
 
 		return resources;
 	}
+	
+	// Checks to see whether domain is valid for crawling.
+	function domainValid(domain) {
+				// If we're not filtering by domain, just return true.
+		return	!crawler.filterByDomain		||
+				// Or if the domain is just the right one, return true
+				(domain === crawler.domain)	||
+				// Or if we're ignoring WWW subdomains, and both domains, less www. are the same, return true
+				(crawler.ignoreWWWDomain && crawler.domain.replace(/^www\./i,"") === domain.replace(/^www\./i,"")) ||
+				// Or if we're scanning subdomains, and this domain is a subdomain of the crawler's set domain, return true.
+				(crawler.scanSubdomains && domain.indexOf(crawler.domain) === domain.length - crawler.domain.length));
+	}
+	
+	// Make available externally to this scope
+	crawler.isDomainValid = domainValid;
 
 	// Input some text/html and this function will delegate resource discovery, check link validity
 	// and queue up resources for downloading!
@@ -236,12 +265,8 @@ var Crawler = function(domain,initialPath,interval) {
 				return false;
 			}
 
-			// If the domain matches, or is www (configuration allowing), or is a subdomain of the current domain (again, configuration allowing)
-			// then add it to the queue
-			if ((URLData.domain === crawler.domain) ||
-				(crawler.ignoreWWWDomain && "www." + crawler.domain === URLData.domain) ||
-				(crawler.scanSubdomains && URLData.domain.indexOf(crawler.domain) === URLData.domain.length - crawler.domain.length)) {
-				
+			// Check the domain is valid before adding it to the queue
+			if (domainValid(URLData.domain)) {
 				try {
 					if (crawler.queue.add(URLData.protocol,URLData.domain,URLData.port,URLData.path)) {
 						crawler.emit("queueadd",crawler.queue[crawler.queue.length-1]);
@@ -388,7 +413,20 @@ var Crawler = function(domain,initialPath,interval) {
 				
 				response.on("data",receiveData);
 				response.on("end",receiveData);
-
+			
+			// We've got a not-modified response back
+			} else if (response.statusCode === 304) {
+				
+				if (crawler.cache !== null && crawler.cache.getCacheData) {
+					// We've got access to a cache
+					crawler.cache.getCacheData(crawler.queue[index],function(cacheObject) {
+						crawler.emit("notmodified",crawler.queue[index],response,cacheObject);
+					});
+				} else {
+					// Emit notmodified event. We don't have a cache available, so we don't send any data.
+					crawler.emit("notmodified",crawler.queue[index],response);
+				}
+				
 			// If we should queue a redirect
 			} else if (response.statusCode >= 300 && response.statusCode < 400 && response.headers.location) {
 				crawler.queue[index].fetched = true;
@@ -400,8 +438,17 @@ var Crawler = function(domain,initialPath,interval) {
 				// Emit redirect event
 				crawler.emit("fetchredirect",crawler.queue[index],parsedURL,response);
 				
-				// Queue up new URL
-				crawler.queue.add(parsedURL.protocol,parsedURL.domain,parsedURL.port,parsedURL.path);
+				// If we're permitted to talk to the domain...
+				if (domainValid(parsedURL.domain)) {
+					// ...then queue up the new URL!
+					try {
+						if (crawler.queue.add(parsedURL.protocol,parsedURL.domain,parsedURL.port,parsedURL.path)) {
+							crawler.emit("queueadd",crawler.queue[crawler.queue.length-1]);
+						}
+					} catch(error) {
+						crawler.emit("queueerror",error,parsedURL);
+					}
+				}
 				
 				openRequests --;
 			// Ignore this request, but record that we had a 404
@@ -477,4 +524,5 @@ Crawler.prototype.stop = function() {
 
 // EXPORTS
 exports.FetchQueue = FetchQueue;
+exports.Cache = Cache;
 exports.Crawler = Crawler;
