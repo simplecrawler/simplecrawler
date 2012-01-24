@@ -345,6 +345,11 @@ var Crawler = function(domain,initialPath,interval) {
 					
 					crawler.emit("fetchcomplete",crawler.queue[index],responseBuffer,response);
 					
+					// First, save item to cache (if we're using a cache!)
+					if (crawler.cache !== null && crawler.cache.setCacheData instanceof Function) {
+						crawler.cache.setCacheData(crawler.queue[index],responseBuffer);
+					}
+					
 					// We only process the item if it's of a valid mimetype
 					// and only if the crawler is set to discover its own resources
 					if (mimeTypeSupported(contentType) && crawler.discoverResources) {
