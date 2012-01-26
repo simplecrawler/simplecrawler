@@ -1,14 +1,58 @@
 // Simplecrawler - FS cache backend
+// Tries to ensure a local 'cache' of a website is as close as possible to a mirror of the website itself.
+// The idea is that it is then possible to re-serve the website just using the cache.
 
 var fs = require("fs");
+var crypto = require("crypto");
 
 // Constructor for filesystem cache backend
 var backend = function backend(loadParameter) {
 	this.loaded = false;
 	this.index = [];
-	this.location = typeof(loadParameter) === "string" && loadParameter.length > 0 ? loadParameter : process.cwd();
-	this.location = this.location.match(/\/^/) ? this.location : this.location + "/";
+	this.location = typeof(loadParameter) === "string" && loadParameter.length > 0 ? loadParameter : process.cwd() + "/cache/";
+	this.location = this.location.substr(this.location.length-1) === "/" ? this.location : this.location + "/";
 };
+
+// Function for sanitising paths
+// We try to get the most understandable, file-system friendly paths we can.
+// An extension is added if not present or inappropriate - if a better one can be determined.
+// Querystrings are hashed to truncate without (hopefully) collision.
+
+function sanitisePath(path,queueObject) {
+	// Remove first slash (as we set one later.)
+	path = path.replace(/^\//,"");
+	
+	// Trim whitespace. If no path is present - assume index.html.
+	var sanitisedPath = path.length ? path.replace(/\s*$/ig,"") : "index.html";
+	var headers = queueObject.stateData.headers;
+	
+	if (sanitisedPath.match(/\?/)) {
+		var sanitisedPathParts = sanitisedPath.split(/\?/g);
+		var resource	= sanitisedPathParts.shift();
+		var hashedQS	= crypto.createHash("sha1").update(sanitisedPathParts.join("?")).digest("hex");
+		sanitisedPath	= resource + "?" + hashedQS;
+	}
+	
+	// Try to get a file extension for the file - for ease of identification
+	// We run through this if we either:
+	// 	1) haven't got a file extension at all, or:
+	//	2) have an HTML file without an HTML file extension (might be .php, .aspx, .do, or some other server-processed type)
+	
+	if (!sanitisedPath.match(/\.[a-z0-9]{1,6}$/i) || (headers["content-type"].match(/text\/html/i) && !sanitisedPath.match(/\.htm[l]?$/i))) {
+		var subMimeType = "";
+		var mimeParts = [];
+		
+		if (headers["content-type"].match(/text\/html/i)) {
+			sanitisedPath += ".html";
+		
+		} else if ((mimeParts = headers["content-type"].match(/(image|video|audio|application)\/([a-z0-9]+)/i))) {
+			subMimeType = mimeParts[2];
+			sanitisedPath += "." + subMimeType;
+		}
+	}
+	
+	return sanitisedPath;
+}
 
 backend.prototype.fileExists = function(location) {
 	try {
@@ -32,13 +76,16 @@ backend.prototype.isDirectory = function(location) {
 };
 
 backend.prototype.load = function() {
+	var backend = this;
+	
 	if (!this.fileExists(this.location) && this.isDirectory(this.location)) {
 		throw new Error("Unable to verify cache location exists.");
 	}
 
 	try {
 		var fileData;
-		if ((fileData = fs.readFileSync(this.location + "cacheindex.json"))) {
+		if ((fileData = fs.readFileSync(this.location + "cacheindex.json")) && fileData.length) {
+			this.index = JSON.parse(fileData.toString("utf8"));
 			this.loaded = true;
 		}
 	} catch(error) {
@@ -52,35 +99,51 @@ backend.prototype.load = function() {
 	}
 
 	// Flush store to disk when closing.
-	process.on("exit",this.flushToDisk);
+	process.on("exit",function() {
+		backend.flushToDisk.apply(backend);
+	});
 };
 
 backend.prototype.flushToDisk = function() {
-	
+	fs.writeFileSync(this.location + "cacheindex.json",JSON.stringify(this.index));
 };
 
 backend.prototype.setItem = function(queueObject,data,callback) {
 	callback = callback instanceof Function ? callback : function(){};
-
+	
 	var backend = this;
 	var pathStack = [queueObject.protocol, queueObject.domain, queueObject.port];
-	pathStack = pathStack.concat(queueObject.path.split(/\/+/g));
+	pathStack = pathStack.concat(sanitisePath(queueObject.path,queueObject).split(/\/+/g));
+	
+	var cacheItemExists = false;
+	var firstInstanceIndex = NaN;
+	if (this.index.reduce(function(prev,current,index,array) {
+			firstInstanceIndex = !isNaN(firstInstanceIndex) ? firstInstanceIndex : index;
+			return prev || current.url === queueObject.url;
+		},false)) {
+		cacheItemExists = true;
+	}
 	
 	var writeFileData = function(currentPath,data) {
 		fs.writeFile(currentPath,data,function(error) {
 			if (error) throw error;
-			fs.writeFile(currentPath + ".cacheData.json",function(error) {
+			fs.writeFile(currentPath + ".cacheData.json",JSON.stringify(queueObject),function(error) {
 				if (error) throw error;
-
+				
 				var cacheObject = {
 					url: queueObject.url,
-					etag: queueObject.headers.etag,
-					lastModified: queueObject.headers['last-modified'],
+					etag: queueObject.stateData.headers['etag'],
+					lastModified: queueObject.stateData.headers['last-modified'],
 					dataFile: currentPath,
 					metaFile: currentPath + ".cacheData.json"
 				};
-						
-				backend.index.push(cacheObject);
+				
+				if (cacheItemExists) {
+					backend.index[firstInstanceIndex] = cacheObject;
+				} else {
+					backend.index.push(cacheObject);
+				}
+				
 				callback(cacheObject);
 			});
 		});
@@ -94,7 +157,7 @@ backend.prototype.setItem = function(queueObject,data,callback) {
 					// Just overwrite the file...
 					writeFileData(currentPath,data);
 				} else {
-					console.log("WHOAH SHIT ALREADY EXIIIIIIISTS");
+					throw new Error("Cache storage of resource (%s) blocked by file: %s",queueObject.url,currentPath);
 				}
 			}
 		} else {
@@ -109,8 +172,26 @@ backend.prototype.setItem = function(queueObject,data,callback) {
 };
 
 backend.prototype.getItem = function(queueObject,callback) {
+	var cacheItemResult = this.index.filter(function(item) {
+			return item.url === queueObject.url;
+		});
 	
+	if (cacheItemResult.length) {
+		var cacheItem = cacheItemResult.shift();
+		return {
+			"url": cacheItem.url,
+			"etag": cacheItem.etag,
+			"lastModified": cacheItem.lastModified,
+			"getData": function() {
+				
+			},
+			"getMetadata": function() {
+				
+			}
+		};
+	}
+	
+	return false;
 };
-
 
 exports.backend = backend;
