@@ -5,7 +5,7 @@
 
 // Queue Dependency
 var FetchQueue = require("./queue.js").queue;
-var Cache = require("./cache.js").cache;
+var Cache = require("./cache.js").Cache;
 var EventEmitter = require('events').EventEmitter;
 var http = require("http"),
 	https = require("https");
@@ -46,6 +46,9 @@ var Crawler = function(domain,initialPath,interval) {
 
 	// Treat WWW subdomain the same as the main domain (and don't count it as a separate subdomain)
 	this.ignoreWWWDomain	= true;
+	
+	// Or go even further and strip WWW subdomain from domains altogether!
+	this.stripWWWDomain		= false;
 	
 	// Use simplecrawler's internal resource discovery function (switch it off if you'd prefer to discover and queue resources yourself!)
 	this.discoverResources	= true;
@@ -160,7 +163,15 @@ var Crawler = function(domain,initialPath,interval) {
 
 			path = "/" + pathStack.join("/");
 		}
-
+		
+		// Strip the www subdomain out if required
+		if (crawler.stripWWWDomain) {
+			domain = domain.replace(/^www\./ig,"");
+		}
+		
+		// Replace problem entities...
+		path = path.replace(/&amp;/ig,"&");
+		
 		return {
 			"protocol": protocol,
 			"domain": domain,
@@ -240,7 +251,7 @@ var Crawler = function(domain,initialPath,interval) {
 	// Checks to see whether domain is valid for crawling.
 	function domainValid(domain) {
 				// If we're not filtering by domain, just return true.
-		return	!crawler.filterByDomain		||
+		return	(!crawler.filterByDomain	||
 				// Or if the domain is just the right one, return true
 				(domain === crawler.domain)	||
 				// Or if we're ignoring WWW subdomains, and both domains, less www. are the same, return true
