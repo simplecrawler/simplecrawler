@@ -104,8 +104,8 @@ backend.prototype.load = function() {
 	});
 };
 
-backend.prototype.flushToDisk = function() {
-	fs.writeFileSync(this.location + "cacheindex.json",JSON.stringify(this.index));
+backend.prototype.flushToDisk = function(callback) {
+	fs.writeFile(this.location + "cacheindex.json", JSON.stringify(this.index), callback);
 };
 
 backend.prototype.setItem = function(queueObject,data,callback) {
@@ -178,17 +178,35 @@ backend.prototype.getItem = function(queueObject,callback) {
 	
 	if (cacheItemResult.length) {
 		var cacheItem = cacheItemResult.shift();
-		return {
+		
+		callback({
 			"url": cacheItem.url,
 			"etag": cacheItem.etag,
 			"lastModified": cacheItem.lastModified,
-			"getData": function() {
-				
+			"getData": function(callback) {
+				fs.readFile(cacheItem.dataFile,function(error,data) {
+					if (error) {
+						callback(error);
+						return false;
+					}
+					
+					callback(null,data);
+				});
 			},
-			"getMetadata": function() {
-				
+			"getMetadata": function(callback) {
+				fs.readFile(cacheItem.metaFile,function(error,data) {
+					if (error) {
+						callback(error);
+						return false;
+					}
+					
+					callback(null,JSON.parse(data.toString("utf8")));
+				});
 			}
-		};
+		});
+		
+	} else {
+		callback(null);
 	}
 	
 	return false;

@@ -14,7 +14,7 @@ var http = require("http"),
 var Crawler = function(domain,initialPath,interval) {
 	// SETTINGS TO STUFF WITH (not here! Do it when you create a `new Crawler()`)
 	// Domain to crawl
-	this.domain				= domain.replace(/^www\./i,"") || "";
+	this.domain				= domain || "";
 	
 	// Gotta start crawling *somewhere*
 	this.initialPath		= initialPath || "/";
@@ -81,6 +81,7 @@ var Crawler = function(domain,initialPath,interval) {
 	this.commenced = false;
 	var crawler = this;
 	var openRequests = 0;
+	this.fetchConditions = [];
 
 	// Initialise our queue by pushing the initial request data into it...
 	this.queue.add(this.initialProtocol,this.domain,this.initialPort,this.initialPath);
@@ -127,7 +128,13 @@ var Crawler = function(domain,initialPath,interval) {
 		} else {
 			// Relative URL
 			// Split into a stack and walk it up and down to calculate the absolute path
-			pathStack = URLContext.path.split("/");
+			
+			var processedPathContext = URLContext.path;
+			
+			processedPathContext = processedPathContext.split(/\?/).shift();
+			processedPathContext = processedPathContext.split(/\#/).shift();
+			
+			pathStack = processedPathContext.split("/");
 
 			if (!URLContext.path.match(/\/\s*$/)) {
 				pathStack = pathStack.slice(0,pathStack.length-1);
@@ -145,6 +152,8 @@ var Crawler = function(domain,initialPath,interval) {
 							// URL tries to go too deep. Ignore it - it's invalid.
 							invalidPath = true;
 						}
+					} else if (pathChunk.match(/^\./)) {
+						// Ignore this chunk - it just points to the same directory...
 					} else {
 						pathStack.push(pathChunk);
 					}
@@ -155,7 +164,7 @@ var Crawler = function(domain,initialPath,interval) {
 			if (invalidPath) {
 				return false;
 			}
-
+			
 			// Filter blank path chunks
 			pathStack = pathStack.filter(function(item) {
 				return !!item.length;
@@ -218,33 +227,45 @@ var Crawler = function(domain,initialPath,interval) {
 	// (if there are actually any in the resource, otherwise it'll return an empty array)
 	function discoverResources(resourceData,queueItem) {
 		var resources = [], resourceText = resourceData.toString("utf8");
-
-		// Rough scan for URLs
-		var roughURLScan = resourceText.match(/(href\s?=\s?|src\s?=\s?|url\()['"]?([^"'\s>\)]+)/ig);
-
+		
 		// Clean links
-		if (roughURLScan) {
-			roughURLScan.forEach(function(URL) {
-				URL = URL.replace(/^(href|src)=['"]?/i,"").replace(/^\s*/,"");
+		function cleanAndQueue(urlMatch) {
+			if (urlMatch) {
+				urlMatch.forEach(function(URL) {
+					URL = URL.replace(/^(href|src)=['"]?/i,"").replace(/^\s*/,"");
+					URL = URL.replace(/^url\(['"]*/i,"");
+					URL = URL.replace(/^javascript\:[a-z0-9]+\(['"]/i,"");
+					URL = URL.replace(/["'\)]$/i,"");
+					URL = URL.split(/\s+/g).shift();
 				
-				if (URL.match(/^\s*#/)) {
-					// Bookmark URL
-					return false;
-				}
-				
-				URL = URL.split("#").shift();
-
-				if (URL.replace(/\s+/,"").length && protocolSupported(URL)) {
-					if (!resources.reduce(function(prev,current) {
-							return prev || current === URL;
-						},false)) {
-						
-						resources.push(URL);
+					if (URL.match(/^\s*#/)) {
+						// Bookmark URL
+						return false;
 					}
-				}
-			});
-		}
+				
+					URL = URL.split("#").shift();
 
+					if (URL.replace(/\s+/,"").length && protocolSupported(URL)) {
+						if (!resources.reduce(function(prev,current) {
+								return prev || current === URL;
+							},false)) {
+						
+							resources.push(URL);
+						}
+					}
+				});
+			}
+		}
+		
+		// Rough scan for URLs
+		cleanAndQueue(resourceText.match(/(href\s?=\s?|src\s?=\s?|url\()['"]?([^"'\s>\)]+)/ig));
+		cleanAndQueue(resourceText.match(/http(s)?\:\/\/[^?\s><\'\"]+/ig));
+		cleanAndQueue(resourceText.match(/url\([^)]+/ig));
+		
+		// This might be a bit of a gamble... but get hard-coded strings out of javacript: URLs
+		// They're often popup-image or preview windows, which would otherwise be unavailable to us
+		cleanAndQueue(resourceText.match(/^javascript\:[a-z0-9]+\(['"][^'"\s]+/ig));
+		
 		return resources;
 	}
 	
@@ -273,6 +294,17 @@ var Crawler = function(domain,initialPath,interval) {
 
 			// URL Parser decided this URL was junky. Next please!
 			if (!URLData) {
+				return false;
+			}
+			
+			// Pass this URL past fetch conditions to ensure the user thinks it's valid
+			var fetchDenied = false;
+			fetchDenied = crawler.fetchConditions.reduce(function(prev,callback) {
+				return fetchDenied || !callback(URLData);
+			},false);
+					
+			if (fetchDenied) {
+				// Fetch Conditions conspired to block URL
 				return false;
 			}
 
@@ -537,6 +569,28 @@ Crawler.prototype.stop = function() {
 	clearInterval(this.crawlIntervalID);
 	this.running = false;
 };
+
+Crawler.prototype.addFetchCondition = function(callback) {
+	if (callback instanceof Function) {
+		this.fetchConditions.push(callback);
+		return this.fetchConditions.length - 1;
+	} else {
+		throw new Error("Fetch Condition must be a function.");
+	}
+}
+
+Crawler.prototype.removeFetchCondition = function(index) {
+	if (this.fetchConditions[index] && this.fetchConditions[index] instanceof Function) {
+		var tmpArray = this.fetchConditions.slice(0,index);
+			tmpArray = this.fetchConditions.length-1 > index ? tmpArray.concat(this.fetchConditions.slice(0,index+1)) : tmpArray;
+		
+		this.fetchConditions = tmpArray;
+		
+		return true;
+	} else {
+		throw new Error("Unable to find indexed Fetch Condition.");
+	}
+}
 
 // EXPORTS
 exports.FetchQueue = FetchQueue;
