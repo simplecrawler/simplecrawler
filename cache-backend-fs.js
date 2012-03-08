@@ -38,14 +38,14 @@ function sanitisePath(path,queueObject) {
 	// 	1) haven't got a file extension at all, or:
 	//	2) have an HTML file without an HTML file extension (might be .php, .aspx, .do, or some other server-processed type)
 	
-	if (!sanitisedPath.match(/\.[a-z0-9]{1,6}$/i) || (headers["content-type"].match(/text\/html/i) && !sanitisedPath.match(/\.htm[l]?$/i))) {
+	if (!sanitisedPath.match(/\.[a-z0-9]{1,6}$/i) || (headers["content-type"] && headers["content-type"].match(/text\/html/i) && !sanitisedPath.match(/\.htm[l]?$/i))) {
 		var subMimeType = "";
 		var mimeParts = [];
 		
-		if (headers["content-type"].match(/text\/html/i)) {
+		if (headers["content-type"] && headers["content-type"].match(/text\/html/i)) {
 			sanitisedPath += ".html";
 		
-		} else if ((mimeParts = headers["content-type"].match(/(image|video|audio|application)\/([a-z0-9]+)/i))) {
+		} else if (headers["content-type"] && (mimeParts = headers["content-type"].match(/(image|video|audio|application)\/([a-z0-9]+)/i))) {
 			subMimeType = mimeParts[2];
 			sanitisedPath += "." + subMimeType;
 		}
