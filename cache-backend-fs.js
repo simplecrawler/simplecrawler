@@ -43,7 +43,11 @@ function sanitisePath(path,queueObject) {
 		var mimeParts = [];
 		
 		if (headers["content-type"] && headers["content-type"].match(/text\/html/i)) {
-			sanitisedPath += ".html";
+			if (sanitisedPath.match(/\/$/)) {
+				sanitisedPath += "index.html";
+			} else {
+				sanitisedPath += ".html";
+			}
 		
 		} else if (headers["content-type"] && (mimeParts = headers["content-type"].match(/(image|video|audio|application)\/([a-z0-9]+)/i))) {
 			subMimeType = mimeParts[2];

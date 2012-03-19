@@ -56,6 +56,11 @@ var Crawler = function(domain,initialPath,interval) {
 	// Internal cachestore
 	this.cache				= null;
 	
+	// Use an HTTP Proxy?
+	this.useProxy			= false;
+	this.proxyHostname		= "127.0.0.1";
+	this.proxyPort			= 8123;
+	
 	// Supported Protocols
 	this.allowedProtocols = [
 		/^http(s)?\:/ig,					// HTTP & HTTPS
@@ -336,11 +341,23 @@ var Crawler = function(domain,initialPath,interval) {
 		crawler.queue[index].status = "spooled";
 		client = (crawler.queue[index].protocol === "https" ? https : http);
 
+		// Extract request options from queue;
+		var requestHost = crawler.queue[index].domain,
+			requestPort = crawler.queue[index].port,
+			requestPath = crawler.queue[index].path;
+		
+		// Are we passing through an HTTP proxy?
+		if (crawler.useProxy) {
+			requestHost = crawler.proxyHostname;
+			requestPort = crawler.proxyPort;
+			requestPath = crawler.queue[index].url;
+		}
+		
 		// Load in request options
 		requestOptions = {
-			host: crawler.queue[index].domain,
-			port: crawler.queue[index].port,
-			path: crawler.queue[index].path,
+			host: requestHost,
+			port: requestPort,
+			path: requestPath,
 			headers: {
 				"User-Agent": crawler.userAgent
 			}
