@@ -61,6 +61,10 @@ var Crawler = function(domain,initialPath,interval) {
 	this.proxyHostname		= "127.0.0.1";
 	this.proxyPort			= 8123;
 	
+	// Domain Whitelist
+	// We allow domains to be whitelisted, so cross-domain requests can be made.
+	this.domainWhitelist	= [];
+	
 	// Supported Protocols
 	this.allowedProtocols = [
 		/^http(s)?\:/ig,					// HTTP & HTTPS
@@ -186,6 +190,9 @@ var Crawler = function(domain,initialPath,interval) {
 		// Replace problem entities...
 		path = path.replace(/&amp;/ig,"&");
 		
+		// Ensure domain is always lower-case
+		domain = domain.toLowerCase();
+		
 		return {
 			"protocol": protocol,
 			"domain": domain,
@@ -276,14 +283,56 @@ var Crawler = function(domain,initialPath,interval) {
 	
 	// Checks to see whether domain is valid for crawling.
 	function domainValid(domain) {
+		function domainInWhitelist(domain) {
+			// If there's no whitelist, or the whitelist is of zero length, just return false.
+			if (!crawler.domainWhitelist || !crawler.domainWhitelist.length) return false;
+			// Otherwise, scan through it.
+			return !!crawler.domainWhitelist.reduce(function(prev,cur,index,array) {
+				// If we already located the relevant domain in the whitelist...
+				if (prev) return prev;
+				// If the domain is just equal, return true.
+				if (domain === cur) return true;
+				// If we're ignoring WWW subdomains, and both domains, less www. are the same, return true.
+				if (crawler.ignoreWWWDomain && domain.replace(/^www\./i,"") === cur.replace(/^www\./i,"")) return true;
+				// Otherwise, sorry. No dice.
+				return false;
+			},false);
+		}
+		
+		// Checks if the first domain is a subdomain of the second
+		function isSubdomainOf(subdomain,domain) {
+			domainParts = domain.split(/\./g);
+			subdomainParts = subdomain.split(/\./g);
+			
+			// If we're ignoring www, remove it from both (if www is the first domain component...)
+			if (crawler.ignoreWWWDomain) {
+				if (domainParts[0].match(/^www\./i)) domainParts = domainParts.slice(1);
+				if (subdomainParts[0].match(/^www\./i)) domainParts = domainParts.slice(1);
+			}
+			
+			// Can't have a subdomain that's shorter than its parent.
+			if (subdomain.length < domain.length) return false;
+			
+			// Loop through subdomain backwards, from TLD to least significant domain, break on first error.
+			var index = subdomainParts.length - 1;
+			while (index >= 0 && index >= subdomainParts.length - domainParts.length) {
+				if (subdomainParts[index] !== domainParts[index]) return false;
+				index --;
+			}
+			
+			return true;
+		}
+		
 				// If we're not filtering by domain, just return true.
 		return	(!crawler.filterByDomain	||
-				// Or if the domain is just the right one, return true
+				// Or if the domain is just the right one, return true.
 				(domain === crawler.domain)	||
-				// Or if we're ignoring WWW subdomains, and both domains, less www. are the same, return true
+				// Or if we're ignoring WWW subdomains, and both domains, less www. are the same, return true.
 				(crawler.ignoreWWWDomain && crawler.domain.replace(/^www\./i,"") === domain.replace(/^www\./i,"")) ||
+				// Or if the domain in question exists in the domain whitelist, return true.
+				domainInWhitelist(domain) ||
 				// Or if we're scanning subdomains, and this domain is a subdomain of the crawler's set domain, return true.
-				(crawler.scanSubdomains && domain.indexOf(crawler.domain) === domain.length - crawler.domain.length));
+				(crawler.scanSubdomains && isSubdomainOf(domain,crawler.domain)));
 	}
 	
 	// Make available externally to this scope
@@ -317,6 +366,7 @@ var Crawler = function(domain,initialPath,interval) {
 			if (domainValid(URLData.domain)) {
 				try {
 					if (crawler.queue.add(URLData.protocol,URLData.domain,URLData.port,URLData.path)) {
+						crawler.queue[crawler.queue.length-1].referrer = queueItem.url;
 						crawler.emit("queueadd",crawler.queue[crawler.queue.length-1]);
 					}
 				} catch(error) {
