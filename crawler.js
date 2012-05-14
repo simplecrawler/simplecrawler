@@ -11,14 +11,14 @@ var http = require("http"),
 	https = require("https");
 
 // Crawler Constructor
-var Crawler = function(domain,initialPath,interval) {
+var Crawler = function(domain,initialPath,initialPort,interval) {
 	// SETTINGS TO STUFF WITH (not here! Do it when you create a `new Crawler()`)
 	// Domain to crawl
 	this.domain				= domain || "";
 	
 	// Gotta start crawling *somewhere*
 	this.initialPath		= initialPath || "/";
-	this.initialPort		= 80;
+	this.initialPort		= initialPort || 80;
 	this.initialProtocol	= "http";
 
 	// Internal 'tick' interval for spawning new requests (as long as concurrency is under cap)
@@ -366,8 +366,8 @@ var Crawler = function(domain,initialPath,interval) {
 			if (domainValid(URLData.domain)) {
 				try {
 					if (crawler.queue.add(URLData.protocol,URLData.domain,URLData.port,URLData.path)) {
-						crawler.queue[crawler.queue.length-1].referrer = queueItem.url;
-						crawler.emit("queueadd",crawler.queue[crawler.queue.length-1]);
+						crawler.queue.last().referrer = queueItem.url;
+						crawler.emit("queueadd",crawler.queue.last());
 					}
 				} catch(error) {
 					crawler.emit("queueerror",error,URLData);
@@ -380,27 +380,30 @@ var Crawler = function(domain,initialPath,interval) {
 	function fetchQueueItem(index) {
 		openRequests ++;
 		
+		// Get queue item
+		var queueItem = crawler.queue.get(index);
+		
 		// Emit fetchstart event
-		crawler.emit("fetchstart",crawler.queue[index]);
+		crawler.emit("fetchstart",queueItem);
 
 		// Variable declarations
 		var fetchData = false, requestOptions, clientRequest, timeCommenced, timeHeadersReceived, timeDataReceived, parsedURL;
 		var responseBuffer, responseLength, responseLengthReceived, contentType;
-
+		
 		// Mark as spooled
-		crawler.queue[index].status = "spooled";
-		client = (crawler.queue[index].protocol === "https" ? https : http);
+		queueItem.status = "spooled";
+		client = (queueItem.protocol === "https" ? https : http);
 
 		// Extract request options from queue;
-		var requestHost = crawler.queue[index].domain,
-			requestPort = crawler.queue[index].port,
-			requestPath = crawler.queue[index].path;
+		var requestHost = queueItem.domain,
+			requestPort = queueItem.port,
+			requestPath = queueItem.path;
 		
 		// Are we passing through an HTTP proxy?
 		if (crawler.useProxy) {
 			requestHost = crawler.proxyHostname;
 			requestPort = crawler.proxyPort;
-			requestPath = crawler.queue[index].url;
+			requestPath = queueItem.url;
 		}
 		
 		// Load in request options
@@ -425,45 +428,45 @@ var Crawler = function(domain,initialPath,interval) {
 			timeHeadersReceived = (new Date().getTime());
 
 			// Save timing and content some header information into queue
-			crawler.queue[index].stateData.requestLatency = (timeHeadersReceived - timeCommenced);
-			crawler.queue[index].stateData.requestTime = (timeHeadersReceived - timeCommenced);
-			crawler.queue[index].stateData.contentLength = responseLength = parseInt(response.headers["content-length"],10);
-			crawler.queue[index].stateData.contentType = contentType = response.headers["content-type"];
-			crawler.queue[index].stateData.code = response.statusCode;
+			queueItem.stateData.requestLatency = (timeHeadersReceived - timeCommenced);
+			queueItem.stateData.requestTime = (timeHeadersReceived - timeCommenced);
+			queueItem.stateData.contentLength = responseLength = parseInt(response.headers["content-length"],10);
+			queueItem.stateData.contentType = contentType = response.headers["content-type"];
+			queueItem.stateData.code = response.statusCode;
 
 			// Save entire headers, in less scannable way
-			crawler.queue[index].stateData.headers = response.headers;
+			queueItem.stateData.headers = response.headers;
 			
 			// Emit header receive event
-			crawler.emit("fetchheaders",crawler.queue[index],response);
+			crawler.emit("fetchheaders",queueItem,response);
 			
 			// Ensure response length is reasonable...
 			responseLength = responseLength > 0 ? responseLength : crawler.maxResourceSize;
-			crawler.queue[index].stateData.contentLength = responseLength;
+			queueItem.stateData.contentLength = responseLength;
 			
 			// Function for dealing with 200 responses
 			function processReceivedData() {
 				if (!crawler.queue[index].fetched) {
 					timeDataReceived = (new Date().getTime());
 
-					crawler.queue[index].fetched = true;
-					crawler.queue[index].status = "downloaded";
-					crawler.queue[index].stateData.downloadTime = (timeDataReceived - timeHeadersReceived);
-					crawler.queue[index].stateData.requestTime = (timeDataReceived - timeCommenced);
-					crawler.queue[index].stateData.actualDataSize = responseBuffer.length;
-					crawler.queue[index].stateData.sentIncorrectSize = responseBuffer.length !== responseLength;
+					queueItem.fetched = true;
+					queueItem.status = "downloaded";
+					queueItem.stateData.downloadTime = (timeDataReceived - timeHeadersReceived);
+					queueItem.stateData.requestTime = (timeDataReceived - timeCommenced);
+					queueItem.stateData.actualDataSize = responseBuffer.length;
+					queueItem.stateData.sentIncorrectSize = responseBuffer.length !== responseLength;
 					
-					crawler.emit("fetchcomplete",crawler.queue[index],responseBuffer,response);
+					crawler.emit("fetchcomplete",queueItem,responseBuffer,response);
 					
 					// First, save item to cache (if we're using a cache!)
 					if (crawler.cache !== null && crawler.cache.setCacheData instanceof Function) {
-						crawler.cache.setCacheData(crawler.queue[index],responseBuffer);
+						crawler.cache.setCacheData(queueItem,responseBuffer);
 					}
 					
 					// We only process the item if it's of a valid mimetype
 					// and only if the crawler is set to discover its own resources
 					if (mimeTypeSupported(contentType) && crawler.discoverResources) {
-						queueLinkedItems(responseBuffer,crawler.queue[index]);
+						queueLinkedItems(responseBuffer,queueItem);
 					}
 					
 					openRequests --;
@@ -498,7 +501,7 @@ var Crawler = function(domain,initialPath,interval) {
 							//
 							// We'll then deal with the data that we have.
 							
-							crawler.emit("fetchdataerror",crawler.queue[index],response);
+							crawler.emit("fetchdataerror",queueItem,response);
 						}
 					} else {
 						// Copy the chunk data into our main buffer
@@ -521,7 +524,7 @@ var Crawler = function(domain,initialPath,interval) {
 
 			// If we should just go ahead and get the data
 			if (response.statusCode >= 200 && response.statusCode < 300 && responseLength <= crawler.maxResourceSize) {
-				crawler.queue[index].status = "headers";
+				queueItem.status = "headers";
 				
 				// Create a buffer with our response length
 				responseBuffer = new Buffer(responseLength);
@@ -534,31 +537,31 @@ var Crawler = function(domain,initialPath,interval) {
 				
 				if (crawler.cache !== null && crawler.cache.getCacheData) {
 					// We've got access to a cache
-					crawler.cache.getCacheData(crawler.queue[index],function(cacheObject) {
-						crawler.emit("notmodified",crawler.queue[index],response,cacheObject);
+					crawler.cache.getCacheData(queueItem,function(cacheObject) {
+						crawler.emit("notmodified",queueItem,response,cacheObject);
 					});
 				} else {
 					// Emit notmodified event. We don't have a cache available, so we don't send any data.
-					crawler.emit("notmodified",crawler.queue[index],response);
+					crawler.emit("notmodified",queueItem,response);
 				}
 				
 			// If we should queue a redirect
 			} else if (response.statusCode >= 300 && response.statusCode < 400 && response.headers.location) {
-				crawler.queue[index].fetched = true;
-				crawler.queue[index].status = "redirected";
+				queueItem.fetched = true;
+				queueItem.status = "redirected";
 				
 				// Parse the redirect URL ready for adding to the queue...
-				parsedURL = processURL(response.headers.location,crawler.queue[index]);
+				parsedURL = processURL(response.headers.location,queueItem);
 				
 				// Emit redirect event
-				crawler.emit("fetchredirect",crawler.queue[index],parsedURL,response);
+				crawler.emit("fetchredirect",queueItem,parsedURL,response);
 				
 				// If we're permitted to talk to the domain...
 				if (domainValid(parsedURL.domain)) {
 					// ...then queue up the new URL!
 					try {
 						if (crawler.queue.add(parsedURL.protocol,parsedURL.domain,parsedURL.port,parsedURL.path)) {
-							crawler.emit("queueadd",crawler.queue[crawler.queue.length-1]);
+							crawler.emit("queueadd",crawler.queue.last());
 						}
 					} catch(error) {
 						crawler.emit("queueerror",error,parsedURL);
@@ -568,20 +571,20 @@ var Crawler = function(domain,initialPath,interval) {
 				openRequests --;
 			// Ignore this request, but record that we had a 404
 			} else if (response.statusCode === 404) {
-				crawler.queue[index].fetched = true;
-				crawler.queue[index].status = "notfound";
+				queueItem.fetched = true;
+				queueItem.status = "notfound";
 				
 				// Emit 404 event
-				crawler.emit("fetch404",crawler.queue[index],response);
+				crawler.emit("fetch404",queueItem,response);
 				
 				openRequests --;
 			// And oh dear. Handle this one as well. (other 400s, 500s, etc)
 			} else {
-				crawler.queue[index].fetched = true;
-				crawler.queue[index].status = "failed";
+				queueItem.fetched = true;
+				queueItem.status = "failed";
 				
 				// Emit 5xx / 4xx event
-				crawler.emit("fetcherror",crawler.queue[index],response);
+				crawler.emit("fetcherror",queueItem,response);
 				
 				openRequests --;
 			}
@@ -593,30 +596,18 @@ var Crawler = function(domain,initialPath,interval) {
 			// Emit 5xx / 4xx event
 			crawler.emit("fetchclienterror",crawler.queue[index],errorData);
 
-			crawler.queue[index].fetched = true;
-			crawler.queue[index].stateData.code = 599;
-			crawler.queue[index].status = "failed";
+			queueItem.fetched = true;
+			queueItem.stateData.code = 599;
+			queueItem.status = "failed";
 		});
 	}
-
-	// Get first unfetched item in the queue (and return its index)
-	function getNextQueueItem() {
-		return crawler.queue.reduce(function(prev,current,index) {
-			return (!isNaN(prev) ? prev : null) || (current.status === "queued" ? index : null);
-		},null);
-	}
-
+	
 	// Crawl init
 	this.crawl = function() {
-		var pendingCount = crawler.queue.countWithStatus("queued");
-		var currentFetchIndex;
+		var currentFetchIndex = crawler.queue.oldestUnfetchedItem();
 
-		if (pendingCount && openRequests < crawler.maxConcurrency) {
-			currentFetchIndex = getNextQueueItem();
-			
-			if (currentFetchIndex !== null) {
-				fetchQueueItem(currentFetchIndex);
-			}
+		if (currentFetchIndex >= 0 && !isNaN(currentFetchIndex) && openRequests < crawler.maxConcurrency) {
+			fetchQueueItem(currentFetchIndex);
 		} else if (openRequests === 0) {
 			crawler.emit("complete");
 			crawler.stop();

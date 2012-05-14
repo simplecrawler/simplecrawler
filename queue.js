@@ -14,7 +14,9 @@ var allowedStatistics = [
 	"actualDataSize"
 ];
 
-var FetchQueue = function(){};
+var FetchQueue = function(){
+	this.oldestUnfetchedIndex = 0;
+};
 FetchQueue.prototype = [];
 FetchQueue.prototype.add = function(protocol,domain,port,path) {
 	// Ensure all variables conform to reasonable defaults
@@ -46,6 +48,30 @@ FetchQueue.prototype.add = function(protocol,domain,port,path) {
 		return false;
 	}
 };
+
+// Get item from queue
+FetchQueue.prototype.get = function(id) {
+	if (!isNaN(id) && this.length > id) {
+		return this[id];
+	}
+}
+
+// Get first unfetched item in the queue (and return its index)
+FetchQueue.prototype.oldestUnfetchedItem = function() {
+	for (var itemIndex = this.oldestUnfetchedIndex; itemIndex < this.length; itemIndex ++) {
+		if (this[itemIndex].status === "queued") {
+			this.oldestUnfetchedIndex = itemIndex;
+			return itemIndex;
+		}
+	}
+	
+	return -1;
+}
+
+
+FetchQueue.prototype.last = function() {
+	return this[this.length-1];
+}
 
 // Gets the maximum total request time, request latency, or download time
 FetchQueue.prototype.max = function(statisticName) {
