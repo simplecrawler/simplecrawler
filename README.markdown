@@ -34,6 +34,10 @@ Nonstandard port? HTTPS? Want to start archiving a specific path? No problem:
 myCrawler.initialPath = "/archive";
 myCrawler.initialPort = 8080;
 myCrawler.initialProtocol = "https";
+
+// Or:
+var myCrawler = new Crawler("www.example.com","/archive",8080);
+
 ```
 
 And of course, you're probably wanting to ensure you don't take down your webserver. Decrease the concurrency from five simultaneous requests - and increase the request interval from the default 250ms like this:
@@ -46,7 +50,7 @@ myCrawler.maxConcurrency = 1;
 For brevity, you may also specify the initial path and request interval when creating the crawler:
 
 ```javascript
-var myCrawler = new Crawler("www.example.com","/",300);
+var myCrawler = new Crawler("www.example.com","/",8080,300);
 ```
 
 ### Running the crawler
@@ -111,14 +115,23 @@ Here's a complete list of what you can stuff with at this stage:
 * `crawler.initialProtocol` - The initial protocol with which the crawler will formulate its first request. Does not restrict subsequent requests.
 * `crawler.interval` - The interval with which the crawler will spool up new requests (one per tick.) Defaults to 250ms.
 * `crawler.maxConcurrency` - The maximum number of requests the crawler will run simultaneously. Defaults to 5 - the default number of http agents nodejs will run.
+* `crawler.timeout` - The maximum time the crawler will wait for headers before aborting the request.
 * `crawler.userAgent` - The user agent the crawler will report. Defaults to `Node/SimpleCrawler 0.1 (http://www.github.com/cgiffard/node-simplecrawler)`.
+* `crawler.queue` - The queue in use by the crawler (Must implement the `FetchQueue` interface)
+* `crawler.filterByDomain` - Specifies whether the crawler will restrict queued requests to a given domain/domains.
 * `crawler.scanSubdomains` - Enables scanning subdomains (other than www) as well as the specified domain. Defaults to false.
 * `crawler.ignoreWWWDomain` - Treats the `www` domain the same as the originally specified domain. Defaults to true.
+* `crawler.stripWWWDomain` - Or go even further and strip WWW subdomain from requests altogether!
 * `crawler.discoverResources` - Use simplecrawler's internal resource discovery function. Defaults to true. (switch it off if you'd prefer to discover and queue resources yourself!)
-* `crawler.maxResourceSize` - The maximum resource size, in bytes, which will be downloaded. Defaults to 16MB.
-* `crawler.downloadUnsupported` - Simplecrawler will download files it can't parse. Defaults to true, but if you'd rather save the RAM and GC lag, switch it off.
+* `crawler.cache` - Specify a cache architecture to use when crawling. Must implement `SimpleCache` interface.
+* `crawler.useProxy` - The crawler should use an HTTP proxy to make its requests.
+* `crawler.proxyHostname` - The hostname of the proxy to use for requests.
+* `crawler.proxyPort` - The port of the proxy to use for requests.
+* `crawler.domainWhitelist` - An array of domains the crawler is permitted to crawl from. If other settings are more permissive, they will override this setting.
 * `crawler.supportedMimeTypes` - An array of RegEx objects used to determine supported MIME types (types of data simplecrawler will scan for links.) If you're  not using simplecrawler's resource discovery function, this won't have any effect.
 * `crawler.allowedProtocols` - An array of RegEx objects used to determine whether a URL protocol is supported. This is to deal with nonstandard protocol handlers that regular HTTP is sometimes given, like `feed:`. It does not provide support for non-http protocols (and why would it!?)
+* `crawler.maxResourceSize` - The maximum resource size, in bytes, which will be downloaded. Defaults to 16MB.
+* `crawler.downloadUnsupported` - Simplecrawler will download files it can't parse. Defaults to true, but if you'd rather save the RAM and GC lag, switch it off.
 
 ### The Simplecrawler Queue
 
@@ -126,6 +139,12 @@ Simplecrawler has a queue like any other web crawler. It can be directly accesse
 
 ```javascript
 crawler.queue[5];
+```
+
+For compatibility with different backing stores, it now provides an alternate interface which the crawler core makes use of:
+
+```javascript
+crawler.queue.get(5);
 ```
 
 It's not just an array though.
