@@ -8,7 +8,7 @@
 		"url":		"http://github.com/cgiffard/node-simplecrawler.git"
     },
 	"bugs": {
-		"web":		"https://github.com/cgiffard/node-simplecrawler/issues"
+		"url":		"https://github.com/cgiffard/node-simplecrawler/issues"
 	},
     "main":			"./crawler.js",
 	"files": [
