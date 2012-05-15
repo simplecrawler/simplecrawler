@@ -11,8 +11,11 @@ Simplecrawler is designed to provide the most basic possible API for crawling we
 * Provides basic statistics on network performance
 * Uses buffers for fetching and managing data, preserving binary data (except when discovering links)
 
-####Note
-You can't install simplecrawler via npm yet. I'll package it up once I'm happy the documentation is solid.
+### Installation
+
+```
+npm install simplecrawler
+```
 
 ### Getting Started
 
