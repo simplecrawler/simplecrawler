@@ -10,11 +10,6 @@
 	"bugs": {
 		"url":		"https://github.com/cgiffard/node-simplecrawler/issues"
 	},
-    "main":			"./crawler.js",
-	"files": [
-		"./queue.js",
-		"./cache.js",
-		"./cache-backend-fs.js"
-	],
+    "main":			"./index.js",
 	"engines":		{ "node" : ">=0.4.0" }
 }
