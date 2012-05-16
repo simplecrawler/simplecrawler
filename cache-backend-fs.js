@@ -22,16 +22,29 @@ function sanitisePath(path,queueObject) {
 	// Remove first slash (as we set one later.)
 	path = path.replace(/^\//,"");
 	
+	var pathStack = [];
+	
 	// Trim whitespace. If no path is present - assume index.html.
 	var sanitisedPath = path.length ? path.replace(/\s*$/ig,"") : "index.html";
 	var headers = queueObject.stateData.headers;
 	
 	if (sanitisedPath.match(/\?/)) {
-		var sanitisedPathParts = sanitisedPath.split(/\?/g);
+		sanitisedPathParts = sanitisedPath.split(/\?/g);
 		var resource	= sanitisedPathParts.shift();
 		var hashedQS	= crypto.createHash("sha1").update(sanitisedPathParts.join("?")).digest("hex");
 		sanitisedPath	= resource + "?" + hashedQS;
 	}
+	
+	pathStack = sanitisedPath.split(/\//g);
+	pathStack = pathStack.map(function(pathChunk,count) {
+		if (pathChunk.length >= 250) {
+			return crypto.createHash("sha1").update(pathChunk).digest("hex");
+		}
+		
+		return pathChunk;
+	});
+	
+	sanitisedPath = pathStack.join("/");
 	
 	// Try to get a file extension for the file - for ease of identification
 	// We run through this if we either:
