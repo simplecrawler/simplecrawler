@@ -259,4 +259,8 @@ crawler.queue.defrost("mysavedqueue.json");
 
 You may copy and use this library as you see fit (including commercial use) and modify it, as long as you retain my attribution comment (which includes my name, link to this github page, and library version) at the top of all script files. You may not, under any circumstances, claim you wrote this library, or remove my attribution. (Fair's fair!)
 
-I'd appreciate it if you'd contribute patches back, but you don't have to. If you do, I'll be happy to credit your conrtibutions!
+I'd appreciate it if you'd contribute patches back, but you don't have to. If you do, I'll be happy to credit your contributions!
+
+### Contributors
+
+Thanks to [Nick Crohn](https://github.com/ncrohn) for the HTTP Basic auth support.
