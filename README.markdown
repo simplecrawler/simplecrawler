@@ -135,6 +135,9 @@ Here's a complete list of what you can stuff with at this stage:
 * `crawler.allowedProtocols` - An array of RegEx objects used to determine whether a URL protocol is supported. This is to deal with nonstandard protocol handlers that regular HTTP is sometimes given, like `feed:`. It does not provide support for non-http protocols (and why would it!?)
 * `crawler.maxResourceSize` - The maximum resource size, in bytes, which will be downloaded. Defaults to 16MB.
 * `crawler.downloadUnsupported` - Simplecrawler will download files it can't parse. Defaults to true, but if you'd rather save the RAM and GC lag, switch it off.
+* `crawler.needsAuth` - Flag to specify if the domain you are hitting requires basic authentication
+* `crawler.authUser` - Username provdied for needsAuth flag
+* `crawler.authPass` - Passowrd provided for needsAuth flag
 
 ### The Simplecrawler Queue
 

@@ -15,7 +15,7 @@ var Crawler = function(domain,initialPath,initialPort,interval) {
 	// SETTINGS TO STUFF WITH (not here! Do it when you create a `new Crawler()`)
 	// Domain to crawl
 	this.domain				= domain || "";
-	
+
 	// Gotta start crawling *somewhere*
 	this.initialPath		= initialPath || "/";
 	this.initialPort		= initialPort || 80;
@@ -27,7 +27,7 @@ var Crawler = function(domain,initialPath,initialPort,interval) {
 
 	// Maximum request concurrency. Be sensible. Five ties in with node's default maxSockets value.
 	this.maxConcurrency		= 5;
-	
+
 	// Maximum time we'll wait for headers
 	this.timeout			= 5 * 60 * 1000;
 
@@ -36,6 +36,12 @@ var Crawler = function(domain,initialPath,initialPort,interval) {
 
 	// Queue for requests - FetchQueue gives us stats and other sugar (but it's basically just an array)
 	this.queue				= new FetchQueue();
+
+  // Basic auth
+  this.needsAuth = false;
+
+  this.authUser = '';
+  this.authPass = '';
 
 	// Do we filter by domain?
 	// Unless you want to be crawling the entire internet, I would recommend leaving this on!
@@ -46,25 +52,25 @@ var Crawler = function(domain,initialPath,initialPort,interval) {
 
 	// Treat WWW subdomain the same as the main domain (and don't count it as a separate subdomain)
 	this.ignoreWWWDomain	= true;
-	
+
 	// Or go even further and strip WWW subdomain from domains altogether!
 	this.stripWWWDomain		= false;
-	
+
 	// Use simplecrawler's internal resource discovery function (switch it off if you'd prefer to discover and queue resources yourself!)
 	this.discoverResources	= true;
-	
+
 	// Internal cachestore
 	this.cache				= null;
-	
+
 	// Use an HTTP Proxy?
 	this.useProxy			= false;
 	this.proxyHostname		= "127.0.0.1";
 	this.proxyPort			= 8123;
-	
+
 	// Domain Whitelist
 	// We allow domains to be whitelisted, so cross-domain requests can be made.
 	this.domainWhitelist	= [];
-	
+
 	// Supported Protocols
 	this.allowedProtocols = [
 		/^http(s)?\:/ig,					// HTTP & HTTPS
@@ -73,7 +79,7 @@ var Crawler = function(domain,initialPath,initialPort,interval) {
 
 	// Max file size to download/store
 	this.maxResourceSize	= 1024 * 1024 * 16; // 16mb
-	
+
 	// Supported MIME-types
 	// Matching MIME-types will be scanned for links
 	this.supportedMimeTypes = [
@@ -82,7 +88,7 @@ var Crawler = function(domain,initialPath,initialPort,interval) {
 		/^application\/javascript/i,
 		/^xml/i
 	];
-	
+
 	// Download linked, but unsupported files (binary - images, documents, etc)
 	this.downloadUnsupported = true;
 
@@ -128,7 +134,7 @@ var Crawler = function(domain,initialPath,initialPort,interval) {
 			}
 
 			path = "/" + split.slice(1).join("/");
-		
+
 
 		} else if (URL.match(/^\//)) {
 			// Absolute URL. Easy to handle!
@@ -137,12 +143,12 @@ var Crawler = function(domain,initialPath,initialPort,interval) {
 		} else {
 			// Relative URL
 			// Split into a stack and walk it up and down to calculate the absolute path
-			
+
 			var processedPathContext = URLContext.path;
-			
+
 			processedPathContext = processedPathContext.split(/\?/).shift();
 			processedPathContext = processedPathContext.split(/\#/).shift();
-			
+
 			pathStack = processedPathContext.split("/");
 
 			if (!URLContext.path.match(/\/\s*$/)) {
@@ -173,7 +179,7 @@ var Crawler = function(domain,initialPath,initialPort,interval) {
 			if (invalidPath) {
 				return false;
 			}
-			
+
 			// Filter blank path chunks
 			pathStack = pathStack.filter(function(item) {
 				return !!item.length;
@@ -181,18 +187,18 @@ var Crawler = function(domain,initialPath,initialPort,interval) {
 
 			path = "/" + pathStack.join("/");
 		}
-		
+
 		// Strip the www subdomain out if required
 		if (crawler.stripWWWDomain) {
 			domain = domain.replace(/^www\./ig,"");
 		}
-		
+
 		// Replace problem entities...
 		path = path.replace(/&amp;/ig,"&");
-		
+
 		// Ensure domain is always lower-case
 		domain = domain.toLowerCase();
-		
+
 		return {
 			"protocol": protocol,
 			"domain": domain,
@@ -200,46 +206,46 @@ var Crawler = function(domain,initialPath,initialPort,interval) {
 			"path": path
 		};
 	}
-	
+
 	// Make this function available externally
 	crawler.processURL = processURL;
-	
+
 	// Determines whether the protocol is supported, given a URL
 	function protocolSupported(URL) {
 		var supported = false;
-		
+
 		if (URL.match(/^[a-z0-9]+\:/i)) {
 			crawler.allowedProtocols.forEach(function(protocolCheck) {
 				if (!!protocolCheck.exec(URL)) {
 					supported = true;
 				}
 			});
-			
+
 			return supported;
 		} else {
 			return true;
 		}
 	}
-	
+
 	// Determines whether the mimetype is supported, given a... mimetype
 	function mimeTypeSupported(MIMEType) {
 		var supported = false;
-		
+
 		crawler.supportedMimeTypes.forEach(function(mimeCheck) {
 			if (!!mimeCheck.exec(MIMEType)) {
 				supported = true;
 			}
 		});
-		
+
 		return supported;
-	
+
 	}
-	
+
 	// Input some text/html and this function will return a bunch of URLs for queueing
 	// (if there are actually any in the resource, otherwise it'll return an empty array)
 	function discoverResources(resourceData,queueItem) {
 		var resources = [], resourceText = resourceData.toString("utf8");
-		
+
 		// Clean links
 		function cleanAndQueue(urlMatch) {
 			if (urlMatch) {
@@ -249,38 +255,38 @@ var Crawler = function(domain,initialPath,initialPort,interval) {
 					URL = URL.replace(/^javascript\:[a-z0-9]+\(['"]/i,"");
 					URL = URL.replace(/["'\)]$/i,"");
 					URL = URL.split(/\s+/g).shift();
-				
+
 					if (URL.match(/^\s*#/)) {
 						// Bookmark URL
 						return false;
 					}
-				
+
 					URL = URL.split("#").shift();
 
 					if (URL.replace(/\s+/,"").length && protocolSupported(URL)) {
 						if (!resources.reduce(function(prev,current) {
 								return prev || current === URL;
 							},false)) {
-						
+
 							resources.push(URL);
 						}
 					}
 				});
 			}
 		}
-		
+
 		// Rough scan for URLs
 		cleanAndQueue(resourceText.match(/(href\s?=\s?|src\s?=\s?|url\()['"]?([^"'\s>\)]+)/ig));
 		cleanAndQueue(resourceText.match(/http(s)?\:\/\/[^?\s><\'\"]+/ig));
 		cleanAndQueue(resourceText.match(/url\([^)]+/ig));
-		
+
 		// This might be a bit of a gamble... but get hard-coded strings out of javacript: URLs
 		// They're often popup-image or preview windows, which would otherwise be unavailable to us
 		cleanAndQueue(resourceText.match(/^javascript\:[a-z0-9]+\(['"][^'"\s]+/ig));
-		
+
 		return resources;
 	}
-	
+
 	// Checks to see whether domain is valid for crawling.
 	function domainValid(domain) {
 		function domainInWhitelist(domain) {
@@ -298,31 +304,31 @@ var Crawler = function(domain,initialPath,initialPort,interval) {
 				return false;
 			},false);
 		}
-		
+
 		// Checks if the first domain is a subdomain of the second
 		function isSubdomainOf(subdomain,domain) {
 			domainParts = domain.split(/\./g);
 			subdomainParts = subdomain.split(/\./g);
-			
+
 			// If we're ignoring www, remove it from both (if www is the first domain component...)
 			if (crawler.ignoreWWWDomain) {
 				if (domainParts[0].match(/^www\./i)) domainParts = domainParts.slice(1);
 				if (subdomainParts[0].match(/^www\./i)) domainParts = domainParts.slice(1);
 			}
-			
+
 			// Can't have a subdomain that's shorter than its parent.
 			if (subdomain.length < domain.length) return false;
-			
+
 			// Loop through subdomain backwards, from TLD to least significant domain, break on first error.
 			var index = subdomainParts.length - 1;
 			while (index >= 0 && index >= subdomainParts.length - domainParts.length) {
 				if (subdomainParts[index] !== domainParts[index]) return false;
 				index --;
 			}
-			
+
 			return true;
 		}
-		
+
 				// If we're not filtering by domain, just return true.
 		return	(!crawler.filterByDomain	||
 				// Or if the domain is just the right one, return true.
@@ -334,7 +340,7 @@ var Crawler = function(domain,initialPath,initialPort,interval) {
 				// Or if we're scanning subdomains, and this domain is a subdomain of the crawler's set domain, return true.
 				(crawler.scanSubdomains && isSubdomainOf(domain,crawler.domain)));
 	}
-	
+
 	// Make available externally to this scope
 	crawler.isDomainValid = domainValid;
 
@@ -350,13 +356,13 @@ var Crawler = function(domain,initialPath,initialPort,interval) {
 			if (!URLData) {
 				return false;
 			}
-			
+
 			// Pass this URL past fetch conditions to ensure the user thinks it's valid
 			var fetchDenied = false;
 			fetchDenied = crawler.fetchConditions.reduce(function(prev,callback) {
 				return fetchDenied || !callback(URLData);
 			},false);
-					
+
 			if (fetchDenied) {
 				// Fetch Conditions conspired to block URL
 				return false;
@@ -379,17 +385,17 @@ var Crawler = function(domain,initialPath,initialPort,interval) {
 	// Fetch a queue item
 	function fetchQueueItem(index) {
 		openRequests ++;
-		
+
 		// Get queue item
 		var queueItem = crawler.queue.get(index);
-		
+
 		// Emit fetchstart event
 		crawler.emit("fetchstart",queueItem);
 
 		// Variable declarations
 		var fetchData = false, requestOptions, clientRequest, timeCommenced, timeHeadersReceived, timeDataReceived, parsedURL;
 		var responseBuffer, responseLength, responseLengthReceived, contentType;
-		
+
 		// Mark as spooled
 		queueItem.status = "spooled";
 		client = (queueItem.protocol === "https" ? https : http);
@@ -398,14 +404,14 @@ var Crawler = function(domain,initialPath,initialPort,interval) {
 		var requestHost = queueItem.domain,
 			requestPort = queueItem.port,
 			requestPath = queueItem.path;
-		
+
 		// Are we passing through an HTTP proxy?
 		if (crawler.useProxy) {
 			requestHost = crawler.proxyHostname;
 			requestPort = crawler.proxyPort;
 			requestPath = queueItem.url;
 		}
-		
+
 		// Load in request options
 		requestOptions = {
 			host: requestHost,
@@ -416,6 +422,11 @@ var Crawler = function(domain,initialPath,initialPort,interval) {
 			}
 		};
 
+    if(crawler.needsAuth) {
+      var auth = 'Basic ' + new Buffer(crawler.authUser + ":" + crawler.authPass).toString('base64');
+      requestOptions.headers['Authorization'] = auth;
+    }
+
 		// Record what time we started this request
 		timeCommenced = (new Date().getTime());
 
@@ -423,7 +434,7 @@ var Crawler = function(domain,initialPath,initialPort,interval) {
 		clientRequest = client.get(requestOptions,function(response) {
 			var dataReceived = false;
 			responseLengthReceived = 0;
-			
+
 			// Record what time we first received the header information
 			timeHeadersReceived = (new Date().getTime());
 
@@ -436,14 +447,14 @@ var Crawler = function(domain,initialPath,initialPort,interval) {
 
 			// Save entire headers, in less scannable way
 			queueItem.stateData.headers = response.headers;
-			
+
 			// Emit header receive event
 			crawler.emit("fetchheaders",queueItem,response);
-			
+
 			// Ensure response length is reasonable...
 			responseLength = responseLength > 0 ? responseLength : crawler.maxResourceSize;
 			queueItem.stateData.contentLength = responseLength;
-			
+
 			// Function for dealing with 200 responses
 			function processReceivedData() {
 				if (!crawler.queue[index].fetched) {
@@ -455,24 +466,24 @@ var Crawler = function(domain,initialPath,initialPort,interval) {
 					queueItem.stateData.requestTime = (timeDataReceived - timeCommenced);
 					queueItem.stateData.actualDataSize = responseBuffer.length;
 					queueItem.stateData.sentIncorrectSize = responseBuffer.length !== responseLength;
-					
+
 					crawler.emit("fetchcomplete",queueItem,responseBuffer,response);
-					
+
 					// First, save item to cache (if we're using a cache!)
 					if (crawler.cache !== null && crawler.cache.setCacheData instanceof Function) {
 						crawler.cache.setCacheData(queueItem,responseBuffer);
 					}
-					
+
 					// We only process the item if it's of a valid mimetype
 					// and only if the crawler is set to discover its own resources
 					if (mimeTypeSupported(contentType) && crawler.discoverResources) {
 						queueLinkedItems(responseBuffer,queueItem);
 					}
-					
+
 					openRequests --;
 				}
 			}
-			
+
 			function receiveData(chunk) {
 				if (chunk && chunk.length && !dataReceived) {
 					if (responseLengthReceived + chunk.length > responseBuffer.length) {
@@ -480,43 +491,43 @@ var Crawler = function(domain,initialPath,initialPort,interval) {
 						// This could be a mis-calculation, or a streaming resource.
 						// Let's increase the size of our buffer to match, as long as it isn't
 						// larger than our maximum resource size.
-						
+
 						if (responseLengthReceived + chunk.length <= crawler.maxResourceSize) {
 							// Start by creating a new buffer, which will be our main buffer going forward...
 							var tmpNewBuffer = new Buffer(responseLengthReceived + chunk.length);
-						
+
 							// Copy all our old data into it...
 							responseBuffer.copy(tmpNewBuffer,0,0,responseBuffer.length);
-						
+
 							// And now the new chunk
 							chunk.copy(tmpNewBuffer,responseBuffer.length,0,chunk.length);
-						
+
 							// And now make the response buffer our new buffer, leaving the original for GC
 							responseBuffer = tmpNewBuffer;
-							
+
 						} else {
 							// Oh dear oh dear! The response is not only more data than we were initially told,
 							// but it also exceeds the maximum amount of data we're prepared to download per resource.
 							// Throw error event and ignore.
 							//
 							// We'll then deal with the data that we have.
-							
+
 							crawler.emit("fetchdataerror",queueItem,response);
 						}
 					} else {
 						// Copy the chunk data into our main buffer
 						chunk.copy(responseBuffer,responseLengthReceived,0,chunk.length);
 					}
-					
+
 					// Increment our data received counter
 					responseLengthReceived += chunk.length;
 				}
-				
+
 
 				if ((responseLengthReceived >= responseLength || response.complete) && !dataReceived) {
 					// Slice the buffer to chop off any unused space
 					responseBuffer = responseBuffer.slice(0,responseLengthReceived);
-					
+
 					dataReceived = true;
 					processReceivedData();
 				}
@@ -525,16 +536,16 @@ var Crawler = function(domain,initialPath,initialPort,interval) {
 			// If we should just go ahead and get the data
 			if (response.statusCode >= 200 && response.statusCode < 300 && responseLength <= crawler.maxResourceSize) {
 				queueItem.status = "headers";
-				
+
 				// Create a buffer with our response length
 				responseBuffer = new Buffer(responseLength);
-				
+
 				response.on("data",receiveData);
 				response.on("end",receiveData);
-			
+
 			// We've got a not-modified response back
 			} else if (response.statusCode === 304) {
-				
+
 				if (crawler.cache !== null && crawler.cache.getCacheData) {
 					// We've got access to a cache
 					crawler.cache.getCacheData(queueItem,function(cacheObject) {
@@ -544,18 +555,18 @@ var Crawler = function(domain,initialPath,initialPort,interval) {
 					// Emit notmodified event. We don't have a cache available, so we don't send any data.
 					crawler.emit("notmodified",queueItem,response);
 				}
-				
+
 			// If we should queue a redirect
 			} else if (response.statusCode >= 300 && response.statusCode < 400 && response.headers.location) {
 				queueItem.fetched = true;
 				queueItem.status = "redirected";
-				
+
 				// Parse the redirect URL ready for adding to the queue...
 				parsedURL = processURL(response.headers.location,queueItem);
-				
+
 				// Emit redirect event
 				crawler.emit("fetchredirect",queueItem,parsedURL,response);
-				
+
 				// If we're permitted to talk to the domain...
 				if (domainValid(parsedURL.domain)) {
 					// ...then queue up the new URL!
@@ -567,32 +578,32 @@ var Crawler = function(domain,initialPath,initialPort,interval) {
 						crawler.emit("queueerror",error,parsedURL);
 					}
 				}
-				
+
 				openRequests --;
 			// Ignore this request, but record that we had a 404
 			} else if (response.statusCode === 404) {
 				queueItem.fetched = true;
 				queueItem.status = "notfound";
-				
+
 				// Emit 404 event
 				crawler.emit("fetch404",queueItem,response);
-				
+
 				openRequests --;
 			// And oh dear. Handle this one as well. (other 400s, 500s, etc)
 			} else {
 				queueItem.fetched = true;
 				queueItem.status = "failed";
-				
+
 				// Emit 5xx / 4xx event
 				crawler.emit("fetcherror",queueItem,response);
-				
+
 				openRequests --;
 			}
 		});
 
 		clientRequest.on("error",function(errorData) {
 			openRequests --;
-			
+
 			// Emit 5xx / 4xx event
 			crawler.emit("fetchclienterror",crawler.queue[index],errorData);
 
@@ -601,7 +612,7 @@ var Crawler = function(domain,initialPath,initialPort,interval) {
 			queueItem.status = "failed";
 		});
 	}
-	
+
 	// Crawl init
 	this.crawl = function() {
 		var currentFetchIndex = crawler.queue.oldestUnfetchedItem();
@@ -641,9 +652,9 @@ Crawler.prototype.removeFetchCondition = function(index) {
 	if (this.fetchConditions[index] && this.fetchConditions[index] instanceof Function) {
 		var tmpArray = this.fetchConditions.slice(0,index);
 			tmpArray = this.fetchConditions.length-1 > index ? tmpArray.concat(this.fetchConditions.slice(0,index+1)) : tmpArray;
-		
+
 		this.fetchConditions = tmpArray;
-		
+
 		return true;
 	} else {
 		throw new Error("Unable to find indexed Fetch Condition.");
