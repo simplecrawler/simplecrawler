@@ -37,12 +37,6 @@ var Crawler = function(domain,initialPath,initialPort,interval) {
 	// Queue for requests - FetchQueue gives us stats and other sugar (but it's basically just an array)
 	this.queue				= new FetchQueue();
 
-  // Basic auth
-  this.needsAuth = false;
-
-  this.authUser = '';
-  this.authPass = '';
-
 	// Do we filter by domain?
 	// Unless you want to be crawling the entire internet, I would recommend leaving this on!
 	this.filterByDomain		= true;
@@ -66,6 +60,11 @@ var Crawler = function(domain,initialPath,initialPort,interval) {
 	this.useProxy			= false;
 	this.proxyHostname		= "127.0.0.1";
 	this.proxyPort			= 8123;
+	
+	// Support for HTTP basic auth
+	this.needsAuth = false;
+	this.authUser = "";
+	this.authPass = "";
 
 	// Domain Whitelist
 	// We allow domains to be whitelisted, so cross-domain requests can be made.
@@ -344,50 +343,65 @@ var Crawler = function(domain,initialPath,initialPort,interval) {
 	// Make available externally to this scope
 	crawler.isDomainValid = domainValid;
 
+	// Externally accessible function for auditing the number of open requests...
+	crawler.openRequests = function() {
+		return openRequests;
+	};
+
 	// Input some text/html and this function will delegate resource discovery, check link validity
 	// and queue up resources for downloading!
 	function queueLinkedItems(resourceData,queueItem) {
-		var urlList = discoverResources(resourceData,queueItem);
+		discoverResources(resourceData,queueItem).forEach(function(url){ queueURL(url,queueItem); });
+	}
 
-		urlList.forEach(function(url) {
-			var URLData = processURL(url,queueItem);
+	// Clean and queue a single URL...
+	function queueURL(url,queueItem) {
+		var parsedURL = typeof(url) === "object" ? url : processURL(url,queueItem);
 
-			// URL Parser decided this URL was junky. Next please!
-			if (!URLData) {
-				return false;
-			}
+		// URL Parser decided this URL was junky. Next please!
+		if (!parsedURL) {
+			return false;
+		}
 
-			// Pass this URL past fetch conditions to ensure the user thinks it's valid
-			var fetchDenied = false;
-			fetchDenied = crawler.fetchConditions.reduce(function(prev,callback) {
-				return fetchDenied || !callback(URLData);
-			},false);
+		// Pass this URL past fetch conditions to ensure the user thinks it's valid
+		var fetchDenied = false;
+		fetchDenied = crawler.fetchConditions.reduce(function(prev,callback) {
+			return fetchDenied || !callback(parsedURL);
+		},false);
 
-			if (fetchDenied) {
-				// Fetch Conditions conspired to block URL
-				return false;
-			}
+		if (fetchDenied) {
+			// Fetch Conditions conspired to block URL
+			return false;
+		}
 
-			// Check the domain is valid before adding it to the queue
-			if (domainValid(URLData.domain)) {
-				try {
-					if (crawler.queue.add(URLData.protocol,URLData.domain,URLData.port,URLData.path)) {
-						crawler.queue.last().referrer = queueItem.url;
-						crawler.emit("queueadd",crawler.queue.last());
+		// Check the domain is valid before adding it to the queue
+		if (domainValid(parsedURL.domain)) {
+			try {
+				crawler.queue.add(
+					parsedURL.protocol,
+					parsedURL.domain,
+					parsedURL.port,
+					parsedURL.path,
+					function queueAddCallback(error,newQueueItem) {
+						if (error) {
+							// We received an error condition when adding the callback
+							crawler.emit("queueerror",error,parsedURL);
+						} else {
+							crawler.emit("queueadd",newQueueItem,parsedURL);
+							newQueueItem.referrer = queueItem.url;
+						}
 					}
-				} catch(error) {
-					crawler.emit("queueerror",error,URLData);
-				}
+				);
+			} catch(error) {
+				// If we caught an error, emit queueerror
+				crawler.emit("queueerror",error,parsedURL);
 			}
-		});
+		}
 	}
 
 	// Fetch a queue item
-	function fetchQueueItem(index) {
+	function fetchQueueItem(queueItem) {
 		openRequests ++;
-
-		// Get queue item
-		var queueItem = crawler.queue.get(index);
 
 		// Emit fetchstart event
 		crawler.emit("fetchstart",queueItem);
@@ -421,11 +435,11 @@ var Crawler = function(domain,initialPath,initialPort,interval) {
 				"User-Agent": crawler.userAgent
 			}
 		};
-
-    if(crawler.needsAuth) {
-      var auth = 'Basic ' + new Buffer(crawler.authUser + ":" + crawler.authPass).toString('base64');
-      requestOptions.headers['Authorization'] = auth;
-    }
+		
+		if(crawler.needsAuth) {
+			var auth = 'Basic ' + new Buffer(crawler.authUser + ":" + crawler.authPass).toString('base64');
+			requestOptions.headers['Authorization'] = auth;
+		}
 
 		// Record what time we started this request
 		timeCommenced = (new Date().getTime());
@@ -438,10 +452,13 @@ var Crawler = function(domain,initialPath,initialPort,interval) {
 			// Record what time we first received the header information
 			timeHeadersReceived = (new Date().getTime());
 
+			responseLength = parseInt(response.headers["content-length"],10);
+			responseLength = !isNaN(responseLength) ? responseLength : 0;
+
 			// Save timing and content some header information into queue
 			queueItem.stateData.requestLatency = (timeHeadersReceived - timeCommenced);
 			queueItem.stateData.requestTime = (timeHeadersReceived - timeCommenced);
-			queueItem.stateData.contentLength = responseLength = parseInt(response.headers["content-length"],10);
+			queueItem.stateData.contentLength = responseLength;
 			queueItem.stateData.contentType = contentType = response.headers["content-type"];
 			queueItem.stateData.code = response.statusCode;
 
@@ -457,7 +474,7 @@ var Crawler = function(domain,initialPath,initialPort,interval) {
 
 			// Function for dealing with 200 responses
 			function processReceivedData() {
-				if (!crawler.queue[index].fetched) {
+				if (!queueItem.fetched) {
 					timeDataReceived = (new Date().getTime());
 
 					queueItem.fetched = true;
@@ -567,19 +584,11 @@ var Crawler = function(domain,initialPath,initialPort,interval) {
 				// Emit redirect event
 				crawler.emit("fetchredirect",queueItem,parsedURL,response);
 
-				// If we're permitted to talk to the domain...
-				if (domainValid(parsedURL.domain)) {
-					// ...then queue up the new URL!
-					try {
-						if (crawler.queue.add(parsedURL.protocol,parsedURL.domain,parsedURL.port,parsedURL.path)) {
-							crawler.emit("queueadd",crawler.queue.last());
-						}
-					} catch(error) {
-						crawler.emit("queueerror",error,parsedURL);
-					}
-				}
+				// Clean URL, add to queue...
+				queueURL(parsedURL,queueItem);
 
 				openRequests --;
+
 			// Ignore this request, but record that we had a 404
 			} else if (response.statusCode === 404) {
 				queueItem.fetched = true;
@@ -589,6 +598,7 @@ var Crawler = function(domain,initialPath,initialPort,interval) {
 				crawler.emit("fetch404",queueItem,response);
 
 				openRequests --;
+
 			// And oh dear. Handle this one as well. (other 400s, 500s, etc)
 			} else {
 				queueItem.fetched = true;
@@ -605,8 +615,7 @@ var Crawler = function(domain,initialPath,initialPort,interval) {
 			openRequests --;
 
 			// Emit 5xx / 4xx event
-			crawler.emit("fetchclienterror",crawler.queue[index],errorData);
-
+			crawler.emit("fetchclienterror",queueItem,errorData);
 			queueItem.fetched = true;
 			queueItem.stateData.code = 599;
 			queueItem.status = "failed";
@@ -615,13 +624,15 @@ var Crawler = function(domain,initialPath,initialPort,interval) {
 
 	// Crawl init
 	this.crawl = function() {
-		var currentFetchIndex = crawler.queue.oldestUnfetchedItem();
-
-		if (currentFetchIndex >= 0 && !isNaN(currentFetchIndex) && openRequests < crawler.maxConcurrency) {
-			fetchQueueItem(currentFetchIndex);
-		} else if (openRequests === 0) {
-			crawler.emit("complete");
-			crawler.stop();
+		if (openRequests < crawler.maxConcurrency) {
+			crawler.queue.oldestUnfetchedItem(function(queueItem) {
+				if (queueItem) {
+					fetchQueueItem(queueItem);
+				} else if (openRequests === 0) {
+					crawler.emit("complete");
+					crawler.stop();
+				}
+			});
 		}
 	};
 };
@@ -646,7 +657,7 @@ Crawler.prototype.addFetchCondition = function(callback) {
 	} else {
 		throw new Error("Fetch Condition must be a function.");
 	}
-}
+};
 
 Crawler.prototype.removeFetchCondition = function(index) {
 	if (this.fetchConditions[index] && this.fetchConditions[index] instanceof Function) {
@@ -659,7 +670,7 @@ Crawler.prototype.removeFetchCondition = function(index) {
 	} else {
 		throw new Error("Unable to find indexed Fetch Condition.");
 	}
-}
+};
 
 // EXPORTS
 exports.FetchQueue = FetchQueue;
