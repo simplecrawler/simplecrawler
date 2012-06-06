@@ -17,193 +17,244 @@ var allowedStatistics = [
 var FetchQueue = function(){
 	this.oldestUnfetchedIndex = 0;
 };
+
 FetchQueue.prototype = [];
-FetchQueue.prototype.add = function(protocol,domain,port,path) {
+FetchQueue.prototype.add = function(protocol,domain,port,path,callback) {
+	callback = callback && callback instanceof Function ? callback : function(){};
+	var self = this;
+	
 	// Ensure all variables conform to reasonable defaults
 	protocol = protocol === "https" ? "https" : "http";
 
 	if (isNaN(port)) {
-		throw Error("Port must be numeric!");
+		return callback(new Error("Port must be numeric!"));
 	}
 
 	var url = protocol + "://" + domain + (port !== 80 ? ":" + port : "") + path;
-
-	if (!this.reduce(function(prev, current, index, array) {
-			return prev || String(current.url).toLowerCase() === String(url).toLowerCase();
-		},false)) {
-
-		this.push({
-			"url": url,
-			"protocol": protocol,
-			"domain": domain,
-			"port": port,
-			"path": path,
-			"fetched": false,
-			"status": "queued",
-			"stateData": {}
+	
+	this.exists(protocol,domain,port,path,
+		function(err,exists) {
+			if (err) return callback(err);
+			
+			if (!exists) {
+				var queueItem = {
+					"url": url,
+					"protocol": protocol,
+					"domain": domain,
+					"port": port,
+					"path": path,
+					"fetched": false,
+					"status": "queued",
+					"stateData": {}
+				};
+				
+				self.push(queueitem);
+				callback(null,queueitem);
+			} else {
+				callback(new Error("Resource already exists in queue!"));
+			}
 		});
+};
 
-		return true;
-	} else {
-		return false;
-	}
+// Check if an item already exists in the queue...
+FetchQueue.prototype.exists = function(protocol,domain,port,path,callback) {
+	callback = callback && callback instanceof Function ? callback : function(){};
+	var self = this;
+	
+	var count = self.filter(function(item) {
+			if (String(item.protocol).strToLower()	===	String(protocol).strToLower()	&&
+				String(item.domain).strToLower()	===	String(domain).strToLower()		&&
+				parseInt(item.port,10)				=== parseInt(port,10)				&&
+				item.path							=== path) return true;
+			
+			return false;
+		}).length;
+	
+	callback(null,count);
+};
+
+// Get last item in queue...
+FetchQueue.prototype.last = function(callback) {
+	callback = callback && callback instanceof Function ? callback : function(){};
+	var self = this;
+	
+	callback(null,self[self.length-1]);
 };
 
 // Get item from queue
-FetchQueue.prototype.get = function(id) {
-	if (!isNaN(id) && this.length > id) {
-		return this[id];
+FetchQueue.prototype.get = function(id, callback) {
+	callback = callback && callback instanceof Function ? callback : function(){};
+	var self = this;
+	
+	if (!isNaN(id) && self.length > id) {
+		return callback(null,self[id]);
 	}
 }
 
 // Get first unfetched item in the queue (and return its index)
-FetchQueue.prototype.oldestUnfetchedItem = function() {
-	for (var itemIndex = this.oldestUnfetchedIndex; itemIndex < this.length; itemIndex ++) {
-		if (this[itemIndex].status === "queued") {
-			this.oldestUnfetchedIndex = itemIndex;
-			return itemIndex;
+FetchQueue.prototype.oldestUnfetchedItem = function(callback) {
+	callback = callback && callback instanceof Function ? callback : function(){};
+	var self = this;
+	
+	for (var itemIndex = self.oldestUnfetchedIndex; itemIndex < self.length; itemIndex ++) {
+		if (self[itemIndex].status === "queued") {
+			self.oldestUnfetchedIndex = itemIndex;
+			return callback(null,itemIndex);
 		}
 	}
 	
-	return -1;
-}
-
-
-FetchQueue.prototype.last = function() {
-	return this[this.length-1];
+	callback(new Error("No unfetched items remain."));
 }
 
 // Gets the maximum total request time, request latency, or download time
-FetchQueue.prototype.max = function(statisticName) {
-	var maxStatisticValue = 0;
+FetchQueue.prototype.max = function(statisticName,callback) {
+	callback = callback && callback instanceof Function ? callback : function(){};
+	var maxStatisticValue = 0, self = this;
 
 	if (allowedStatistics.join().indexOf(statisticName) === -1) {
 		// Not a recognised statistic!
-		return false;
+		return callback(new Error("Invalid statistic."));
 	}
 	
-	this.forEach(function(item) {
+	self.forEach(function(item) {
 		if (item.fetched && item.stateData[statisticName] !== null && item.stateData[statisticName] > maxStatisticValue) {
 			maxStatisticValue = item.stateData[statisticName];
 		}
 	});
 
-	return maxStatisticValue;
+	callback(null,maxStatisticValue);
 };
 
 // Gets the minimum total request time, request latency, or download time
-FetchQueue.prototype.min = function(statisticName) {
-	var minStatisticValue = Infinity;
+FetchQueue.prototype.min = function(statisticName,callback) {
+	callback = callback && callback instanceof Function ? callback : function(){};
+	var minStatisticValue = Infinity, self = this;
 
 	if (allowedStatistics.join().indexOf(statisticName) === -1) {
 		// Not a recognised statistic!
-		return false;
+		return callback(new Error("Invalid statistic."));
 	}
 	
-	this.forEach(function(item) {
+	self.forEach(function(item) {
 		if (item.fetched && item.stateData[statisticName] !== null && item.stateData[statisticName] < minStatisticValue) {
 			minStatisticValue = item.stateData[statisticName];
 		}
 	});
 
-	return minStatisticValue === Infinity? 0 : minStatisticValue;
+	callback(null,minStatisticValue === Infinity? 0 : minStatisticValue);
 };
 
 // Gets the minimum total request time, request latency, or download time
-FetchQueue.prototype.avg = function(statisticName) {
-	var NumberSum = 0, NumberCount = 0;
+FetchQueue.prototype.avg = function(statisticName,callback) {
+	callback = callback && callback instanceof Function ? callback : function(){};
+	var NumberSum = 0, NumberCount = 0, self = this;
 
 	if (allowedStatistics.join().indexOf(statisticName) === -1) {
 		// Not a recognised statistic!
-		return false;
+		return callback(new Error("Invalid statistic."));
 	}
 	
-	this.forEach(function(item) {
+	self.forEach(function(item) {
 		if (item.fetched && item.stateData[statisticName] !== null && !isNaN(item.stateData[statisticName])) {
 			NumberSum += item.stateData[statisticName];
 			NumberCount ++;
 		}
 	});
-
-	return NumberSum / NumberCount;
+	
+	callback(null,NumberSum / NumberCount);
 };
 
 // Gets the number of requests which have been completed.
-FetchQueue.prototype.complete = function() {
-	var NumberComplete = 0;
+FetchQueue.prototype.complete = function(callback) {
+	callback = callback && callback instanceof Function ? callback : function(){};
+	var NumberComplete = 0, self = this;
 
-	this.forEach(function(item) {
+	self.forEach(function(item) {
 		if (item.fetched) {
 			NumberComplete ++;
 		}
 	});
 
-	return NumberComplete;
+	callback(null,NumberComplete);
 };
 
 // Gets the number of queue items with the given status
-FetchQueue.prototype.countWithStatus = function(status) {
-	var queueItemsMatched = 0;
+FetchQueue.prototype.countWithStatus = function(status,callback) {
+	callback = callback && callback instanceof Function ? callback : function(){};
+	var queueItemsMatched = 0, self = this;
 
-	this.forEach(function(item) {
+	self.forEach(function(item) {
 		if (item.status === status) {
 			queueItemsMatched ++;
 		}
 	});
 
-	return queueItemsMatched;
+	callback(null,queueItemsMatched);
 };
 
 // Gets the number of queue items with the given status
-FetchQueue.prototype.getWithStatus = function(status) {
-	var subqueue = [];
-
-	this.forEach(function(item,index) {
+FetchQueue.prototype.getWithStatus = function(status,callback) {
+	callback = callback && callback instanceof Function ? callback : function(){};
+	var subqueue = [], self = this;
+	
+	self.forEach(function(item,index) {
 		if (item.status === status) {
 			subqueue.push(item);
 			subqueue[subqueue.length-1].queueIndex = index;
 		}
 	});
-
-	return subqueue;
+	
+	callback(null,subqueue);
 };
 
 // Gets the number of requests which have failed for some reason
-FetchQueue.prototype.errors = function() {
-	return this.countWithStatus("failed") + this.countWithStatus("notfound");
+FetchQueue.prototype.errors = function(callback) {
+	callback = callback && callback instanceof Function ? callback : function(){};
+	var self = this;
+	
+	self.countWithStatus("failed",function(err1,failed) {
+		self.countWithStatus("notfound",function(err2,notfound) {
+			callback(null,failed + notfound);
+		});
+	});
 };
 
 // Writes the queue to disk
-FetchQueue.prototype.freeze = function(filename) {
-	// Re-queue items before freezing...
-	this.forEach(function(item) {
+FetchQueue.prototype.freeze = function(filename,callback) {
+	callback = callback && callback instanceof Function ? callback : function(){};
+	var self = this;
+	
+	// Re-queue in-progress items before freezing...
+	self.forEach(function(item) {
 		if (item.fetched !== true) {
 			item.status = "queued";
 		}
 	});
 
-	fs.writeFileSync(filename,JSON.stringify(this));
+	fs.writeFile(filename,JSON.stringify(self),function(err) {
+		callback(err,self);
+	});
 };
 
 // Reads the queue from disk
-FetchQueue.prototype.defrost = function(filename) {
-	var fileData;
-	try {
-		if ((fileData = fs.readFileSync(filename))) {
-			var defrostedQueue = JSON.parse(fileData.toString("utf8"));
-			
-			for (var index in defrostedQueue) {
-				if (defrostedQueue.hasOwnProperty(index) && !isNaN(index)) {
-					var queueItem = defrostedQueue[index];
-					this.push(queueItem);
-				}
+FetchQueue.prototype.defrost = function(filename,callback) {
+	callback = callback && callback instanceof Function ? callback : function(){};
+	var fileData, self = this;
+	
+	fs.readFile(filename,function(err,fileData) {
+		if (err) return callback(err);
+		
+		var defrostedQueue = JSON.parse(fileData.toString("utf8"));
+		
+		for (var index in defrostedQueue) {
+			if (defrostedQueue.hasOwnProperty(index) && !isNaN(index)) {
+				var queueItem = defrostedQueue[index];
+				self.push(queueItem);
 			}
 		}
-
-		return true;
-	} catch(error) {
-		return false;
-	}
+		
+		callback(null,self)
+	});
 };
 
 exports.queue = FetchQueue;
