@@ -16,6 +16,7 @@ var allowedStatistics = [
 
 var FetchQueue = function(){
 	this.oldestUnfetchedIndex = 0;
+	this.completeCache = 0;
 };
 
 FetchQueue.prototype = [];
@@ -29,7 +30,7 @@ FetchQueue.prototype.add = function(protocol,domain,port,path,callback) {
 	if (isNaN(port)) {
 		return callback(new Error("Port must be numeric!"));
 	}
-
+	
 	var url = protocol + "://" + domain + (port !== 80 ? ":" + port : "") + path;
 	
 	this.exists(protocol,domain,port,path,
@@ -48,8 +49,8 @@ FetchQueue.prototype.add = function(protocol,domain,port,path,callback) {
 					"stateData": {}
 				};
 				
-				self.push(queueitem);
-				callback(null,queueitem);
+				self.push(queueItem);
+				callback(null,queueItem);
 			} else {
 				callback(new Error("Resource already exists in queue!"));
 			}
@@ -62,8 +63,8 @@ FetchQueue.prototype.exists = function(protocol,domain,port,path,callback) {
 	var self = this;
 	
 	var count = self.filter(function(item) {
-			if (String(item.protocol).strToLower()	===	String(protocol).strToLower()	&&
-				String(item.domain).strToLower()	===	String(domain).strToLower()		&&
+			if (String(item.protocol).toLowerCase()	===	String(protocol).toLowerCase()	&&
+				String(item.domain).toLowerCase()	===	String(domain).toLowerCase()	&&
 				parseInt(item.port,10)				=== parseInt(port,10)				&&
 				item.path							=== path) return true;
 			
@@ -99,7 +100,7 @@ FetchQueue.prototype.oldestUnfetchedItem = function(callback) {
 	for (var itemIndex = self.oldestUnfetchedIndex; itemIndex < self.length; itemIndex ++) {
 		if (self[itemIndex].status === "queued") {
 			self.oldestUnfetchedIndex = itemIndex;
-			return callback(null,itemIndex);
+			return callback(null,self[itemIndex]);
 		}
 	}
 	
@@ -121,7 +122,7 @@ FetchQueue.prototype.max = function(statisticName,callback) {
 			maxStatisticValue = item.stateData[statisticName];
 		}
 	});
-
+	
 	callback(null,maxStatisticValue);
 };
 
@@ -174,8 +175,9 @@ FetchQueue.prototype.complete = function(callback) {
 			NumberComplete ++;
 		}
 	});
-
+	
 	callback(null,NumberComplete);
+	return NumberComplete;
 };
 
 // Gets the number of queue items with the given status
@@ -239,12 +241,20 @@ FetchQueue.prototype.freeze = function(filename,callback) {
 // Reads the queue from disk
 FetchQueue.prototype.defrost = function(filename,callback) {
 	callback = callback && callback instanceof Function ? callback : function(){};
-	var fileData, self = this;
+	var fileData, self = this, defrostedQueue = [];
 	
 	fs.readFile(filename,function(err,fileData) {
 		if (err) return callback(err);
 		
-		var defrostedQueue = JSON.parse(fileData.toString("utf8"));
+		if (!fileData.toString("utf8").length) {
+			return callback(new Error("Failed to defrost queue from zero-length JSON."));
+		}
+		
+		try {
+			defrostedQueue = JSON.parse(fileData.toString("utf8"));
+		} catch(error) {
+			return callback(error);
+		}
 		
 		for (var index in defrostedQueue) {
 			if (defrostedQueue.hasOwnProperty(index) && !isNaN(index)) {

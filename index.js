@@ -282,7 +282,7 @@ var Crawler = function(domain,initialPath,initialPort,interval) {
 		// This might be a bit of a gamble... but get hard-coded strings out of javacript: URLs
 		// They're often popup-image or preview windows, which would otherwise be unavailable to us
 		cleanAndQueue(resourceText.match(/^javascript\:[a-z0-9]+\(['"][^'"\s]+/ig));
-
+		
 		return resources;
 	}
 
@@ -357,7 +357,7 @@ var Crawler = function(domain,initialPath,initialPort,interval) {
 	// Clean and queue a single URL...
 	function queueURL(url,queueItem) {
 		var parsedURL = typeof(url) === "object" ? url : processURL(url,queueItem);
-
+		
 		// URL Parser decided this URL was junky. Next please!
 		if (!parsedURL) {
 			return false;
@@ -373,7 +373,7 @@ var Crawler = function(domain,initialPath,initialPort,interval) {
 			// Fetch Conditions conspired to block URL
 			return false;
 		}
-
+		
 		// Check the domain is valid before adding it to the queue
 		if (domainValid(parsedURL.domain)) {
 			try {
@@ -440,7 +440,7 @@ var Crawler = function(domain,initialPath,initialPort,interval) {
 			var auth = 'Basic ' + new Buffer(crawler.authUser + ":" + crawler.authPass).toString('base64');
 			requestOptions.headers['Authorization'] = auth;
 		}
-
+		
 		// Record what time we started this request
 		timeCommenced = (new Date().getTime());
 
@@ -496,7 +496,7 @@ var Crawler = function(domain,initialPath,initialPort,interval) {
 					if (mimeTypeSupported(contentType) && crawler.discoverResources) {
 						queueLinkedItems(responseBuffer,queueItem);
 					}
-
+					
 					openRequests --;
 				}
 			}
@@ -549,11 +549,11 @@ var Crawler = function(domain,initialPath,initialPort,interval) {
 					processReceivedData();
 				}
 			}
-
+			
 			// If we should just go ahead and get the data
 			if (response.statusCode >= 200 && response.statusCode < 300 && responseLength <= crawler.maxResourceSize) {
 				queueItem.status = "headers";
-
+				
 				// Create a buffer with our response length
 				responseBuffer = new Buffer(responseLength);
 
@@ -562,7 +562,7 @@ var Crawler = function(domain,initialPath,initialPort,interval) {
 
 			// We've got a not-modified response back
 			} else if (response.statusCode === 304) {
-
+	
 				if (crawler.cache !== null && crawler.cache.getCacheData) {
 					// We've got access to a cache
 					crawler.cache.getCacheData(queueItem,function(cacheObject) {
@@ -577,7 +577,7 @@ var Crawler = function(domain,initialPath,initialPort,interval) {
 			} else if (response.statusCode >= 300 && response.statusCode < 400 && response.headers.location) {
 				queueItem.fetched = true;
 				queueItem.status = "redirected";
-
+				
 				// Parse the redirect URL ready for adding to the queue...
 				parsedURL = processURL(response.headers.location,queueItem);
 
@@ -625,12 +625,16 @@ var Crawler = function(domain,initialPath,initialPort,interval) {
 	// Crawl init
 	this.crawl = function() {
 		if (openRequests < crawler.maxConcurrency) {
-			crawler.queue.oldestUnfetchedItem(function(queueItem) {
+			crawler.queue.oldestUnfetchedItem(function(err,queueItem) {
 				if (queueItem) {
 					fetchQueueItem(queueItem);
 				} else if (openRequests === 0) {
-					crawler.emit("complete");
-					crawler.stop();
+					crawler.queue.complete(function(err,completeCount) {
+						if (completeCount === crawler.queue.length) {
+							crawler.emit("complete");
+							crawler.stop();
+						}
+					});
 				}
 			});
 		}
