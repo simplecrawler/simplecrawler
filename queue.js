@@ -17,6 +17,7 @@ var allowedStatistics = [
 var FetchQueue = function(){
 	this.oldestUnfetchedIndex = 0;
 	this.completeCache = 0;
+	this.scanIndex = {};
 };
 
 FetchQueue.prototype = [];
@@ -60,18 +61,15 @@ FetchQueue.prototype.add = function(protocol,domain,port,path,callback) {
 // Check if an item already exists in the queue...
 FetchQueue.prototype.exists = function(protocol,domain,port,path,callback) {
 	callback = callback && callback instanceof Function ? callback : function(){};
-	var self = this;
 	
-	var count = self.filter(function(item) {
-			if (String(item.protocol).toLowerCase()	===	String(protocol).toLowerCase()	&&
-				String(item.domain).toLowerCase()	===	String(domain).toLowerCase()	&&
-				parseInt(item.port,10)				=== parseInt(port,10)				&&
-				item.path							=== path) return true;
-			
-			return false;
-		}).length;
+	var url = (protocol + "://" + domain + (port !== 80 ? ":" + port : "") + path).toLowerCase();
 	
-	callback(null,count);
+	if (!!this.scanIndex[url]) {
+		callback(null,1);
+	} else {
+		this.scanIndex[url] = true;
+		callback(null,0);
+	}
 };
 
 // Get last item in queue...
