@@ -249,7 +249,7 @@ var Crawler = function(domain,initialPath,initialPort,interval) {
 		function cleanAndQueue(urlMatch) {
 			if (urlMatch) {
 				urlMatch.forEach(function(URL) {
-					URL = URL.replace(/^(href|src)=['"]?/i,"").replace(/^\s*/,"");
+					URL = URL.replace(/^(\s?href|\s?src)=['"]?/i,"").replace(/^\s*/,"");
 					URL = URL.replace(/^url\(['"]*/i,"");
 					URL = URL.replace(/^javascript\:[a-z0-9]+\(['"]/i,"");
 					URL = URL.replace(/["'\)]$/i,"");
@@ -275,7 +275,7 @@ var Crawler = function(domain,initialPath,initialPort,interval) {
 		}
 
 		// Rough scan for URLs
-		cleanAndQueue(resourceText.match(/(href\s?=\s?|src\s?=\s?|url\()['"]?([^"'\s>\)]+)/ig));
+		cleanAndQueue(resourceText.match(/(\shref\s?=\s?|\ssrc\s?=\s?|url\()['"]?([^"'\s>\)]+)/ig));
 		cleanAndQueue(resourceText.match(/http(s)?\:\/\/[^?\s><\'\"]+/ig));
 		cleanAndQueue(resourceText.match(/url\([^)]+/ig));
 
