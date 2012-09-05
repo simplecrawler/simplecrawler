@@ -97,9 +97,6 @@ var Crawler = function(domain,initialPath,initialPort,interval) {
 	var openRequests = 0;
 	this.fetchConditions = [];
 
-	// Initialise our queue by pushing the initial request data into it...
-	this.queue.add(this.initialProtocol,this.domain,this.initialPort,this.initialPath);
-
 	// Takes a URL, and extracts the protocol, domain, port, and resource
 	function processURL(URL,URLContext) {
 		var split, protocol = "http", domain = crawler.domain, port = 80, path = "/";
@@ -644,6 +641,9 @@ var Crawler = function(domain,initialPath,initialPort,interval) {
 Crawler.prototype = new EventEmitter();
 
 Crawler.prototype.start = function() {
+	// Initialise our queue by pushing the initial request data into it...
+	this.queue.add(this.initialProtocol,this.domain,this.initialPort,this.initialPath);
+
 	this.crawlIntervalID = setInterval(this.crawl,this.interval);
 	this.crawl();
 	this.running = true;
