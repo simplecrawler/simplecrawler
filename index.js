@@ -32,7 +32,7 @@ var Crawler = function(host,initialPath,initialPort,interval) {
 	this.timeout			= 5 * 60 * 1000;
 
 	// User Agent
-	this.userAgent			= "Node/SimpleCrawler 0.1 (http://www.github.com/cgiffard/node-simplecrawler)";
+	this.userAgent			= "Node/SimpleCrawler 0.0.7 (http://www.github.com/cgiffard/node-simplecrawler)";
 
 	// Queue for requests - FetchQueue gives us stats and other sugar (but it's basically just an array)
 	this.queue				= new FetchQueue();
