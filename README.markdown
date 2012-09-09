@@ -264,4 +264,4 @@ I'd appreciate it if you'd contribute patches back, but you don't have to. If yo
 ### Contributors
 
 Thanks to [Nick Crohn](https://github.com/ncrohn) for the HTTP Basic auth support. Thanks also to [Mike Moulton](https://github.com/mmoulton) for [fixing a bug in the URL discovery mechanism](https://github.com/cgiffard/node-simplecrawler/pull/3)
-and [@mikeiannacone](https://github.com/mikeiannacone) for correcting a keyword naming collision with node 0.8's EventEmitter.
+and [Mike Iannacone](https://github.com/mikeiannacone) for correcting a keyword naming collision with node 0.8's EventEmitter.
