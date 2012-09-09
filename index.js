@@ -11,10 +11,10 @@ var http = require("http"),
 	https = require("https");
 
 // Crawler Constructor
-var Crawler = function(domain,initialPath,initialPort,interval) {
+var Crawler = function(host,initialPath,initialPort,interval) {
 	// SETTINGS TO STUFF WITH (not here! Do it when you create a `new Crawler()`)
 	// Domain to crawl
-	this.domain				= domain || "";
+	this.host				= host || "";
 
 	// Gotta start crawling *somewhere*
 	this.initialPath		= initialPath || "/";
@@ -97,17 +97,14 @@ var Crawler = function(domain,initialPath,initialPort,interval) {
 	var openRequests = 0;
 	this.fetchConditions = [];
 
-	// Initialise our queue by pushing the initial request data into it...
-	this.queue.add(this.initialProtocol,this.domain,this.initialPort,this.initialPath);
-
-	// Takes a URL, and extracts the protocol, domain, port, and resource
+	// Takes a URL, and extracts the protocol, host, port, and resource
 	function processURL(URL,URLContext) {
-		var split, protocol = "http", domain = crawler.domain, port = 80, path = "/";
+		var split, protocol = "http", host = crawler.host, port = 80, path = "/";
 		var hostData = "", pathStack, relativePathStack, invalidPath = false;
 
 		if (URLContext) {
 			port = URLContext.port;
-			domain = URLContext.domain;
+			host = URLContext.domain;
 			protocol = URLContext.protocol;
 			path = URLContext.path;
 		}
@@ -119,11 +116,11 @@ var Crawler = function(domain,initialPath,initialPort,interval) {
 		if (URL.match(/^http(s)?:\/\//i)) {
 			// We're global. Try and extract domain and port
 			split = URL.replace(/^http(s)?:\/\//i,"").split(/\//g);
-			hostData = split[0] && split[0].length ? split[0] : domain;
+			hostData = split[0] && split[0].length ? split[0] : host;
 
 			if (hostData.split(":").length > 0) {
 				hostData = hostData.split(":");
-				domain = hostData[0];
+				host = hostData[0];
 				port = hostData.pop();
 				port = isNaN(port) ? 80 : port;
 			}
@@ -189,18 +186,18 @@ var Crawler = function(domain,initialPath,initialPort,interval) {
 
 		// Strip the www subdomain out if required
 		if (crawler.stripWWWDomain) {
-			domain = domain.replace(/^www\./ig,"");
+			host = host.replace(/^www\./ig,"");
 		}
 
 		// Replace problem entities...
 		path = path.replace(/&amp;/ig,"&");
 
 		// Ensure domain is always lower-case
-		domain = domain.toLowerCase();
+		host = host.toLowerCase();
 
 		return {
 			"protocol": protocol,
-			"domain": domain,
+			"host": host,
 			"port": port,
 			"path": path
 		};
@@ -287,8 +284,8 @@ var Crawler = function(domain,initialPath,initialPort,interval) {
 	}
 
 	// Checks to see whether domain is valid for crawling.
-	function domainValid(domain) {
-		function domainInWhitelist(domain) {
+	function domainValid(host) {
+		function domainInWhitelist(host) {
 			// If there's no whitelist, or the whitelist is of zero length, just return false.
 			if (!crawler.domainWhitelist || !crawler.domainWhitelist.length) return false;
 			// Otherwise, scan through it.
@@ -296,17 +293,17 @@ var Crawler = function(domain,initialPath,initialPort,interval) {
 				// If we already located the relevant domain in the whitelist...
 				if (prev) return prev;
 				// If the domain is just equal, return true.
-				if (domain === cur) return true;
+				if (host === cur) return true;
 				// If we're ignoring WWW subdomains, and both domains, less www. are the same, return true.
-				if (crawler.ignoreWWWDomain && domain.replace(/^www\./i,"") === cur.replace(/^www\./i,"")) return true;
+				if (crawler.ignoreWWWDomain && host.replace(/^www\./i,"") === cur.replace(/^www\./i,"")) return true;
 				// Otherwise, sorry. No dice.
 				return false;
 			},false);
 		}
 
 		// Checks if the first domain is a subdomain of the second
-		function isSubdomainOf(subdomain,domain) {
-			domainParts = domain.split(/\./g);
+		function isSubdomainOf(subdomain,host) {
+			domainParts = host.split(/\./g);
 			subdomainParts = subdomain.split(/\./g);
 
 			// If we're ignoring www, remove it from both (if www is the first domain component...)
@@ -316,7 +313,7 @@ var Crawler = function(domain,initialPath,initialPort,interval) {
 			}
 
 			// Can't have a subdomain that's shorter than its parent.
-			if (subdomain.length < domain.length) return false;
+			if (subdomain.length < host.length) return false;
 
 			// Loop through subdomain backwards, from TLD to least significant domain, break on first error.
 			var index = subdomainParts.length - 1;
@@ -331,13 +328,13 @@ var Crawler = function(domain,initialPath,initialPort,interval) {
 				// If we're not filtering by domain, just return true.
 		return	(!crawler.filterByDomain	||
 				// Or if the domain is just the right one, return true.
-				(domain === crawler.domain)	||
+				(host === crawler.host)	||
 				// Or if we're ignoring WWW subdomains, and both domains, less www. are the same, return true.
-				(crawler.ignoreWWWDomain && crawler.domain.replace(/^www\./i,"") === domain.replace(/^www\./i,"")) ||
+				(crawler.ignoreWWWDomain && crawler.host.replace(/^www\./i,"") === host.replace(/^www\./i,"")) ||
 				// Or if the domain in question exists in the domain whitelist, return true.
-				domainInWhitelist(domain) ||
+				domainInWhitelist(host) ||
 				// Or if we're scanning subdomains, and this domain is a subdomain of the crawler's set domain, return true.
-				(crawler.scanSubdomains && isSubdomainOf(domain,crawler.domain)));
+				(crawler.scanSubdomains && isSubdomainOf(host,crawler.host)));
 	}
 
 	// Make available externally to this scope
@@ -375,11 +372,11 @@ var Crawler = function(domain,initialPath,initialPort,interval) {
 		}
 		
 		// Check the domain is valid before adding it to the queue
-		if (domainValid(parsedURL.domain)) {
+		if (domainValid(parsedURL.host)) {
 			try {
 				crawler.queue.add(
 					parsedURL.protocol,
-					parsedURL.domain,
+					parsedURL.host,
 					parsedURL.port,
 					parsedURL.path,
 					function queueAddCallback(error,newQueueItem) {
@@ -415,7 +412,7 @@ var Crawler = function(domain,initialPath,initialPort,interval) {
 		client = (queueItem.protocol === "https" ? https : http);
 
 		// Extract request options from queue;
-		var requestHost = queueItem.domain,
+		var requestHost = queueItem.host,
 			requestPort = queueItem.port,
 			requestPath = queueItem.path;
 
@@ -644,6 +641,9 @@ var Crawler = function(domain,initialPath,initialPort,interval) {
 Crawler.prototype = new EventEmitter();
 
 Crawler.prototype.start = function() {
+	// Initialise our queue by pushing the initial request data into it...
+	this.queue.add(this.initialProtocol,this.host,this.initialPort,this.initialPath);
+
 	this.crawlIntervalID = setInterval(this.crawl,this.interval);
 	this.crawl();
 	this.running = true;
