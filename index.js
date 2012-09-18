@@ -104,7 +104,7 @@ var Crawler = function(host,initialPath,initialPort,interval) {
 
 		if (URLContext) {
 			port = URLContext.port;
-			host = URLContext.domain;
+			host = URLContext.host;
 			protocol = URLContext.protocol;
 			path = URLContext.path;
 		}

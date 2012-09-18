@@ -42,7 +42,7 @@ FetchQueue.prototype.add = function(protocol,domain,port,path,callback) {
 				var queueItem = {
 					"url": url,
 					"protocol": protocol,
-					"domain": domain,
+					"host": domain,
 					"port": port,
 					"path": path,
 					"fetched": false,
