@@ -112,7 +112,7 @@ If this is annoying, and you'd really like to retain error pages by default, let
 
 Here's a complete list of what you can stuff with at this stage:
 
-* `crawler.domain` - The domain to scan. By default, simplecrawler will restrict all requests to this domain.
+* `crawler.host` - The domain to scan. By default, simplecrawler will restrict all requests to this domain.
 * `crawler.initialPath` - The initial path with which the crawler will formulate its first request. Does not restrict subsequent requests.
 * `crawler.initialPort` - The initial port with which the crawler will formulate its first request. Does not restrict subsequent requests.
 * `crawler.initialProtocol` - The initial protocol with which the crawler will formulate its first request. Does not restrict subsequent requests.
