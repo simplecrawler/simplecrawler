@@ -279,7 +279,7 @@ var Crawler = function(host,initialPath,initialPort,interval) {
 		// This might be a bit of a gamble... but get hard-coded strings out of javacript: URLs
 		// They're often popup-image or preview windows, which would otherwise be unavailable to us
 		cleanAndQueue(resourceText.match(/^javascript\:[a-z0-9]+\(['"][^'"\s]+/ig));
-		
+
 		return resources;
 	}
 
@@ -348,7 +348,13 @@ var Crawler = function(host,initialPath,initialPort,interval) {
 	// Input some text/html and this function will delegate resource discovery, check link validity
 	// and queue up resources for downloading!
 	function queueLinkedItems(resourceData,queueItem) {
-		discoverResources(resourceData,queueItem).forEach(function(url){ queueURL(url,queueItem); });
+		var resources = discoverResources(resourceData,queueItem);
+
+		// Emit discovered resources. ie: might be useful in building a graph of
+		// page relationships.
+		crawler.emit("discoverycomplete",queueItem,resources);
+
+		resources.forEach(function(url){ queueURL(url,queueItem); });
 	}
 
 	// Clean and queue a single URL...
