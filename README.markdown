@@ -100,6 +100,8 @@ Fired when a 404 HTTP status code is returned for a request.
 Fired when an alternate 400 or 500 series HTTP status code is returned for a request.
 * `fetchclienterror` ( queueItem, errorData )
 Fired when a request dies locally for some reason. The error data is returned as the second parameter.
+* `discoverycomplete` ( queueItem, resources)
+Fired when linked resources have been discovered. Passes an array of resources (as URLs) as the second parameter.
 * `complete`
 Fired when the crawler completes processing all the items in its queue, and does not find any more to add. This event returns no arguments.
 
@@ -263,5 +265,7 @@ I'd appreciate it if you'd contribute patches back, but you don't have to. If yo
 
 ### Contributors
 
-Thanks to [Nick Crohn](https://github.com/ncrohn) for the HTTP Basic auth support. Thanks also to [Mike Moulton](https://github.com/mmoulton) for [fixing a bug in the URL discovery mechanism](https://github.com/cgiffard/node-simplecrawler/pull/3)
+Thanks to [Nick Crohn](https://github.com/ncrohn) for the HTTP Basic auth support.
+Thanks also to [Mike Moulton](https://github.com/mmoulton) for [fixing a bug in the URL discovery mechanism](https://github.com/cgiffard/node-simplecrawler/pull/3),
+as well as [adding the `discoverycomplete` event](https://github.com/cgiffard/node-simplecrawler/pull/10),
 and [Mike Iannacone](https://github.com/mikeiannacone) for correcting a keyword naming collision with node 0.8's EventEmitter.
