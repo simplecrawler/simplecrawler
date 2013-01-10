@@ -113,9 +113,9 @@ var Crawler = function(host,initialPath,initialPort,interval) {
 		URL = URL.replace(/^\s+/,"").replace(/\s+$/,"");
 
 		// Check whether we're global, domain-absolute or relative
-		if (URL.match(/^http(s)?:\/\//i)) {
+		if (URL.match(/^http(s)?:\/\//i) || URL.match(/^\/\//)) {
 			// We're global. Try and extract domain and port
-			split = URL.replace(/^http(s)?:\/\//i,"").split(/\//g);
+			split = URL.replace(/^(http(s)?:)?\/\//i,"").split(/\//g);
 			hostData = split[0] && split[0].length ? split[0] : host;
 
 			if (hostData.split(":").length > 0) {
