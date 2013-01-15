@@ -121,7 +121,7 @@ Here's a complete list of what you can stuff with at this stage:
 * `crawler.interval` - The interval with which the crawler will spool up new requests (one per tick.) Defaults to 250ms.
 * `crawler.maxConcurrency` - The maximum number of requests the crawler will run simultaneously. Defaults to 5 - the default number of http agents nodejs will run.
 * `crawler.timeout` - The maximum time the crawler will wait for headers before aborting the request.
-* `crawler.userAgent` - The user agent the crawler will report. Defaults to `Node/SimpleCrawler 0.1 (http://www.github.com/cgiffard/node-simplecrawler)`.
+* `crawler.userAgent` - The user agent the crawler will report. Defaults to `Node/SimpleCrawler <version> (http://www.github.com/cgiffard/node-simplecrawler)`.
 * `crawler.queue` - The queue in use by the crawler (Must implement the `FetchQueue` interface)
 * `crawler.filterByDomain` - Specifies whether the crawler will restrict queued requests to a given domain/domains.
 * `crawler.scanSubdomains` - Enables scanning subdomains (other than www) as well as the specified domain. Defaults to false.

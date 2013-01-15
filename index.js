@@ -4,15 +4,19 @@
 // http://www.github.com/cgiffard/node-simplecrawler
 
 // Queue Dependency
-var FetchQueue = require("./queue.js").queue;
-var Cache = require("./cache.js").Cache;
-var EventEmitter = require('events').EventEmitter;
-var http = require("http"),
-	https = require("https");
+var FetchQueue		= require("./queue.js").queue,
+	Cache			= require("./cache.js").Cache
+	MetaInfo		= require("./package.json");
+
+var http			= require("http"),
+	https			= require("https"),
+	EventEmitter	= require('events').EventEmitter;
 
 // Crawler Constructor
 var Crawler = function(host,initialPath,initialPort,interval) {
-	// SETTINGS TO STUFF WITH (not here! Do it when you create a `new Crawler()`)
+	// SETTINGS TO STUFF WITH
+	// (not here! Do it when you create a `new Crawler()`)
+	
 	// Domain to crawl
 	this.host				= host || "";
 
@@ -21,36 +25,44 @@ var Crawler = function(host,initialPath,initialPort,interval) {
 	this.initialPort		= initialPort || 80;
 	this.initialProtocol	= "http";
 
-	// Internal 'tick' interval for spawning new requests (as long as concurrency is under cap)
+	// Internal 'tick' interval for spawning new requests
+	// (as long as concurrency is under cap)
 	// One request will be spooled per tick, up to the concurrency threshold.
 	this.interval			= interval || 250;
 
-	// Maximum request concurrency. Be sensible. Five ties in with node's default maxSockets value.
+	// Maximum request concurrency. Be sensible. Five ties in with node's
+	// default maxSockets value.
 	this.maxConcurrency		= 5;
 
 	// Maximum time we'll wait for headers
 	this.timeout			= 5 * 60 * 1000;
 
 	// User Agent
-	this.userAgent			= "Node/SimpleCrawler 0.0.8 (http://www.github.com/cgiffard/node-simplecrawler)";
+	this.userAgent
+		=	"Node/" + MetaInfo.name + " " + MetaInfo.version +
+			" (" + MetaInfo.repository.url + ")";
 
-	// Queue for requests - FetchQueue gives us stats and other sugar (but it's basically just an array)
+	// Queue for requests - FetchQueue gives us stats and other sugar
+	// (but it's basically just an array)
 	this.queue				= new FetchQueue();
 
 	// Do we filter by domain?
-	// Unless you want to be crawling the entire internet, I would recommend leaving this on!
+	// Unless you want to be crawling the entire internet, I would
+	// recommend leaving this on!
 	this.filterByDomain		= true;
 
 	// Do we scan subdomains?
 	this.scanSubdomains		= false;
 
-	// Treat WWW subdomain the same as the main domain (and don't count it as a separate subdomain)
+	// Treat WWW subdomain the same as the main domain (and don't count
+	// it as a separate subdomain)
 	this.ignoreWWWDomain	= true;
 
 	// Or go even further and strip WWW subdomain from domains altogether!
 	this.stripWWWDomain		= false;
 
-	// Use simplecrawler's internal resource discovery function (switch it off if you'd prefer to discover and queue resources yourself!)
+	// Use simplecrawler's internal resource discovery function (switch it off
+	// if you'd prefer to discover and queue resources yourself!)
 	this.discoverResources	= true;
 
 	// Internal cachestore
