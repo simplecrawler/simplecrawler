@@ -12,6 +12,12 @@
 		"simplecrawler",
 		"eventemitter"
 	],
+	"scripts": {
+		"test": "mocha -R spec"
+	},
+	"bin": {
+		"crawl": "./lib/cli.js"
+	},
 	"repository": {
 		"type": "git",
 		"url": "http://github.com/cgiffard/node-simplecrawler.git"
