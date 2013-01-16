@@ -1,17 +1,34 @@
 {
-	"name":			"simplecrawler",
-	"description":	"Very straigntforward web crawler. Uses EventEmitter. Generates queue statistics and has a basic cache mechanism with extensible backend.",
-	"version":		"0.0.10",
-	"homepage":		"http://github.com/cgiffard/node-simplecrawler",
-	"author":		"Christopher Giffard <christopher.giffard@cgiffard.com>",
-	"keywords":		["crawler","spider","cache","queue","simplecrawler","eventemitter"],
-    "repository": {
-		"type":		"git",
-		"url":		"http://github.com/cgiffard/node-simplecrawler.git"
-    },
-	"bugs": {
-		"url":		"https://github.com/cgiffard/node-simplecrawler/issues"
+	"name": "simplecrawler",
+	"description": "Very straigntforward web crawler. Uses EventEmitter. Generates queue statistics and has a basic cache mechanism with extensible backend.",
+	"version": "0.1.0",
+	"homepage": "http://github.com/cgiffard/node-simplecrawler",
+	"author": "Christopher Giffard <christopher.giffard@cgiffard.com>",
+	"keywords": [
+		"crawler",
+		"spider",
+		"cache",
+		"queue",
+		"simplecrawler",
+		"eventemitter"
+	],
+	"repository": {
+		"type": "git",
+		"url": "http://github.com/cgiffard/node-simplecrawler.git"
 	},
-    "main":			"./index.js",
-	"engines":		{ "node" : ">=0.4.0" }
+	"bugs": {
+		"url": "https://github.com/cgiffard/node-simplecrawler/issues"
+	},
+	"main": "./lib/index.js",
+	"engines": {
+		"node": ">=0.4.0"
+	},
+	"devDependencies": {
+		"mocha": "~1.8.1",
+		"jshint": "~0.7.x",
+		"chai": "~1.2.0"
+	},
+	"dependencies": {
+		"iconv": "~1.2.4"
+	}
 }
