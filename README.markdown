@@ -80,6 +80,8 @@ Of course, once you've got that down pat, there's a fair bit more you can listen
 
 ### Events
 
+* `crawlstart`
+Fired when the crawl begins or is restarted.
 * `queueadd` ( queueItem )
 Fired when a new item is automatically added to the queue (not when you manually queue an item yourself.)
 * `queueerror` ( errorData , URLData )
