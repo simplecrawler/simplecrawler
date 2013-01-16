@@ -5,8 +5,13 @@
 var fs = require("fs");
 var crypto = require("crypto");
 
-// Constructor for filesystem cache backend
+// Factory for FSBackend
 var backend = function backend(loadParameter) {
+	return new FSBackend(loadParameter);
+};
+
+// Constructor for filesystem cache backend
+var FSBackend = function FSBackend(loadParameter) {
 	this.loaded = false;
 	this.index = [];
 	this.location = typeof(loadParameter) === "string" && loadParameter.length > 0 ? loadParameter : process.cwd() + "/cache/";
@@ -71,7 +76,7 @@ function sanitisePath(path,queueObject) {
 	return sanitisedPath;
 }
 
-backend.prototype.fileExists = function(location) {
+FSBackend.prototype.fileExists = function(location) {
 	try {
 		fs.statSync(location);
 		return true;
@@ -80,7 +85,7 @@ backend.prototype.fileExists = function(location) {
 	}
 };
 
-backend.prototype.isDirectory = function(location) {
+FSBackend.prototype.isDirectory = function(location) {
 	try {
 		if (fs.statSync(location).isDirectory()) {
 			return true;
@@ -92,7 +97,7 @@ backend.prototype.isDirectory = function(location) {
 	}
 };
 
-backend.prototype.load = function() {
+FSBackend.prototype.load = function() {
 	var backend = this;
 	
 	if (!this.fileExists(this.location) && this.isDirectory(this.location)) {
@@ -117,15 +122,15 @@ backend.prototype.load = function() {
 
 	// Flush store to disk when closing.
 	process.on("exit",function() {
-		backend.flushToDisk.apply(backend);
+		backend.saveCache.apply(backend);
 	});
 };
 
-backend.prototype.flushToDisk = function(callback) {
+FSBackend.prototype.saveCache = function(callback) {
 	fs.writeFile(this.location + "cacheindex.json", JSON.stringify(this.index), callback);
 };
 
-backend.prototype.setItem = function(queueObject,data,callback) {
+FSBackend.prototype.setItem = function(queueObject,data,callback) {
 	callback = callback instanceof Function ? callback : function(){};
 	
 	var backend = this;
@@ -188,7 +193,7 @@ backend.prototype.setItem = function(queueObject,data,callback) {
 	});
 };
 
-backend.prototype.getItem = function(queueObject,callback) {
+FSBackend.prototype.getItem = function(queueObject,callback) {
 	var cacheItemResult = this.index.filter(function(item) {
 			return item.url === queueObject.url;
 		});

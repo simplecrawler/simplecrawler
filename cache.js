@@ -11,9 +11,15 @@ var FilesystemBackend = require("./cache-backend-fs.js").backend;
 
 // Init cache wrapper for backend...
 var Cache = function Cache(cacheLoadParameter,cacheBackend) {
-	this.datastore = typeof(cacheBackend) === "object" ?
-							new cacheBackend(cacheLoadParameter) :
-							new FilesystemBackend(cacheLoadParameter);
+	
+	// Ensure parameters are how we want them...
+	cacheBackend = typeof cacheBackend === "object" ? cacheBackend : FilesystemBackend;
+	cacheLoadParameter = cacheLoadParameter instanceof Array ? cacheLoadParameter : [cacheLoadParameter];
+	
+	// Now we can just run the factory.
+	this.datastore = cacheBackend.apply(cacheBackend,cacheLoadParameter);
+	
+	// Instruct the backend to load up.
 	this.datastore.load();
 };
 
@@ -30,11 +36,7 @@ Cache.prototype.getCacheData = function(queueObject,callback) {
 };
 
 Cache.prototype.saveCache = function() {
-	if (this.datastore instanceof FilesystemBackend) {
-		this.datastore.flushToDisk();
-	} else {
-		this.datastore.saveCache();
-	}
+	this.datastore.saveCache();
 };
 
 exports.Cache = Cache;
