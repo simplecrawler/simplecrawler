@@ -1,4 +1,4 @@
-# Simple web-crawler for node.js ![Build Status](https://travis-ci.org/cgiffard/node-simplecrawler.png?branch=master)
+# Simple web-crawler for node.js [![Build Status](https://travis-ci.org/cgiffard/node-simplecrawler.png?branch=master)](https://travis-ci.org/cgiffard/node-simplecrawler)
 
 Simplecrawler is designed to provide the most basic possible API for crawling websites, while being as flexible and robust as possible. I wrote simplecrawler to archive, analyse, and search some very large websites. It has happily chewed through 50,000 pages and written tens of gigabytes to disk without issue.
 
@@ -263,8 +263,8 @@ crawler.queue.defrost("mysavedqueue.json");
 
 #### Build Status:
 
-* Master: ![Build Status](https://travis-ci.org/cgiffard/node-simplecrawler.png?branch=master)
-* Development: ![Build Status](https://travis-ci.org/cgiffard/node-simplecrawler.png?branch=development)
+* Master: [![Build Status](https://travis-ci.org/cgiffard/node-simplecrawler.png?branch=master)](https://travis-ci.org/cgiffard/node-simplecrawler)
+* Development: [![Build Status](https://travis-ci.org/cgiffard/node-simplecrawler.png?branch=development)](https://travis-ci.org/cgiffard/node-simplecrawler)
 
 ## Licence
 
