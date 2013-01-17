@@ -12,14 +12,6 @@ describe("Test Crawl",function() {
 	// Create a new crawler to crawl this server
 	var localCrawler = new Crawler("127.0.0.1","/",3000);
 	
-	localCrawler.on("fetchstart",function(queueItem) {
-		console.log("fetchstart",queueItem);
-	});
-	
-	localCrawler.on("fetchstart",function(queueItem) {
-		console.log("fetchstart",queueItem);
-	});
-
 	it("should be able to be started",function(done) {
 		
 		localCrawler.on("crawlstart",done);
@@ -40,17 +32,12 @@ describe("Test Crawl",function() {
 		});
 		
 	});
-
-	// it("should import the queue",function(done) {
-	// 	var Crawler = require("../");
-	// 
-	// 	Crawler.queue.should.be.a("function");
-	// });
-	// 
-	// it("should import the cache system",function(done) {
-	// 	var Crawler = require("../");
-	// 
-	// 	Crawler.cache.should.be.a("function");
-	// });
+	
+	// Todo: test how simple error conditions, content types, and responses
+	// are handled.
+	
+	// Test encodings.
+	
+	// Test URL detection
 
 });
