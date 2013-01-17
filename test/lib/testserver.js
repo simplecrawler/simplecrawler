@@ -18,7 +18,7 @@ httpServer.on("request",function(req,res) {
 		// Pass in a function that takes a status and some text to write back
 		// out to the client
 		testRoutes[req.url](function(status,text) {
-			res.writeHead(status);
+			res.writeHead(status,http.STATUS_CODES[status]);
 			res.write(text);
 			res.end();
 		});
