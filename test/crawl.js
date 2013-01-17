@@ -39,5 +39,9 @@ describe("Test Crawl",function() {
 	// Test encodings.
 	
 	// Test URL detection
+	
+	// Test handling binary data
+	
+	// test bad content length
 
 });
