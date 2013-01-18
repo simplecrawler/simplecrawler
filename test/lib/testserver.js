@@ -12,7 +12,7 @@ var testRoutes = require("./routes");
 // Listen to events
 httpServer.on("request",function(req,res) {
 	
-	function write(status,data,contentType) {console.log(data);
+	function write(status,data,contentType) {
 		res.writeHead(
 			status,
 			http.STATUS_CODES[status],
