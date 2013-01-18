@@ -102,7 +102,7 @@ Fired when a 404 HTTP status code is returned for a request.
 Fired when an alternate 400 or 500 series HTTP status code is returned for a request.
 * `fetchclienterror` ( queueItem, errorData )
 Fired when a request dies locally for some reason. The error data is returned as the second parameter.
-* `discoverycomplete` ( queueItem, resources)
+* `discoverycomplete` ( queueItem, resources )
 Fired when linked resources have been discovered. Passes an array of resources (as URLs) as the second parameter.
 * `complete`
 Fired when the crawler completes processing all the items in its queue, and does not find any more to add. This event returns no arguments.

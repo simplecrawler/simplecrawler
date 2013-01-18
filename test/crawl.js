@@ -1,4 +1,5 @@
 // Runs a very simple crawl on an HTTP server
+// This is more of an integration test than a unit test.
 
 var chai = require("chai");
 chai.should();
@@ -25,14 +26,29 @@ describe("Test Crawl",function() {
 		localCrawler.queue.length.should.be.greaterThan(0);
 	});
 	
-	it("should completely fetch or fail on every resource in the queue",function(done) {
+	it("should complete the fetch queue",function(done) {
 		
 		localCrawler.on("complete",function() {
 			done();
 		});
-		
 	});
 	
+	// Suddenly feeling very incompatible with the mocha philosophy.
+	// Will try to make it work first, then look for another framework that
+	// supports parallell tests.
+	// 
+	// it("should be able to discover link resources",function(done) {
+	//	var linksDiscovered = 0;
+	//	
+	//	localCrawler.on("discoverycomplete",function() {
+	//		linksDiscovered ++;
+	//		
+	//		if (!linksDiscovered) done();
+	//	});
+	// });
+	// 
+	// 
+	// 
 	// Todo: test how simple error conditions, content types, and responses
 	// are handled.
 	
