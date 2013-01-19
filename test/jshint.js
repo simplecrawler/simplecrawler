@@ -26,7 +26,6 @@ describe("Core code",function() {
 			JSHINT(code);
 			
 			if (JSHINT.errors.length) {
-				console.log(JSHINT.errors[0]);
 				throw new Error(
 							"Line " +
 							JSHINT.errors[0].line + ": " +
