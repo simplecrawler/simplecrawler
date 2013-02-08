@@ -1,6 +1,20 @@
 # Simple web-crawler for node.js [![Build Status](https://travis-ci.org/cgiffard/node-simplecrawler.png?branch=master)](https://travis-ci.org/cgiffard/node-simplecrawler)
 
-Simplecrawler is designed to provide the most basic possible API for crawling websites, while being as flexible and robust as possible. I wrote simplecrawler to archive, analyse, and search some very large websites. It has happily chewed through 50,000 pages and written tens of gigabytes to disk without issue.
+Simplecrawler is designed to provide the most basic possible API for crawling
+websites, while being as flexible and robust as possible. I wrote simplecrawler
+to archive, analyse, and search some very large websites. It has happily chewed
+through 50,000 pages and written tens of gigabytes to disk without issue.
+
+#### Example (simple mode)
+
+```javascript
+var Crawler = require("simplecrawler");
+
+Crawler.crawl("http://example.com/")
+	.on("fetchcomplete",function(queueItem){
+		console.log("Completed fetching resource:",queueItem.url);
+	});
+```
 
 ### What does simplecrawler do?
 
@@ -19,13 +33,51 @@ npm install simplecrawler
 
 ### Getting Started
 
-Creating a new crawler is very simple. First you'll need to include it:
+There are two ways of instantiating a new crawler - a simple but less flexible
+method inspired by [anemone](http://anemone.rubyforge.org), and the traditional
+method which provides a little more room to configure crawl parameters.
+
+Regardless of wether you use the simple or traditional methods of instantiation,
+you'll need to require simplecrawler:
 
 ```javascript
-var Crawler = require("simplecrawler").Crawler;
+var Crawler = require("simplecrawler");
 ```
 
-Then create your crawler:
+#### Simple Mode
+
+Simple mode generates a new crawler for you, preconfigures it based on a URL you
+provide, and returns the crawler to you for further configuration and so you can
+attach event handlers.
+
+Simply call `Crawler.crawl`, with a URL first parameter, and two optional
+functions that will be added as event listeners for `fetchcomplete` and
+`fetcherror` respectively.
+
+```javascript
+Crawler.crawl("http://example.com/", function(queueItem){
+	console.log("Completed fetching resource:",queueItem.url);
+});
+```
+
+Alternately, if you decide to omit these functions, you can use the returned
+crawler object to add the event listeners yourself, and tweak configuration
+options:
+
+```javascript
+var crawler = Crawler.crawl("http://example.com/");
+
+crawler.interval = 500;
+
+crawler.on("fetchcomplete",function(queueItem){
+	console.log("Completed fetching resource:",queueItem.url);
+});
+```
+
+#### Advanced Mode
+
+The alternative method of creating a crawler is to call the `simplecrawler`
+constructor yourself, and to initiate the crawl manually.
 
 ```javascript
 var myCrawler = new Crawler("www.example.com");
@@ -143,15 +195,53 @@ Here's a complete list of what you can stuff with at this stage:
 * `crawler.authUser` - Username provdied for needsAuth flag
 * `crawler.authPass` - Passowrd provided for needsAuth flag
 
+#### Excluding certain resources from downloading
+
+Simplecrawler has a mechanism you can use to prevent certain resources from being
+fetched, based on the URL, called *Fetch Conditions**. A fetch condition is just
+a function, which, when given a parsed URL object, will return a true or a false
+value, indicating whether a given resource should be downloaded.
+
+You may add as many fetch conditions as you like, and remove them at runtime.
+Simplecrawler will evaluate every single condition against every queued URL, and
+should just one of them return a falsy value (this includes null and undefined,
+so remember to always return a value!) then the resource in question will not be
+fetched.
+
+##### Adding a fetch condition
+
+This example fetch condition prevents URLs ending in `.pdf` from downloading.
+Adding a fetch condition assigns it an ID, which the `addFetchCondition` function
+returns. You can use this ID to remove the condition later.
+
+```javascript
+var conditionID = myCrawler.addFetchCondition(function(parsedURL) {
+	return !parsedURL.path.match(/\.pdf$/i);
+});
+```
+
+##### Removing a fetch condition
+
+If you stored the ID of the fetch condition you added earlier, you can remove it
+from the crawler:
+
+```javascript
+myCrawler.removeFetchCondition(conditionID);
+```
+
 ### The Simplecrawler Queue
 
-Simplecrawler has a queue like any other web crawler. It can be directly accessed at `crawler.queue` (assuming you called your Crawler() object `crawler`.) It provides array access, so you can get to queue items just with array notation and an index.
+Simplecrawler has a queue like any other web crawler. It can be directly accessed
+at `crawler.queue` (assuming you called your Crawler() object `crawler`.) It
+provides array access, so you can get to queue items just with array notation
+and an index.
 
 ```javascript
 crawler.queue[5];
 ```
 
-For compatibility with different backing stores, it now provides an alternate interface which the crawler core makes use of:
+For compatibility with different backing stores, it now provides an alternate
+interface which the crawler core makes use of:
 
 ```javascript
 crawler.queue.get(5);
@@ -161,17 +251,23 @@ It's not just an array though.
 
 #### Adding to the queue
 
-You could always just `.push` a new resource onto the queue, but you'd need to have it all in the correct format, and validate the URL yourself, and oh wouldn't that be a pain. Instead, use the `queue.add` function provided for your convenience:
+You could always just `.push` a new resource onto the queue, but you'd need to
+have it all in the correct format, and validate the URL yourself, and oh wouldn't
+that be a pain. Instead, use the `queue.add` function provided for your
+convenience:
 
 ```javascript
 crawler.queue.add(protocol,domain,port,path);
 ```
 
-That's it! It's basically just a URL, but comma separated (that's how you can remember the order.)
+That's it! It's basically just a URL, but comma separated (that's how you can
+remember the order.)
 
 #### Queue items
 
-Because when working with simplecrawler, you'll constantly be handed queue items, it helps to know what's inside them. These are the properties every queue item is expected to have:
+Because when working with simplecrawler, you'll constantly be handed queue items,
+it helps to know what's inside them. These are the properties every queue item
+is expected to have:
 
 * `url` - The complete, canonical URL of the resource.
 * `protocol` - The protocol of the resource (http, https)
@@ -206,11 +302,15 @@ queueItem.stateData.contentLength;
 queueItem.status === "queued";
 ```
 
-As you can see, you can get a lot of meta-information out about each request. The upside is, the queue actually has some convenient functions for getting simple aggregate data about the queue...
+As you can see, you can get a lot of meta-information out about each request. The
+upside is, the queue actually has some convenient functions for getting simple
+aggregate data about the queue...
 
 #### Queue Statistics and Reporting
 
-First of all, the queue can provide some basic statistics about the network performance of your crawl (so far.) This is done live, so don't check it thirty times a second. You can test the following properties:
+First of all, the queue can provide some basic statistics about the network
+performance of your crawl (so far.) This is done live, so don't check it thirty
+times a second. You can test the following properties:
 
 * `requestTime`
 * `requestLatency`
@@ -218,7 +318,9 @@ First of all, the queue can provide some basic statistics about the network perf
 * `contentLength`
 * `actualDataSize`
 
-And you can get the maximum, minimum, and average values for each with the `crawler.queue.max`, `crawler.queue.min`, and `crawler.queue.avg` functions respectively. Like so:
+And you can get the maximum, minimum, and average values for each with the
+`crawler.queue.max`, `crawler.queue.min`, and `crawler.queue.avg` functions
+respectively. Like so:
 
 ```javascript
 console.log("The maximum request latency was %dms.",crawler.queue.max("requestLatency"));
@@ -226,9 +328,13 @@ console.log("The minimum download time was %dms.",crawler.queue.min("downloadTim
 console.log("The average resource size received is %d bytes.",crawler.queue.avg("actualDataSize"));
 ```
 
-You'll probably often need to determine how many items in the queue have a given status at any one time, and/or retreive them. That's easy with `crawler.queue.countWithStatus` and `crawler.queue.getWithStatus`.
+You'll probably often need to determine how many items in the queue have a given
+status at any one time, and/or retreive them. That's easy with
+`crawler.queue.countWithStatus` and `crawler.queue.getWithStatus`.
 
-`crawler.queue.getwithStatus` returns the number of queued items with a given status, while `crawler.queue.getWithStatus` returns an array of the queue items themselves.
+`crawler.queue.getwithStatus` returns the number of queued items with a given
+status, while `crawler.queue.getWithStatus` returns an array of the queue items
+themselves.
 
 ```javascript
 var redirectCount = crawler.queue.countWithStatus("redirected");
@@ -247,9 +353,16 @@ Then there's some even simpler convenience functions:
 
 #### Saving and reloading the queue (freeze/defrost)
 
-You'll probably want to be able to save your progress and reload it later, if your application fails or you need to abort the crawl for some reason. (Perhaps you just want to finish off for the night and pick it up tomorrow!) The `crawler.queue.freeze` and `crawler.queue.defrost` functions perform this task.
+You'll probably want to be able to save your progress and reload it later, if
+your application fails or you need to abort the crawl for some reason. (Perhaps
+you just want to finish off for the night and pick it up tomorrow!) The
+`crawler.queue.freeze` and `crawler.queue.defrost` functions perform this task.
 
-**A word of warning though** - they are not CPU friendly or set up to be asynchronous, as they rely on JSON.parse and JSON.stringify. Use them only when you need to save the queue - don't call them every request or your application's performance will be incredibly poor - they block like *crazy*. That said, using them when your crawler commences and stops is perfectly reasonable.
+**A word of warning though** - they are not CPU friendly or set up to be
+asynchronous, as they rely on JSON.parse and JSON.stringify. Use them only when
+you need to save the queue - don't call them every request or your application's
+performance will be incredibly poor - they block like *crazy*. That said, using
+them when your crawler commences and stops is perfectly reasonable.
 
 ```javascript
 // Freeze queue
