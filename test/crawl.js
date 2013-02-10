@@ -2,7 +2,7 @@
 // This is more of an integration test than a unit test.
 
 var chai = require("chai");
-chai.should();
+	chai.should();
 
 var testserver = require("./lib/testserver.js");
 

@@ -2,7 +2,7 @@
 // horribly right off the bat
 
 var chai = require("chai");
-chai.should();
+	chai.should();
 
 describe("Crawler object",function() {
 	

@@ -1,7 +1,7 @@
 // Tests to ensure crawler code is well formed
 
 var chai = require("chai");
-chai.should();
+	chai.should();
 
 describe("Core code",function() {
 	var JSHINT = require("jshint").JSHINT,
