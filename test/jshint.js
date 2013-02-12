@@ -17,13 +17,29 @@ describe("Core code",function() {
 		"cli",
 		"crawler",
 		"index",
-		"queue"	].forEach(function(item) {
+		"queue",
+		"quickcrawl"	].forEach(function(item) {
 		
 		var code = readCode(item);
 		
 		it("module `" + item + "` should pass JSHint with no errors",function() {
 			
-			JSHINT(code);
+			JSHINT(code,{
+					"indent": 4,
+					"undef": true
+				},
+				{
+					// Don't want no errant logging statements going to production!
+					// `console` has been deliberately omitted from this whitelist.
+					
+					// All the regular node stuff
+					"require": true,
+					"module": true,
+					"process": true,
+					"setInterval": true,
+					"clearInterval": true,
+					"Buffer": true
+				});
 			
 			if (JSHINT.errors.length) {
 				throw new Error(
