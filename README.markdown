@@ -219,6 +219,7 @@ var conditionID = myCrawler.addFetchCondition(function(parsedURL) {
 	return !parsedURL.path.match(/\.pdf$/i);
 });
 ```
+NOTE: simplecrawler uses slightly different terminology to URIjs. `parsedURL.path` includes the query string too. If you want the path without the query string, use `parsedURL.uriPath`.
 
 ##### Removing a fetch condition
 
@@ -257,7 +258,7 @@ that be a pain. Instead, use the `queue.add` function provided for your
 convenience:
 
 ```javascript
-crawler.queue.add(protocol,domain,port,path);
+crawler.queue.add(protocol,hostname,port,path);
 ```
 
 That's it! It's basically just a URL, but comma separated (that's how you can
@@ -271,7 +272,7 @@ is expected to have:
 
 * `url` - The complete, canonical URL of the resource.
 * `protocol` - The protocol of the resource (http, https)
-* `domain` - The full domain of the resource
+* `host` - The full domain/hostname of the resource
 * `port` - The port of the resource
 * `path` - The bit of the URL after the domain - includes the querystring.
 * `fetched` - Has the request for this item been completed? You can monitor this as requests are processed.
