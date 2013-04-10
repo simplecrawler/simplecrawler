@@ -387,7 +387,11 @@ I'd appreciate it if you'd contribute patches back, but you don't have to. If yo
 
 ## Contributors
 
-Thanks to [Nick Crohn](https://github.com/ncrohn) for the HTTP Basic auth support.
-Thanks also to [Mike Moulton](https://github.com/mmoulton) for [fixing a bug in the URL discovery mechanism](https://github.com/cgiffard/node-simplecrawler/pull/3),
-as well as [adding the `discoverycomplete` event](https://github.com/cgiffard/node-simplecrawler/pull/10),
-and [Mike Iannacone](https://github.com/mikeiannacone) for correcting a keyword naming collision with node 0.8's EventEmitter.
+I'd like to extend sincere thanks to:
+
+* [Nick Crohn](https://github.com/ncrohn) for the HTTP Basic auth support.
+* [Mike Moulton](https://github.com/mmoulton) for [fixing a bug in the URL discovery mechanism](https://github.com/cgiffard/node-simplecrawler/pull/3), as well as [adding the `discoverycomplete` event](https://github.com/cgiffard/node-simplecrawler/pull/10),
+* [Mike Iannacone](https://github.com/mikeiannacone) for correcting a keyword naming collision with node 0.8's EventEmitter.
+* [Greg Molnar](https://github.com/gregmolnar) for [adding a querystring-free path parameter to parsed URL objects.](https://github.com/cgiffard/node-simplecrawler/pull/31)
+
+And everybody else who has helped out in some way! :)
