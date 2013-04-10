@@ -219,6 +219,7 @@ var conditionID = myCrawler.addFetchCondition(function(parsedURL) {
 	return !parsedURL.path.match(/\.pdf$/i);
 });
 ```
+NOTE: simplecrawler uses slightly different terminology to URIjs. `parsedURL.path` includes the query string too. If you want the path without the query string, use `parsedURL.uriPath`.
 
 ##### Removing a fetch condition
 
