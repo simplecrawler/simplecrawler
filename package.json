@@ -36,7 +36,6 @@
   },
   "dependencies": {
     "iconv": "~1.2.4",
-    "URIjs": "~1.8.3",
-    "underscore": "~1.4.4"
+    "URIjs": "~1.8.3"
   }
 }
