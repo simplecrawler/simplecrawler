@@ -194,6 +194,7 @@ Here's a complete list of what you can stuff with at this stage:
 * `crawler.needsAuth` - Flag to specify if the domain you are hitting requires basic authentication
 * `crawler.authUser` - Username provdied for needsAuth flag
 * `crawler.authPass` - Passowrd provided for needsAuth flag
+* `crawler.supportCookies` - Flag to indicate if the crawler should hold on to cookies
 
 #### Excluding certain resources from downloading
 
