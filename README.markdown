@@ -493,6 +493,8 @@ I'd like to extend sincere thanks to:
 *	[Greg Molnar](https://github.com/gregmolnar) for
 	[adding a querystring-free path parameter to parsed URL objects.]
 	(https://github.com/cgiffard/node-simplecrawler/pull/31)
+*	[Breck Yunits](https://github.com/breck7) for contributing a useful code
+	sample demonstrating using simplecrawler for caching a website to disk!
 
 And everybody else who has helped out in some way! :)
 
