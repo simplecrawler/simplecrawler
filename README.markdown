@@ -135,34 +135,49 @@ Of course, once you've got that down pat, there's a fair bit more you can listen
 * `crawlstart`
 Fired when the crawl begins or is restarted.
 * `queueadd` ( queueItem )
-Fired when a new item is automatically added to the queue (not when you manually queue an item yourself.)
+Fired when a new item is automatically added to the queue (not when you manually
+queue an item yourself.)
 * `queueerror` ( errorData , URLData )
 Fired when an item cannot be added to the queue due to error.
-* `fetchstart` ( queueItem )
-Fired when an item is spooled for fetching.
+* `fetchstart` ( queueItem , requestOptions )
+Fired when an item is spooled for fetching. If your event handler is synchronous,
+you can modify the crawler request options (including headers) 
 * `fetchheaders` ( queueItem , responseObject )
-Fired when the headers for a resource are received from the server. The node http response object is returned for your perusal.
+Fired when the headers for a resource are received from the server. The node http
+response object is returned for your perusal.
 * `fetchcomplete` ( queueItem , responseBuffer , response )
-Fired when the resource is completely downloaded. The entire file data is provided as a buffer, as well as the response object.
+Fired when the resource is completely downloaded. The entire file data is provided
+as a buffer, as well as the response object.
 * `fetchdataerror` ( queueItem, response )
-Fired when a resource can't be downloaded, because it exceeds the maximum size we're prepared to receive (16MB by default.)
+Fired when a resource can't be downloaded, because it exceeds the maximum size
+we're prepared to receive (16MB by default.)
 * `fetchredirect` ( queueItem, parsedURL, response )
-Fired when a redirect header is encountered. The new URL is validated and returned as a complete canonical link to the new resource.
+Fired when a redirect header is encountered. The new URL is validated and returned
+as a complete canonical link to the new resource.
 * `fetch404` ( queueItem, response )
 Fired when a 404 HTTP status code is returned for a request.
 * `fetcherror` ( queueItem, response )
-Fired when an alternate 400 or 500 series HTTP status code is returned for a request.
+Fired when an alternate 400 or 500 series HTTP status code is returned for a
+request.
 * `fetchclienterror` ( queueItem, errorData )
-Fired when a request dies locally for some reason. The error data is returned as the second parameter.
+Fired when a request dies locally for some reason. The error data is returned as
+the second parameter.
 * `discoverycomplete` ( queueItem, resources )
-Fired when linked resources have been discovered. Passes an array of resources (as URLs) as the second parameter.
+Fired when linked resources have been discovered. Passes an array of resources
+(as URLs) as the second parameter.
 * `complete`
-Fired when the crawler completes processing all the items in its queue, and does not find any more to add. This event returns no arguments.
+Fired when the crawler completes processing all the items in its queue, and does
+not find any more to add. This event returns no arguments.
 
-####A note about HTTP error conditions
-By default, simplecrawler does not download the response body when it encounters an HTTP error status in the response. If you need this information, you can listen to simplecrawler's error events, and through node's native `data` event (`response.on("data",function(chunk) {...})`) you can save the information yourself.
+#### A note about HTTP error conditions
+By default, simplecrawler does not download the response body when it encounters
+an HTTP error status in the response. If you need this information, you can listen
+to simplecrawler's error events, and through node's native `data` event
+(`response.on("data",function(chunk) {...})`) you can save the information yourself.
 
-If this is annoying, and you'd really like to retain error pages by default, let me know. I didn't include it because I didn't need it - but if it's important to people I might put it back in. :)
+If this is annoying, and you'd really like to retain error pages by default, let
+me know. I didn't include it because I didn't need it - but if it's important to
+people I might put it back in. :)
 
 ### Configuring the crawler
 
@@ -378,6 +393,22 @@ crawler.queue.freeze("mysavedqueue.json");
 // Defrost queue
 crawler.queue.defrost("mysavedqueue.json");
 ```
+
+## Cookies
+
+Simplecrawler now has an internal cookie jar, which collects and resends cookies
+automatically, and by default.
+
+If you want to turn this off, set the `crawler.acceptCookies` option to `false`.
+
+The cookie jar is accessible via `crawler.cookies`, and is an event emitter itself:
+
+### Cookie Events
+
+* `addcookie` ( cookie )
+Fired when a new cookie is added to the jar.
+* `removecookie` ( cookie array )
+Fired when one or more cookies are removed from the jar.
 
 ## Building and Testing
 
