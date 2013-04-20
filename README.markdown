@@ -20,10 +20,12 @@ Crawler.crawl("http://example.com/")
 
 * Provides a very simple event driven API using `EventEmitter`
 * Extremely configurable base for writing your own crawler
-* Provides some simple logic for autodetecting linked resources - which you can replace or augment
+* Provides some simple logic for autodetecting linked resources - which you can
+replace or augment
 * Has a flexible queue system which can be frozen to disk and defrosted
 * Provides basic statistics on network performance
-* Uses buffers for fetching and managing data, preserving binary data (except when discovering links)
+* Uses buffers for fetching and managing data, preserving binary data (except
+when discovering links)
 
 ### Installation
 
@@ -95,14 +97,17 @@ var myCrawler = new Crawler("www.example.com","/archive",8080);
 
 ```
 
-And of course, you're probably wanting to ensure you don't take down your webserver. Decrease the concurrency from five simultaneous requests - and increase the request interval from the default 250ms like this:
+And of course, you're probably wanting to ensure you don't take down your web
+server. Decrease the concurrency from five simultaneous requests - and increase
+the request interval from the default 250ms like this:
 
 ```javascript
 myCrawler.interval = 10000; // Ten seconds
 myCrawler.maxConcurrency = 1;
 ```
 
-For brevity, you may also specify the initial path and request interval when creating the crawler:
+For brevity, you may also specify the initial path and request interval when
+creating the crawler:
 
 ```javascript
 var myCrawler = new Crawler("www.example.com","/",8080,300);
@@ -121,8 +126,9 @@ myCrawler.on("fetchcomplete",function(queueItem, responseBuffer, response) {
 });
 ```
 
-Then, when you're satisfied you're ready to go, start the crawler! It'll run through its queue finding linked
-resources on the domain to download, until it can't find any more.
+Then, when you're satisfied you're ready to go, start the crawler! It'll run
+through its queue finding linked resources on the domain to download, until it
+can't find any more.
 
 ```javascript
 myCrawler.start();
