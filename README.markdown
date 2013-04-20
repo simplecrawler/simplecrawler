@@ -189,33 +189,82 @@ people I might put it back in. :)
 
 Here's a complete list of what you can stuff with at this stage:
 
-* `crawler.host` - The domain to scan. By default, simplecrawler will restrict all requests to this domain.
-* `crawler.initialPath` - The initial path with which the crawler will formulate its first request. Does not restrict subsequent requests.
-* `crawler.initialPort` - The initial port with which the crawler will formulate its first request. Does not restrict subsequent requests.
-* `crawler.initialProtocol` - The initial protocol with which the crawler will formulate its first request. Does not restrict subsequent requests.
-* `crawler.interval` - The interval with which the crawler will spool up new requests (one per tick.) Defaults to 250ms.
-* `crawler.maxConcurrency` - The maximum number of requests the crawler will run simultaneously. Defaults to 5 - the default number of http agents nodejs will run.
-* `crawler.timeout` - The maximum time the crawler will wait for headers before aborting the request.
-* `crawler.userAgent` - The user agent the crawler will report. Defaults to `Node/SimpleCrawler <version> (http://www.github.com/cgiffard/node-simplecrawler)`.
-* `crawler.queue` - The queue in use by the crawler (Must implement the `FetchQueue` interface)
-* `crawler.filterByDomain` - Specifies whether the crawler will restrict queued requests to a given domain/domains.
-* `crawler.scanSubdomains` - Enables scanning subdomains (other than www) as well as the specified domain. Defaults to false.
-* `crawler.ignoreWWWDomain` - Treats the `www` domain the same as the originally specified domain. Defaults to true.
-* `crawler.stripWWWDomain` - Or go even further and strip WWW subdomain from requests altogether!
-* `crawler.discoverResources` - Use simplecrawler's internal resource discovery function. Defaults to true. (switch it off if you'd prefer to discover and queue resources yourself!)
-* `crawler.cache` - Specify a cache architecture to use when crawling. Must implement `SimpleCache` interface.
-* `crawler.useProxy` - The crawler should use an HTTP proxy to make its requests.
-* `crawler.proxyHostname` - The hostname of the proxy to use for requests.
-* `crawler.proxyPort` - The port of the proxy to use for requests.
-* `crawler.domainWhitelist` - An array of domains the crawler is permitted to crawl from. If other settings are more permissive, they will override this setting.
-* `crawler.supportedMimeTypes` - An array of RegEx objects used to determine supported MIME types (types of data simplecrawler will scan for links.) If you're  not using simplecrawler's resource discovery function, this won't have any effect.
-* `crawler.allowedProtocols` - An array of RegEx objects used to determine whether a URL protocol is supported. This is to deal with nonstandard protocol handlers that regular HTTP is sometimes given, like `feed:`. It does not provide support for non-http protocols (and why would it!?)
-* `crawler.maxResourceSize` - The maximum resource size, in bytes, which will be downloaded. Defaults to 16MB.
-* `crawler.downloadUnsupported` - Simplecrawler will download files it can't parse. Defaults to true, but if you'd rather save the RAM and GC lag, switch it off.
-* `crawler.needsAuth` - Flag to specify if the domain you are hitting requires basic authentication
-* `crawler.authUser` - Username provided for needsAuth flag
-* `crawler.authPass` - Password provided for needsAuth flag
-* `crawler.acceptCookies` - Flag to indicate if the crawler should hold on to cookies
+*	`crawler.host` -
+	The domain to scan. By default, simplecrawler will restrict all requests to
+	this domain.
+*	`crawler.initialPath` -
+	The initial path with which the crawler will formulate its first request.
+	Does not restrict subsequent requests.
+*	`crawler.initialPort` -
+	The initial port with which the crawler will formulate its first request.
+	Does not restrict subsequent requests.
+*	`crawler.initialProtocol` -
+	The initial protocol with which the crawler will formulate its first request.
+	Does not restrict subsequent requests.
+*	`crawler.interval` -
+	The interval with which the crawler will spool up new requests (one per
+	tick.) Defaults to 250ms.
+*	`crawler.maxConcurrency` -
+	The maximum number of requests the crawler will run simultaneously. Defaults
+	to 5 - the default number of http agents node will run.
+*	`crawler.timeout` -
+	The maximum time the crawler will wait for headers before aborting the request.
+*	`crawler.userAgent` -
+	The user agent the crawler will report. Defaults to
+	`Node/SimpleCrawler <version> (http://www.github.com/cgiffard/node-simplecrawler)`.
+*	`crawler.queue` -
+	The queue in use by the crawler (Must implement the `FetchQueue` interface)
+*	`crawler.filterByDomain` -
+	Specifies whether the crawler will restrict queued requests to a given
+	domain/domains.
+*	`crawler.scanSubdomains` -
+	Enables scanning subdomains (other than www) as well as the specified domain.
+	Defaults to false.
+*	`crawler.ignoreWWWDomain` -
+	Treats the `www` domain the same as the originally specified domain.
+	Defaults to true.
+*	`crawler.stripWWWDomain` -
+	Or go even further and strip WWW subdomain from requests altogether!
+*	`crawler.discoverResources` -
+	Use simplecrawler's internal resource discovery function. Defaults to true.
+	(switch it off if you'd prefer to discover and queue resources yourself!)
+*	`crawler.cache` -
+	Specify a cache architecture to use when crawling. Must implement
+	`SimpleCache` interface.
+*	`crawler.useProxy` -
+	The crawler should use an HTTP proxy to make its requests.
+*	`crawler.proxyHostname` -
+	The hostname of the proxy to use for requests.
+*	`crawler.proxyPort` -
+	The port of the proxy to use for requests.
+*	`crawler.domainWhitelist` -
+	An array of domains the crawler is permitted to crawl from. If other settings
+	are more permissive, they will override this setting.
+*	`crawler.supportedMimeTypes` -
+	An array of RegEx objects used to determine supported MIME types (types of
+	data simplecrawler will scan for links.) If you're  not using simplecrawler's
+	resource discovery function, this won't have any effect.
+*	`crawler.allowedProtocols` -
+	An array of RegEx objects used to determine whether a URL protocol is supported.
+	This is to deal with nonstandard protocol handlers that regular HTTP is
+	sometimes given, like `feed:`. It does not provide support for non-http
+	protocols (and why would it!?)
+*	`crawler.maxResourceSize` - 
+	The maximum resource size, in bytes, which will be downloaded. Defaults to 16MB.
+*	`crawler.downloadUnsupported` -
+	Simplecrawler will download files it can't parse. Defaults to true, but if
+	you'd rather save the RAM and GC lag, switch it off.
+*	`crawler.needsAuth` -
+	Flag to specify if the domain you are hitting requires basic authentication
+*	`crawler.authUser` -
+	Username provided for needsAuth flag
+*	`crawler.authPass` -
+	Password provided for needsAuth flag
+*	`crawler.acceptCookies` -
+	Flag to indicate if the crawler should hold on to cookies
+*	`crawler.urlEncoding` -
+	Set this to `iso8859` to trigger URIjs' re-encoding of iso8859 URLs to unicode.
+	Defaults to `unicode`.
 
 #### Excluding certain resources from downloading
 
