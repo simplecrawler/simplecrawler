@@ -15,6 +15,7 @@ describe("Core code",function() {
 	[	"cache-backend-fs",
 		"cache",
 		"cli",
+		"cookies",
 		"crawler",
 		"index",
 		"queue",

@@ -192,9 +192,9 @@ Here's a complete list of what you can stuff with at this stage:
 * `crawler.maxResourceSize` - The maximum resource size, in bytes, which will be downloaded. Defaults to 16MB.
 * `crawler.downloadUnsupported` - Simplecrawler will download files it can't parse. Defaults to true, but if you'd rather save the RAM and GC lag, switch it off.
 * `crawler.needsAuth` - Flag to specify if the domain you are hitting requires basic authentication
-* `crawler.authUser` - Username provdied for needsAuth flag
-* `crawler.authPass` - Passowrd provided for needsAuth flag
-* `crawler.supportCookies` - Flag to indicate if the crawler should hold on to cookies
+* `crawler.authUser` - Username provided for needsAuth flag
+* `crawler.authPass` - Password provided for needsAuth flag
+* `crawler.acceptCookies` - Flag to indicate if the crawler should hold on to cookies
 
 #### Excluding certain resources from downloading
 
@@ -220,7 +220,10 @@ var conditionID = myCrawler.addFetchCondition(function(parsedURL) {
 	return !parsedURL.path.match(/\.pdf$/i);
 });
 ```
-NOTE: simplecrawler uses slightly different terminology to URIjs. `parsedURL.path` includes the query string too. If you want the path without the query string, use `parsedURL.uriPath`.
+
+NOTE: simplecrawler uses slightly different terminology to URIjs. `parsedURL.path`
+includes the query string too. If you want the path without the query string,
+use `parsedURL.uriPath`.
 
 ##### Removing a fetch condition
 
@@ -350,8 +353,10 @@ crawler.queue.getWithStatus("failed").forEach(function(queueItem) {
 
 Then there's some even simpler convenience functions:
 
-* `crawler.queue.complete` - returns the number of queue items which have been completed (marked as fetched)
-* `crawler.queue.errors` - returns the number of requests which have failed (404s and other 400/500 errors, as well as client errors)
+*	`crawler.queue.complete` - returns the number of queue items which have been
+	completed (marked as fetched)
+*	`crawler.queue.errors` - returns the number of requests which have failed
+	(404s and other 400/500 errors, as well as client errors)
 
 #### Saving and reloading the queue (freeze/defrost)
 
@@ -381,19 +386,47 @@ crawler.queue.defrost("mysavedqueue.json");
 * Master: [![Build Status](https://travis-ci.org/cgiffard/node-simplecrawler.png?branch=master)](https://travis-ci.org/cgiffard/node-simplecrawler)
 * Development: [![Build Status](https://travis-ci.org/cgiffard/node-simplecrawler.png?branch=development)](https://travis-ci.org/cgiffard/node-simplecrawler)
 
-## Licence
-
-You may copy and use this library as you see fit (including commercial use) and modify it, as long as you retain my attribution comment (which includes my name, link to this github page, and library version) at the top of all script files. You may not, under any circumstances, claim you wrote this library, or remove my attribution. (Fair's fair!)
-
-I'd appreciate it if you'd contribute patches back, but you don't have to. If you do, I'll be happy to credit your contributions!
-
 ## Contributors
 
 I'd like to extend sincere thanks to:
 
-* [Nick Crohn](https://github.com/ncrohn) for the HTTP Basic auth support.
-* [Mike Moulton](https://github.com/mmoulton) for [fixing a bug in the URL discovery mechanism](https://github.com/cgiffard/node-simplecrawler/pull/3), as well as [adding the `discoverycomplete` event](https://github.com/cgiffard/node-simplecrawler/pull/10),
-* [Mike Iannacone](https://github.com/mikeiannacone) for correcting a keyword naming collision with node 0.8's EventEmitter.
-* [Greg Molnar](https://github.com/gregmolnar) for [adding a querystring-free path parameter to parsed URL objects.](https://github.com/cgiffard/node-simplecrawler/pull/31)
+*	[Nick Crohn](https://github.com/ncrohn) for the HTTP Basic auth support, and
+	initial cookie support.
+*	[Mike Moulton](https://github.com/mmoulton) for
+	[fixing a bug in the URL discovery mechanism]
+	(https://github.com/cgiffard/node-simplecrawler/pull/3), as well as
+	[adding the `discoverycomplete` event]
+	(https://github.com/cgiffard/node-simplecrawler/pull/10),
+*	[Mike Iannacone](https://github.com/mikeiannacone) for correcting a keyword
+	naming collision with node 0.8's EventEmitter.
+*	[Greg Molnar](https://github.com/gregmolnar) for
+	[adding a querystring-free path parameter to parsed URL objects.]
+	(https://github.com/cgiffard/node-simplecrawler/pull/31)
 
 And everybody else who has helped out in some way! :)
+
+## Licence
+
+Copyright (c) 2012, Christopher Giffard.
+
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without modification, 
+are permitted provided that the following conditions are met:
+
+* Redistributions of source code must retain the above copyright notice, this
+  list of conditions and the following disclaimer.
+* Redistributions in binary form must reproduce the above copyright notice, this
+  list of conditions and the following disclaimer in the documentation and/or
+  other materials provided with the distribution.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR 
+ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
+ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
