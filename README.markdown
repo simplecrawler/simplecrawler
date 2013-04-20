@@ -260,6 +260,11 @@ Here's a complete list of what you can stuff with at this stage:
 	Username provided for needsAuth flag
 *	`crawler.authPass` -
 	Password provided for needsAuth flag
+*	`crawler.customHeaders` -
+	An object specifying a number of custom headers simplecrawler will add to
+	every request. These override the default headers simplecrawler sets, so
+	be careful with them. If you want to tamper with headers on a per-request basis,
+	see the `fetchqueue` event.
 *	`crawler.acceptCookies` -
 	Flag to indicate if the crawler should hold on to cookies
 *	`crawler.urlEncoding` -
