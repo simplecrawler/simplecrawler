@@ -331,10 +331,12 @@ It's not just an array though.
 
 #### Adding to the queue
 
-You could always just `.push` a new resource onto the queue, but you'd need to
-have it all in the correct format, and validate the URL yourself, and oh wouldn't
-that be a pain. Instead, use the `queue.add` function provided for your
-convenience:
+The simplest way to add to the queue is to use the crawler's own method,
+`crawler.queueURL`. This method takes a complete URL, validates and deconstructs
+it, and adds it to the queue.
+
+If you instead want to add a resource by its components, you may call the
+`queue.add` method directly:
 
 ```javascript
 crawler.queue.add(protocol,hostname,port,path);
