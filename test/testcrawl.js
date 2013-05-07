@@ -34,7 +34,7 @@ describe("Test Crawl",function() {
 		});
 
 		localCrawler.on("complete",function() {
-			linksDiscovered.should.equal(4);
+			linksDiscovered.should.equal(5);
 			done();
 		});
 	});
