@@ -497,6 +497,8 @@ I'd like to extend sincere thanks to:
 	(https://github.com/cgiffard/node-simplecrawler/pull/31)
 *	[Breck Yunits](https://github.com/breck7) for contributing a useful code
 	sample demonstrating using simplecrawler for caching a website to disk!
+*	[Luke Plaster](https://github.com/notatestuser) for enabling protocol-agnostic
+	link discovery
 
 And everybody else who has helped out in some way! :)
 
