@@ -499,6 +499,8 @@ I'd like to extend sincere thanks to:
 	sample demonstrating using simplecrawler for caching a website to disk!
 *	[Luke Plaster](https://github.com/notatestuser) for enabling protocol-agnostic
 	link discovery
+*	[Jellyfrog](https://github.com/jellyfrog) for assisting in diagnosing some
+	nasty EventEmitter issues.
 
 And everybody else who has helped out in some way! :)
 
