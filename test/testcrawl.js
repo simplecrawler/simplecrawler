@@ -17,6 +17,9 @@ describe("Test Crawl",function() {
 	it("should be able to be started",function(done) {
 
 		localCrawler.on("crawlstart",done);
+		localCrawler.on("discoverycomplete",function() {
+			linksDiscovered ++;
+		});
 
 		localCrawler.start();
 		localCrawler.running.should.be.truthy;
@@ -28,10 +31,6 @@ describe("Test Crawl",function() {
 	});
 
 	it("should discover all linked resources in the queue",function(done) {
-
-		localCrawler.on("discoverycomplete",function() {
-			linksDiscovered ++;
-		});
 
 		localCrawler.on("complete",function() {
 			linksDiscovered.should.equal(5);
