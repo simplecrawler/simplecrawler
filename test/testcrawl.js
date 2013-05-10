@@ -16,9 +16,12 @@ describe("Test Crawl",function() {
 	var linksDiscovered = 0;
 
 	it("should be able to be started",function(done) {
-
+		
 		localCrawler.on("crawlstart",function() { done() });
-
+		localCrawler.on("discoverycomplete",function() {
+			linksDiscovered ++;
+		});
+		
 		localCrawler.start();
 		localCrawler.running.should.be.truthy;
 	});
@@ -29,13 +32,9 @@ describe("Test Crawl",function() {
 	});
 
 	it("should discover all linked resources in the queue",function(done) {
-		
-		localCrawler.on("fetchcomplete",function() {
-			linksDiscovered ++;
-		});
 
 		localCrawler.on("complete",function() {
-			linksDiscovered.should.equal(6);
+			linksDiscovered.should.equal(5);
 			done();
 		});
 	});
@@ -48,24 +47,22 @@ describe("Test Crawl",function() {
 		asyncCrawler.start();
 		
 		asyncCrawler.on("fetchcomplete",function(queueItem,data,res,evtDone) {
-			console.log("fetch complete");
 			setTimeout(function(){
 				linksDiscovered ++;
-				console.log("timeout function loaded");
+				
 				if (String(data).match(/complete/i))
 					return evtDone();
-					
+				
 				// Taking advantage of the fact that for these, the sum total
 				// of the body data is a URL.
-				asyncCrawler.queueURL(String(data));
+				asyncCrawler.queueURL(String(data)).should.be.true;
 				
-				// evtDone();
-				
+				evtDone();
 			},250);
 		});
 	
 		asyncCrawler.on("complete",function() {
-			linksDiscovered.should.equal(9);
+			linksDiscovered.should.equal(8);
 			done();
 		});
 	});
