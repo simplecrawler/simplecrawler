@@ -13,7 +13,7 @@
     "eventemitter"
   ],
   "scripts": {
-    "test": "mocha -R spec"
+    "test": "mocha -R spec -t 4000"
   },
   "bin": {
     "crawl": "./lib/cli.js"
