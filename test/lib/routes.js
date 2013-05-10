@@ -24,5 +24,17 @@ module.exports = {
 
 	"/stage6": function(write) {
 		write(200,"Crawl complete!");
+	},
+	
+	"/async-stage1": function(write) {
+		write(200,"http://127.0.0.1:3000/async-stage2");
+	},
+	
+	"/async-stage2": function(write) {
+		write(200,"http://127.0.0.1:3000/async-stage3");
+	},
+	
+	"/async-stage3": function(write) {
+		write(200,"Complete!");
 	}
 };

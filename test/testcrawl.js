@@ -11,12 +11,13 @@ describe("Test Crawl",function() {
 	var Crawler	= require("../");
 
 	// Create a new crawler to crawl this server
-	var localCrawler = new Crawler("127.0.0.1","/",3000);
+	var localCrawler = new Crawler("127.0.0.1","/",3000),
+		asyncCrawler = new Crawler("127.0.0.1","/",3000);
 	var linksDiscovered = 0;
 
 	it("should be able to be started",function(done) {
 
-		localCrawler.on("crawlstart",done);
+		localCrawler.on("crawlstart",function() { done() });
 
 		localCrawler.start();
 		localCrawler.running.should.be.truthy;
@@ -28,17 +29,46 @@ describe("Test Crawl",function() {
 	});
 
 	it("should discover all linked resources in the queue",function(done) {
-
-		localCrawler.on("discoverycomplete",function() {
+		
+		localCrawler.on("fetchcomplete",function() {
 			linksDiscovered ++;
 		});
 
 		localCrawler.on("complete",function() {
-			linksDiscovered.should.equal(5);
+			linksDiscovered.should.equal(6);
 			done();
 		});
 	});
-
+	
+	it("should support async event listeners for manual discovery",function(done) {
+		
+		// Use a different crawler this time
+		asyncCrawler.discoverResources = false;
+		asyncCrawler.queueURL("http://127.0.0.1:3000/async-stage1");
+		asyncCrawler.start();
+		
+		asyncCrawler.on("fetchcomplete",function(queueItem,data,res,evtDone) {
+			console.log("fetch complete");
+			setTimeout(function(){
+				linksDiscovered ++;
+				console.log("timeout function loaded");
+				if (String(data).match(/complete/i))
+					return evtDone();
+					
+				// Taking advantage of the fact that for these, the sum total
+				// of the body data is a URL.
+				asyncCrawler.queueURL(String(data));
+				
+				// evtDone();
+				
+			},250);
+		});
+	
+		asyncCrawler.on("complete",function() {
+			linksDiscovered.should.equal(9);
+			done();
+		});
+	});
 
 	// TODO
 
