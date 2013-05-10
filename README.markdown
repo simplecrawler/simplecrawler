@@ -185,6 +185,30 @@ If this is annoying, and you'd really like to retain error pages by default, let
 me know. I didn't include it because I didn't need it - but if it's important to
 people I might put it back in. :)
 
+#### Asynchronous Event Listeners
+
+By default, all of these events, with the exception of `complete`, provide a
+final `asyncCallback` parameter, which is a function.
+
+If your function is configured to receive this parameter in its function definition,
+simplecrawler will treat this function as asynchronous, and will not consider it
+completed until you call the `asyncCallback` function provided.
+
+The crawler will continue crawling while your event handler finishes up, but it
+won't call the `complete` event and clean up its timer until every asynchronous
+callback is complete.
+
+##### Example Asynchronous Event Listener
+
+```javascript
+crawler.on("fetchcomplete",function(queueItem,data,res,done) {
+	doSomeDiscovery(data,function(foundURLs){
+		foundURLs.forEach(crawler.queueURL.bind(crawler));
+		done();
+	});
+});
+```
+
 ### Configuring the crawler
 
 Here's a complete list of what you can stuff with at this stage:
