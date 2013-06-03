@@ -143,6 +143,9 @@ Fired when the crawl begins or is restarted.
 * `queueadd` ( queueItem )
 Fired when a new item is automatically added to the queue (not when you manually
 queue an item yourself.)
+* `queueduplicate` ( URLData )
+Fired when an item cannot be added to the queue because it is already present in
+the queue. Frequent firing of this event is normal and expected.
 * `queueerror` ( errorData , URLData )
 Fired when an item cannot be added to the queue due to error.
 * `fetchstart` ( queueItem , requestOptions )
@@ -523,6 +526,9 @@ I'd like to extend sincere thanks to:
 	sample demonstrating using simplecrawler for caching a website to disk!
 *	[Luke Plaster](https://github.com/notatestuser) for enabling protocol-agnostic
 	link discovery
+*	[Zeus](https://github.com/distracteddev) for fixing a bug where [default port
+	info was wrongly specified in requests]
+	(https://github.com/cgiffard/node-simplecrawler/pull/40)
 *	[Jellyfrog](https://github.com/jellyfrog) for assisting in diagnosing some
 	nasty EventEmitter issues.
 
