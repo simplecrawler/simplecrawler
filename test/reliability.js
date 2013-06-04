@@ -12,7 +12,7 @@ describe("Crawler reliability",function() {
 
 	// Create a new crawler to crawl this server
 	var localCrawler = Crawler.crawl("http://127.0.0.1:3000/timeout");
-		localCrawler.timeout = 100;
+		localCrawler.timeout = 500;
 	
 	it("should be able to handle a timeout",function(done) {
 		localCrawler.on("fetchtimeout",function(queueItem) {
