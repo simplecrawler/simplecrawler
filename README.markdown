@@ -168,6 +168,8 @@ Fired when a 404 HTTP status code is returned for a request.
 * `fetcherror` ( queueItem, response )
 Fired when an alternate 400 or 500 series HTTP status code is returned for a
 request.
+* `fetchtimeout` ( queueItem, crawlerTimeoutValue )
+Fired when a request time exceeds the internal crawler threshold.
 * `fetchclienterror` ( queueItem, errorData )
 Fired when a request dies locally for some reason. The error data is returned as
 the second parameter.
@@ -527,7 +529,8 @@ I'd like to extend sincere thanks to:
 *	[Luke Plaster](https://github.com/notatestuser) for enabling protocol-agnostic
 	link discovery
 *	[Zeus](https://github.com/distracteddev) for fixing a bug where [default port
-	info was wrongly specified in requests]
+	info was wrongly specified in requests] and for fixing the missing request
+	timeout handling!
 	(https://github.com/cgiffard/node-simplecrawler/pull/40)
 *	[Jellyfrog](https://github.com/jellyfrog) for assisting in diagnosing some
 	nasty EventEmitter issues.

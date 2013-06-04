@@ -36,5 +36,9 @@ module.exports = {
 	
 	"/async-stage3": function(write) {
 		write(200,"Complete!");
+	},
+	
+	"/timeout": function(write) {
+		// We want to trigger a timeout. Never respond.
 	}
 };
