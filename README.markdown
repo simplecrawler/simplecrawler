@@ -529,9 +529,9 @@ I'd like to extend sincere thanks to:
 *	[Luke Plaster](https://github.com/notatestuser) for enabling protocol-agnostic
 	link discovery
 *	[Zeus](https://github.com/distracteddev) for fixing a bug where [default port
-	info was wrongly specified in requests] and for fixing the missing request
-	timeout handling!
+	info was wrongly specified in requests]
 	(https://github.com/cgiffard/node-simplecrawler/pull/40)
+	and for fixing the missing request timeout handling!
 *	[Jellyfrog](https://github.com/jellyfrog) for assisting in diagnosing some
 	nasty EventEmitter issues.
 
