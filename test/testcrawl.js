@@ -13,6 +13,11 @@ describe("Test Crawl",function() {
 	// Create a new crawler to crawl this server
 	var localCrawler = new Crawler("127.0.0.1","/",3000),
 		asyncCrawler = new Crawler("127.0.0.1","/",3000);
+	
+	// Speed up tests. No point waiting for every request when we're running
+	// our own server.
+	localCrawler.interval = asyncCrawler.interval = 1;
+	
 	var linksDiscovered = 0;
 
 	it("should be able to be started",function(done) {
@@ -58,7 +63,7 @@ describe("Test Crawl",function() {
 				asyncCrawler.queueURL(String(data)).should.be.true;
 				
 				evtDone();
-			},250);
+			},100);
 		});
 	
 		asyncCrawler.on("complete",function() {
