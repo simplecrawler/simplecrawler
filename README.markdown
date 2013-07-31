@@ -443,7 +443,7 @@ You'll probably often need to determine how many items in the queue have a given
 status at any one time, and/or retreive them. That's easy with
 `crawler.queue.countWithStatus` and `crawler.queue.getWithStatus`.
 
-`crawler.queue.getwithStatus` returns the number of queued items with a given
+`crawler.queue.countWithStatus` returns the number of queued items with a given
 status, while `crawler.queue.getWithStatus` returns an array of the queue items
 themselves.
 
