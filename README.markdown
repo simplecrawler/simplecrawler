@@ -534,6 +534,8 @@ I'd like to extend sincere thanks to:
 	info was wrongly specified in requests]
 	(https://github.com/cgiffard/node-simplecrawler/pull/40)
 	and for fixing the missing request timeout handling!
+*	[Graham Hutchinson](https://github.com/ghhutch) for adding
+	querystring-stripping option 
 *	[Jellyfrog](https://github.com/jellyfrog) for assisting in diagnosing some
 	nasty EventEmitter issues.
 
