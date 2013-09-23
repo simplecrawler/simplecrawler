@@ -51,7 +51,9 @@ describe("Test Crawl",function() {
 		asyncCrawler.queueURL("http://127.0.0.1:3000/async-stage1");
 		asyncCrawler.start();
 		
-		asyncCrawler.on("fetchcomplete",function(queueItem,data,res,evtDone) {
+		asyncCrawler.on("fetchcomplete",function(queueItem,data,res) {
+			evtDone = this.wait();
+			
 			setTimeout(function(){
 				linksDiscovered ++;
 				

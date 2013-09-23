@@ -39,6 +39,8 @@ describe("Core code",function() {
 					"process": true,
 					"setInterval": true,
 					"clearInterval": true,
+					"setTimeout": true,
+					"clearTimeout": true,
 					"Buffer": true
 				});
 			

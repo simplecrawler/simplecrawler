@@ -190,26 +190,29 @@ If this is annoying, and you'd really like to retain error pages by default, let
 me know. I didn't include it because I didn't need it - but if it's important to
 people I might put it back in. :)
 
-#### Asynchronous Event Listeners
+#### Waiting for Asynchronous Event Listeners
 
-By default, all of these events, with the exception of `complete`, provide a
-final `asyncCallback` parameter, which is a function.
+Sometimes, you might want to wait for simplecrawler to wait for you while you
+perform sone asynchronous tasks in an event listener, instead of having the it
+racing off and firing the `complete` event, halting your crawl. For example,
+if you're doing your own link discovery using an asynchronous library method.
 
-If your function is configured to receive this parameter in its function definition,
-simplecrawler will treat this function as asynchronous, and will not consider it
-completed until you call the `asyncCallback` function provided.
+Simplecrawler provides a `wait` method you can call at any time. It is available
+via `this` from inside listeners, and on the crawler object itself. It returns
+a callback function.
 
-The crawler will continue crawling while your event handler finishes up, but it
-won't call the `complete` event and clean up its timer until every asynchronous
-callback is complete.
+Once you've called this method, simplecrawler will not fire the `complete` event
+until either you execute the callback it returns, or a timeout is reached
+(configured in `crawler.listenerTTL`, by default 5000 msec.)
 
 ##### Example Asynchronous Event Listener
 
 ```javascript
-crawler.on("fetchcomplete",function(queueItem,data,res,done) {
+crawler.on("fetchcomplete",function(queueItem,data,res) {
+	var continue = this.wait();
 	doSomeDiscovery(data,function(foundURLs){
 		foundURLs.forEach(crawler.queueURL.bind(crawler));
-		done();
+		continue();
 	});
 });
 ```
@@ -237,7 +240,10 @@ Here's a complete list of what you can stuff with at this stage:
 	The maximum number of requests the crawler will run simultaneously. Defaults
 	to 5 - the default number of http agents node will run.
 *	`crawler.timeout` -
-	The maximum time the crawler will wait for headers before aborting the request.
+	The maximum time in milliseconds the crawler will wait for headers before
+	aborting the request.
+*	`crawler.listenerTTL` -
+	The maximum time in milliseconds the crawler will wait for async listeners.
 *	`crawler.userAgent` -
 	The user agent the crawler will report. Defaults to
 	`Node/SimpleCrawler <version> (http://www.github.com/cgiffard/node-simplecrawler)`.
