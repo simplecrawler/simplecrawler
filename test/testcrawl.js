@@ -52,7 +52,7 @@ describe("Test Crawl",function() {
 		asyncCrawler.start();
 		
 		asyncCrawler.on("fetchcomplete",function(queueItem,data,res) {
-			evtDone = this.wait();
+			var evtDone = this.wait();
 			
 			setTimeout(function(){
 				linksDiscovered ++;
