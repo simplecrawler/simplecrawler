@@ -193,7 +193,7 @@ people I might put it back in. :)
 #### Waiting for Asynchronous Event Listeners
 
 Sometimes, you might want to wait for simplecrawler to wait for you while you
-perform sone asynchronous tasks in an event listener, instead of having the it
+perform sone asynchronous tasks in an event listener, instead of having it
 racing off and firing the `complete` event, halting your crawl. For example,
 if you're doing your own link discovery using an asynchronous library method.
 
@@ -203,7 +203,7 @@ a callback function.
 
 Once you've called this method, simplecrawler will not fire the `complete` event
 until either you execute the callback it returns, or a timeout is reached
-(configured in `crawler.listenerTTL`, by default 5000 msec.)
+(configured in `crawler.listenerTTL`, by default 10000 msec.)
 
 ##### Example Asynchronous Event Listener
 
