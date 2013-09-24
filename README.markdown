@@ -544,6 +544,8 @@ I'd like to extend sincere thanks to:
 	querystring-stripping option 
 *	[Jellyfrog](https://github.com/jellyfrog) for assisting in diagnosing some
 	nasty EventEmitter issues.
+*	[Brian Moeskau](https://github.com/bmoeskau) for helping to fix the confusing
+	'async' events API, and providing invaluable feedback.
 
 And everybody else who has helped out in some way! :)
 
