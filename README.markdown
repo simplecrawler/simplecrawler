@@ -551,7 +551,7 @@ And everybody else who has helped out in some way! :)
 
 ## Licence
 
-Copyright (c) 2012, Christopher Giffard.
+Copyright (c) 2013, Christopher Giffard.
 
 All rights reserved.
 
