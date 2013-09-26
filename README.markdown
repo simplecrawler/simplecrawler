@@ -265,6 +265,8 @@ Here's a complete list of what you can stuff with at this stage:
 *	`crawler.discoverResources` -
 	Use simplecrawler's internal resource discovery function. Defaults to true.
 	(switch it off if you'd prefer to discover and queue resources yourself!)
+*	`crawler.discoverRegex` -
+	Array of regex objects that simplecrawler uses to discover resources.
 *	`crawler.cache` -
 	Specify a cache architecture to use when crawling. Must implement
 	`SimpleCache` interface.
