@@ -5,6 +5,7 @@
   "homepage": "http://github.com/cgiffard/node-simplecrawler",
   "author": "Christopher Giffard <christopher.giffard@cgiffard.com>",
   "keywords": [
+    "simple",
     "crawler",
     "spider",
     "cache",
