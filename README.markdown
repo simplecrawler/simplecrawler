@@ -276,6 +276,10 @@ Here's a complete list of what you can stuff with at this stage:
 	The hostname of the proxy to use for requests.
 *	`crawler.proxyPort` -
 	The port of the proxy to use for requests.
+*	`crawler.proxyUser` -
+	The username for HTTP/Basic proxy authentication (leave unset for unauthenticated proxies.)
+*	`crawler.proxyPass` -
+	The password for HTTP/Basic proxy authentication (leave unset for unauthenticated proxies.)
 *	`crawler.domainWhitelist` -
 	An array of domains the crawler is permitted to crawl from. If other settings
 	are more permissive, they will override this setting.
