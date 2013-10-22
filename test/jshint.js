@@ -25,6 +25,9 @@ describe("Core code",function() {
 
 		it("module `" + item + "` should pass JSHint with no errors",function() {
 
+			var slowThresholdMilliseconds = 200;
+			this.slow(slowThresholdMilliseconds);
+
 			JSHINT(code,{
 					"indent": 4,
 					"undef": true

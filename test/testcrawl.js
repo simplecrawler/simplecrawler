@@ -46,6 +46,8 @@ describe("Test Crawl",function() {
 
 	it("should support async event listeners for manual discovery",function(done) {
 
+		this.slow('1s')
+
 		// Use a different crawler this time
 		asyncCrawler.discoverResources = false;
 		asyncCrawler.queueURL("http://127.0.0.1:3000/async-stage1");
