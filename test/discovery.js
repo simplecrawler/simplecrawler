@@ -10,21 +10,21 @@ describe("Crawler link discovery",function() {
 		discover = crawler.discoverResources.bind(crawler);
 
 	it("should discover http/s prefixed URLs in the document",function() {
-		
-		var links = 
+
+		var links =
 			discover("	blah blah http://google.com/ \
 						blah blah https://fish.com/resource blah \
 						//example.com");
-		
+
 		links.should.be.an("array");
 		links.length.should.equal(2);
 		links[0].should.equal("http://google.com/");
 		links[1].should.equal("https://fish.com/resource");
 	});
-	
+
 	it("should discover URLS in quoted attributes in the document",function() {
-		
-		var links = 
+
+		var links =
 			discover("	<a href='google.com'> \
 						<img src=\"http://example.com/resource with spaces.txt\"> \
 						url('thingo.com/test.html')");
@@ -35,10 +35,10 @@ describe("Crawler link discovery",function() {
 		links[1].should.equal("http://example.com/resource%20with%20spaces.txt");
 		links[2].should.equal("thingo.com/test.html");
 	});
-	
+
 	it("should discover URLS in unquoted attributes in the document",function() {
-		
-		var links = 
+
+		var links =
 			discover("	<a href=google.com> \
 						<img src=http://example.com/resource with spaces.txt> \
 						url(thingo.com/test.html)");

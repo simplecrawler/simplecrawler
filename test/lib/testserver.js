@@ -11,7 +11,7 @@ var testRoutes = require("./routes");
 
 // Listen to events
 httpServer.on("request",function(req,res) {
-	
+
 	function write(status,data,contentType) {
 		res.writeHead(
 			status,
@@ -20,14 +20,14 @@ httpServer.on("request",function(req,res) {
 				"Content-Type":		contentType || "text/html",
 				"Content-Length":	Buffer.byteLength(data),
 			});
-		
+
 		res.write(data);
 		res.end();
 	}
-	
+
 	function redir(to) {
 		var data = "Redirecting you to " + to;
-		
+
 		res.writeHead(
 			301,
 			http.STATUS_CODES[301],
@@ -36,14 +36,14 @@ httpServer.on("request",function(req,res) {
 				"Content-Length":	Buffer.byteLength(data),
 				"Location":			to
 			});
-		
+
 		res.write(data);
 		res.end();
 	}
-	
+
 	if (testRoutes[req.url] &&
 		testRoutes[req.url] instanceof Function) {
-		
+
 		// Pass in a function that takes a status and some data to write back
 		// out to the client
 		testRoutes[req.url](write,redir);

@@ -1,0 +1,11 @@
+{
+  "asi": false,
+  "node": true,
+  "require": true,
+  "process": true,
+  "module": true,
+  "setInterval": true,
+  "setTimeout": true,
+  "clearTimeout": true,
+  "Buffer": true
+}
