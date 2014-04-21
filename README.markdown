@@ -190,26 +190,29 @@ If this is annoying, and you'd really like to retain error pages by default, let
 me know. I didn't include it because I didn't need it - but if it's important to
 people I might put it back in. :)
 
-#### Asynchronous Event Listeners
+#### Waiting for Asynchronous Event Listeners
 
-By default, all of these events, with the exception of `complete`, provide a
-final `asyncCallback` parameter, which is a function.
+Sometimes, you might want to wait for simplecrawler to wait for you while you
+perform sone asynchronous tasks in an event listener, instead of having it
+racing off and firing the `complete` event, halting your crawl. For example,
+if you're doing your own link discovery using an asynchronous library method.
 
-If your function is configured to receive this parameter in its function definition,
-simplecrawler will treat this function as asynchronous, and will not consider it
-completed until you call the `asyncCallback` function provided.
+Simplecrawler provides a `wait` method you can call at any time. It is available
+via `this` from inside listeners, and on the crawler object itself. It returns
+a callback function.
 
-The crawler will continue crawling while your event handler finishes up, but it
-won't call the `complete` event and clean up its timer until every asynchronous
-callback is complete.
+Once you've called this method, simplecrawler will not fire the `complete` event
+until either you execute the callback it returns, or a timeout is reached
+(configured in `crawler.listenerTTL`, by default 10000 msec.)
 
 ##### Example Asynchronous Event Listener
 
 ```javascript
-crawler.on("fetchcomplete",function(queueItem,data,res,done) {
+crawler.on("fetchcomplete",function(queueItem,data,res) {
+	var continue = this.wait();
 	doSomeDiscovery(data,function(foundURLs){
 		foundURLs.forEach(crawler.queueURL.bind(crawler));
-		done();
+		continue();
 	});
 });
 ```
@@ -237,7 +240,10 @@ Here's a complete list of what you can stuff with at this stage:
 	The maximum number of requests the crawler will run simultaneously. Defaults
 	to 5 - the default number of http agents node will run.
 *	`crawler.timeout` -
-	The maximum time the crawler will wait for headers before aborting the request.
+	The maximum time in milliseconds the crawler will wait for headers before
+	aborting the request.
+*	`crawler.listenerTTL` -
+	The maximum time in milliseconds the crawler will wait for async listeners.
 *	`crawler.userAgent` -
 	The user agent the crawler will report. Defaults to
 	`Node/SimpleCrawler <version> (http://www.github.com/cgiffard/node-simplecrawler)`.
@@ -254,9 +260,13 @@ Here's a complete list of what you can stuff with at this stage:
 	Defaults to true.
 *	`crawler.stripWWWDomain` -
 	Or go even further and strip WWW subdomain from requests altogether!
+*	`crawler.stripQuerystring` -
+	Specify to strip querystring parameters from URLs. Defaults to false.
 *	`crawler.discoverResources` -
 	Use simplecrawler's internal resource discovery function. Defaults to true.
 	(switch it off if you'd prefer to discover and queue resources yourself!)
+*	`crawler.discoverRegex` -
+	Array of regex objects that simplecrawler uses to discover resources.
 *	`crawler.cache` -
 	Specify a cache architecture to use when crawling. Must implement
 	`SimpleCache` interface.
@@ -266,6 +276,10 @@ Here's a complete list of what you can stuff with at this stage:
 	The hostname of the proxy to use for requests.
 *	`crawler.proxyPort` -
 	The port of the proxy to use for requests.
+*	`crawler.proxyUser` -
+	The username for HTTP/Basic proxy authentication (leave unset for unauthenticated proxies.)
+*	`crawler.proxyPass` -
+	The password for HTTP/Basic proxy authentication (leave unset for unauthenticated proxies.)
 *	`crawler.domainWhitelist` -
 	An array of domains the crawler is permitted to crawl from. If other settings
 	are more permissive, they will override this setting.
@@ -443,7 +457,7 @@ You'll probably often need to determine how many items in the queue have a given
 status at any one time, and/or retreive them. That's easy with
 `crawler.queue.countWithStatus` and `crawler.queue.getWithStatus`.
 
-`crawler.queue.getwithStatus` returns the number of queued items with a given
+`crawler.queue.countWithStatus` returns the number of queued items with a given
 status, while `crawler.queue.getWithStatus` returns an array of the queue items
 themselves.
 
@@ -532,14 +546,18 @@ I'd like to extend sincere thanks to:
 	info was wrongly specified in requests]
 	(https://github.com/cgiffard/node-simplecrawler/pull/40)
 	and for fixing the missing request timeout handling!
+*	[Graham Hutchinson](https://github.com/ghhutch) for adding
+	querystring-stripping option 
 *	[Jellyfrog](https://github.com/jellyfrog) for assisting in diagnosing some
 	nasty EventEmitter issues.
+*	[Brian Moeskau](https://github.com/bmoeskau) for helping to fix the confusing
+	'async' events API, and providing invaluable feedback.
 
 And everybody else who has helped out in some way! :)
 
 ## Licence
 
-Copyright (c) 2012, Christopher Giffard.
+Copyright (c) 2013, Christopher Giffard.
 
 All rights reserved.
 
