@@ -6,11 +6,11 @@ var chai = require("chai");
 	chai.should();
 
 var cookies = [
-	"Set-Cookie: RMID=007f010019155170d6ca005f; Expires=Sat, 19 Apr 2014 05:31:54 GMT; Path=/; Domain=.nytimes.com;",
+	"Set-Cookie: RMID=007f010019155170d6ca005f; Expires=Sat, 19 Apr 2020 05:31:54 GMT; Path=/; Domain=.nytimes.com;",
 	"Set-cookie: adxcs=-; path=/; domain=.nytimes.com",
 	"Set-Cookie: PREF=ID=8c63f2522e22574d:FF=0:TM=1366349569:LM=1366349569:S=p1Urbmfwfs-R573P; expires=Sun, 19-Apr-2015 05:32:49 GMT; path=/; domain=.google.com",
 	"Set-Cookie: NID=67=DhLO04YPAMlhETrTIe2oFPqWZfypQXLZfCIPItOvf70zhtUEMEItYfdVh6aROEzRHqtd9jHT6HJ7Oo93eqP3cjYNp8GgShfa6r0WVbsmQQRUvutbjBOPwzo7ybwYcWdB; expires=Sat, 19-Oct-2015 05:32:49 GMT; path=/; domain=.google.com; HttpOnly",
-	"Set-Cookie: fpc=d=Yq1z8hbA9WextmPFlb7suMTfMRgtSc2FyzAB7now1ExfUZ.eW7s4QSwSKlB6ZB0juN8OLZxWf_XXEIcspYaQmVVD0mD0xJ.xpXBCSw5Dl_Ql6n.RLoM.7CnTbNSsiSr2fkNiCN47tRUB4j8iWevNwQdFDn1hB8z8t1xwWt76n.sLIRY9p2_jTBhukfSD4SBpBkJhI1o-&v=2; expires=Sat, 19-Apr-2014 05:48:42 GMT; path=/; domain=www.yahoo.com",
+	"Set-Cookie: fpc=d=Yq1z8hbA9WextmPFlb7suMTfMRgtSc2FyzAB7now1ExfUZ.eW7s4QSwSKlB6ZB0juN8OLZxWf_XXEIcspYaQmVVD0mD0xJ.xpXBCSw5Dl_Ql6n.RLoM.7CnTbNSsiSr2fkNiCN47tRUB4j8iWevNwQdFDn1hB8z8t1xwWt76n.sLIRY9p2_jTBhukfSD4SBpBkJhI1o-&v=2; expires=Sat, 19-Apr-2020 05:48:42 GMT; path=/; domain=www.yahoo.com",
 	"Set-Cookie: test=test; path=/test; domain=test.com"
 ];
 
@@ -30,7 +30,7 @@ describe("Cookies",function() {
 
 		tmpCookie.name.should.equal("RMID");
 		tmpCookie.value.should.equal("007f010019155170d6ca005f");
-		tmpCookie.expires.should.equal(1397885514000);
+		tmpCookie.expires.should.equal(1587274314000);
 		tmpCookie.path.should.equal("/");
 		tmpCookie.domain.should.equal(".nytimes.com");
 
