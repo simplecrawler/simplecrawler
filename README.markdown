@@ -269,7 +269,7 @@ Here's a complete list of what you can stuff with at this stage:
 	Array of regex objects that simplecrawler uses to discover resources.
 *	`crawler.cache` -
 	Specify a cache architecture to use when crawling. Must implement
-	`SimpleCache` interface.
+	`SimpleCache` interface. You can save the site to disk using the built in file system cache like this `crawler.cache = new Crawler.cache('pathToCacheDirectory');`
 *	`crawler.useProxy` -
 	The crawler should use an HTTP proxy to make its requests.
 *	`crawler.proxyHostname` -
