@@ -49,4 +49,15 @@ describe("Crawler link discovery",function() {
 		links[1].should.equal("http://example.com/resource");
 		links[2].should.equal("thingo.com/test.html");
 	});
+
+	it("should replace all '&amp;'s with ampersands",function() {
+
+		var links =
+			discover("<a href='http://example.com/resource?with&amp;query=params&amp;and=entities'>");
+
+		links.should.be.an("array");
+		links.length.should.equal(2);
+		links[0].should.equal("http://example.com/resource?with&query=params&and=entities");
+		links[1].should.equal("http://example.com/resource");
+	});
 });
