@@ -5,9 +5,15 @@ var chai = require("chai");
 
 describe("Crawler link discovery",function() {
 
-	var Crawler	= require("../"),
-		crawler = new Crawler(),
+	var Crawler = null,
+		crawler = null,
+		discover = null;
+
+	beforeEach(function() {
+		Crawler	= require("../");
+		crawler = new Crawler();
 		discover = crawler.discoverResources.bind(crawler);
+	});
 
 	it("should discover http/s prefixed URLs in the document",function() {
 
@@ -59,5 +65,22 @@ describe("Crawler link discovery",function() {
 		links.length.should.equal(2);
 		links[0].should.equal("http://example.com/resource?with&query=params&and=entities");
 		links[1].should.equal("http://example.com/resource");
+	});
+
+	it("should ignore HTML comments with parseHTMLComments = false",function() {
+
+		crawler.parseHTMLComments = false;
+
+		var links =
+			discover("	<!-- http://example.com/oneline_comment --> \
+						<a href=google.com> \
+						<!-- \
+						http://example.com/resource \
+						<a href=example.com> \
+						-->");
+
+		links.should.be.an("array");
+		links.length.should.equal(1);
+		links[0].should.equal("google.com");
 	});
 });
