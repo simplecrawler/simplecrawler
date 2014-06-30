@@ -83,4 +83,21 @@ describe("Crawler link discovery",function() {
 		links.length.should.equal(1);
 		links[0].should.equal("google.com");
 	});
+
+	it("should ignore script tags with parseScriptTags = false",function() {
+
+		crawler.parseScriptTags = false;
+
+		var links =
+			discover("	<script>var a = \"<a href='http://example.com/oneline_script'></a>\";</script> \
+						<a href=google.com> \
+						<script type='text/javascript'> \
+						http://example.com/resource \
+						<a href=example.com> \
+						</SCRIPT>");
+
+		links.should.be.an("array");
+		links.length.should.equal(1);
+		links[0].should.equal("google.com");
+	});
 });
