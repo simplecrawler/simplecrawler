@@ -491,9 +491,9 @@ don't call them every request or your application's performance will be incredib
 poor - they block like *crazy*. That said, using them when your crawler commences
 and stops is perfectly reasonable.
 
-Note that the methods themselve are asynchronous, so if you are going to exit process,
-after you do the freezing, make sure you wait for callback - otherwise you'll get an
-empty file.
+Note that the methods themselves are asynchronous, so if you are going to exit the
+process after you do the freezing, make sure you wait for callback - otherwise
+you'll get an empty file.
 
 ```javascript
 // Freeze queue
