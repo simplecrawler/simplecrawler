@@ -485,15 +485,21 @@ your application fails or you need to abort the crawl for some reason. (Perhaps
 you just want to finish off for the night and pick it up tomorrow!) The
 `crawler.queue.freeze` and `crawler.queue.defrost` functions perform this task.
 
-**A word of warning though** - they are not CPU friendly or set up to be
-asynchronous, as they rely on JSON.parse and JSON.stringify. Use them only when
-you need to save the queue - don't call them every request or your application's
-performance will be incredibly poor - they block like *crazy*. That said, using
-them when your crawler commences and stops is perfectly reasonable.
+**A word of warning though** - they are not CPU friendly as they rely on
+JSON.parse and JSON.stringify. Use them only when you need to save the queue -
+don't call them every request or your application's performance will be incredibly
+poor - they block like *crazy*. That said, using them when your crawler commences
+and stops is perfectly reasonable.
+
+Note that the methods themselves are asynchronous, so if you are going to exit the
+process after you do the freezing, make sure you wait for callback - otherwise
+you'll get an empty file.
 
 ```javascript
 // Freeze queue
-crawler.queue.freeze("mysavedqueue.json");
+crawler.queue.freeze("mysavedqueue.json", function() {
+	process.exit();
+});
 
 // Defrost queue
 crawler.queue.defrost("mysavedqueue.json");
