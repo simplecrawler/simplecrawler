@@ -31,7 +31,7 @@
     "node": ">=0.8.0"
   },
   "devDependencies": {
-    "mocha": "~1.8.1",
+    "mocha": "~1.8.2",
     "jshint": "~0.7.x",
     "chai": "~1.2.0"
   },
