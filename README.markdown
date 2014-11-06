@@ -150,7 +150,7 @@ the queue. Frequent firing of this event is normal and expected.
 Fired when an item cannot be added to the queue due to error.
 * `fetchstart` ( queueItem , requestOptions )
 Fired when an item is spooled for fetching. If your event handler is synchronous,
-you can modify the crawler request options (including headers) 
+you can modify the crawler request options (including headers and request method.)
 * `fetchheaders` ( queueItem , responseObject )
 Fired when the headers for a resource are received from the server. The node http
 response object is returned for your perusal.
