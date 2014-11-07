@@ -106,6 +106,15 @@ myCrawler.interval = 10000; // Ten seconds
 myCrawler.maxConcurrency = 1;
 ```
 
+You can also define a max depth for links to fetch :
+```javascript
+myCrawler.maxDepth = 1; // Only first page is fetched (with linked CSS & images)
+// Or: 
+myCrawler.maxDepth = 2; // First page and discovered links from it are fetched
+// Or: 
+myCrawler.maxDepth = 3; // Etc.
+```
+
 For brevity, you may also specify the initial path and request interval when
 creating the crawler:
 
@@ -319,6 +328,10 @@ Here's a complete list of what you can stuff with at this stage:
 *	`crawler.parseScriptTags` -
 	Whether to scan for URLs inside script tags.
 	Defaults to `true`.
+*	`myCrawler.maxDepth` -
+	Defines a maximum distance from the original request at which resources will
+	be downloaded. Asset files are excluded from this distance condition.
+	Defaults to `0` — no max depth.
 
 #### Excluding certain resources from downloading
 
