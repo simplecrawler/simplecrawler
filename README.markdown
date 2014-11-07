@@ -313,6 +313,12 @@ Here's a complete list of what you can stuff with at this stage:
 *	`crawler.urlEncoding` -
 	Set this to `iso8859` to trigger URIjs' re-encoding of iso8859 URLs to unicode.
 	Defaults to `unicode`.
+*	`crawler.parseHTMLComments` -
+	Whether to scan for URLs inside HTML comments.
+	Defaults to `true`.
+*	`crawler.parseScriptTags` -
+	Whether to scan for URLs inside script tags.
+	Defaults to `true`.
 
 #### Excluding certain resources from downloading
 
