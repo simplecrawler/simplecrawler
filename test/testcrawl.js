@@ -76,6 +76,13 @@ describe("Test Crawl",function() {
 		});
 	});
 
+	it('should not throw an error if header Referer is undefined', function (done) {
+		var crawler = new Crawler("127.0.0.1","/depth/1",3000);
+		crawler.maxDepth = 1;
+		crawler.start();
+		crawler.on('complete', function () { done(); });
+	});
+
 	// TODO
 
 	// Test how simple error conditions, content types, and responses are handled.
