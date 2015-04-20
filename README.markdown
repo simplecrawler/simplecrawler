@@ -109,9 +109,9 @@ myCrawler.maxConcurrency = 1;
 You can also define a max depth for links to fetch :
 ```javascript
 myCrawler.maxDepth = 1; // Only first page is fetched (with linked CSS & images)
-// Or: 
+// Or:
 myCrawler.maxDepth = 2; // First page and discovered links from it are fetched
-// Or: 
+// Or:
 myCrawler.maxDepth = 3; // Etc.
 ```
 
@@ -130,7 +130,7 @@ First, you'll need to set up an event listener to get the fetched data:
 myCrawler.on("fetchcomplete",function(queueItem, responseBuffer, response) {
 	console.log("I just received %s (%d bytes)",queueItem.url,responseBuffer.length);
 	console.log("It was a resource of type %s",response.headers['content-type']);
-	
+
 	// Do something with the data in responseBuffer
 });
 ```
@@ -302,7 +302,7 @@ Here's a complete list of what you can stuff with at this stage:
 	This is to deal with nonstandard protocol handlers that regular HTTP is
 	sometimes given, like `feed:`. It does not provide support for non-http
 	protocols (and why would it!?)
-*	`crawler.maxResourceSize` - 
+*	`crawler.maxResourceSize` -
 	The maximum resource size, in bytes, which will be downloaded. Defaults to 16MB.
 *	`crawler.downloadUnsupported` -
 	Simplecrawler will download files it can't parse. Defaults to true, but if
@@ -333,6 +333,12 @@ Here's a complete list of what you can stuff with at this stage:
 	Defines a maximum distance from the original request at which resources will
 	be downloaded. Asset files are excluded from this distance condition.
 	Defaults to `0` — no max depth.
+*	`crawler.ignoreInvalidSSL` -
+	Treat self-signed SSL certificates as valid. SSL certificates will not be
+	validated against known CAs. Only applies to https requests. You may also have
+	to set the environment variable NODE_TLS_REJECT_UNAUTHORIZED to '0'.
+	For example: `process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';`
+	Defaults to false.
 
 #### Excluding certain resources from downloading
 
@@ -486,7 +492,7 @@ var redirectCount = crawler.queue.countWithStatus("redirected");
 
 crawler.queue.getWithStatus("failed").forEach(function(queueItem) {
 	console.log("Whoah, the request for %s failed!",queueItem.url);
-	
+
 	// do something...
 });
 ```
@@ -573,7 +579,7 @@ I'd like to extend sincere thanks to:
 	(https://github.com/cgiffard/node-simplecrawler/pull/40)
 	and for fixing the missing request timeout handling!
 *	[Graham Hutchinson](https://github.com/ghhutch) for adding
-	querystring-stripping option 
+	querystring-stripping option
 *	[Jellyfrog](https://github.com/jellyfrog) for assisting in diagnosing some
 	nasty EventEmitter issues.
 *	[Brian Moeskau](https://github.com/bmoeskau) for helping to fix the confusing
@@ -587,7 +593,7 @@ Copyright (c) 2013, Christopher Giffard.
 
 All rights reserved.
 
-Redistribution and use in source and binary forms, with or without modification, 
+Redistribution and use in source and binary forms, with or without modification,
 are permitted provided that the following conditions are met:
 
 * Redistributions of source code must retain the above copyright notice, this
@@ -599,7 +605,7 @@ are permitted provided that the following conditions are met:
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
 ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
 WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR 
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
 ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
 (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
 LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
