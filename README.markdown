@@ -173,10 +173,12 @@ we're prepared to receive (16MB by default.)
 Fired when a redirect header is encountered. The new URL is validated and returned
 as a complete canonical link to the new resource.
 * `fetch404` ( queueItem, response )
-Fired when a 404 HTTP status code is returned for a request.
+Fired when a 404 or 410 HTTP status code is returned for a request.
 * `fetcherror` ( queueItem, response )
 Fired when an alternate 400 or 500 series HTTP status code is returned for a
 request.
+* `gziperror` ( queueItem, error, resourceData )
+Fired when a gzipped resource cannot be unzipped.
 * `fetchtimeout` ( queueItem, crawlerTimeoutValue )
 Fired when a request time exceeds the internal crawler threshold.
 * `fetchclienterror` ( queueItem, errorData )
