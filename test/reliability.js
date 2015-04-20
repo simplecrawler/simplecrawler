@@ -12,15 +12,37 @@ describe("Crawler reliability",function() {
 
 	it("should be able to handle a timeout",function(done) {
 
-		this.slow('1s')
+		this.slow('1s');
 
 		var localCrawler = Crawler.crawl("http://127.0.0.1:3000/timeout");
 			localCrawler.timeout = 200;
 
 		localCrawler.on("fetchtimeout",function(queueItem) {
 			queueItem.should.be.an("object");
+			queueItem.fetched.should.equal(true);
+			queueItem.status.should.equal("timeout");
 			queueItem.url.should.equal("http://127.0.0.1:3000/timeout");
 			done();
+		});
+	});
+
+	it("should not decrement _openRequests below zero in the event of a timeout",function(done) {
+
+		this.slow('1s');
+		this.timeout('1s');
+
+		var localCrawler = Crawler.crawl("http://127.0.0.1:3000/timeout");
+			localCrawler.timeout = 200;
+		var timesCalled = 0;
+
+		localCrawler.queueURL("http://127.0.0.1:3000/timeout");
+		localCrawler.queueURL("http://127.0.0.1:3000/timeout2");
+
+		localCrawler.on("fetchtimeout", function(queueItem) {
+			timesCalled ++;
+			(localCrawler._openRequests).should.equal(0);
+
+			if (timesCalled === 2) done();
 		});
 	});
 
