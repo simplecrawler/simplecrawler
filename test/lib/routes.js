@@ -89,5 +89,9 @@ module.exports = {
 
 	"/font/2": function(write) {
 		write(200,"", "application/font-woff");
+	},
+
+	"/410": function(write) {
+		write(410,"this page no longer exists!");
 	}
 };

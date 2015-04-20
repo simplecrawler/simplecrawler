@@ -46,6 +46,19 @@ describe("Crawler reliability",function() {
 		});
 	});
 
+	it("should emit a fetch404 when given a 410 status code",function(done) {
+
+		this.slow('1s');
+		this.timeout('1s');
+
+		var localCrawler = Crawler.crawl("http://127.0.0.1:3000/410");
+			localCrawler.timeout = 200;
+
+		localCrawler.on("fetch404", function(queueItem) {
+			done();
+		});
+	});
+
 	it("should be able to freeze and defrost the queue", function(done) {
 
 		var localCrawler = new Crawler("127.0.0.1", "/", 3000),
