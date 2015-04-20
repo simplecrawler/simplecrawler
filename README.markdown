@@ -1,4 +1,4 @@
-# Simple web-crawler for node.js [![Build Status](https://travis-ci.org/cgiffard/node-simplecrawler.png?branch=master)](https://travis-ci.org/cgiffard/node-simplecrawler)
+# Simple web-crawler for node.js [![Build Status](https://travis-ci.org/cgiffard/node-simplecrawler.svg?branch=master)](https://travis-ci.org/cgiffard/node-simplecrawler)
 
 Simplecrawler is designed to provide the most basic possible API for crawling
 websites, while being as flexible and robust as possible. I wrote simplecrawler
