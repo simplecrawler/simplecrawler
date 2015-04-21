@@ -332,10 +332,14 @@ Here's a complete list of what you can stuff with at this stage:
 *	`crawler.parseScriptTags` -
 	Whether to scan for URLs inside script tags.
 	Defaults to `true`.
-*	`myCrawler.maxDepth` -
+*	`crawler.maxDepth` -
 	Defines a maximum distance from the original request at which resources will
-	be downloaded. Asset files are excluded from this distance condition.
-	Defaults to `0` — no max depth.
+	be downloaded. Asset files are excluded from this distance condition if
+	`crawler.fetchWhitelistedMimeTypesBelowMaxDepth` is `true`. Defaults to `0`
+	— no max depth.
+*	`crawler.fetchWhitelistedMimeTypesBelowMaxDepth` — Defaults to `false`. If
+	`true`, then resources (fonts, images, CSS) will be excluded from `maxDepth`
+	checks. (And therefore downloaded regardless of their depth.)
 *	`crawler.ignoreInvalidSSL` -
 	Treat self-signed SSL certificates as valid. SSL certificates will not be
 	validated against known CAs. Only applies to https requests. You may also have

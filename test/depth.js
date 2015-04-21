@@ -8,7 +8,7 @@ var testserver = require("./lib/testserver.js");
 var Crawler	= require("../");
 
 // Test the number of links discovered for the given "depth" and compare it to "linksToDiscover"
-var depthTest = function(depth, linksToDiscover) {
+var depthTest = function(depth, linksToDiscover, behaviour) {
 	depth = parseInt(depth); // Force depth to be a number
 
 	var crawler;
@@ -22,8 +22,10 @@ var depthTest = function(depth, linksToDiscover) {
 			// Speed up tests. No point waiting for every request when we're running
 			// our own server.
 			crawler.interval = 1;
+			crawler.fetchWhitelistedMimeTypesBelowMaxDepth = !!behaviour;
 
 			// Define max depth for this crawl
+			crawler.maxDepth = depth;
 			crawler.maxDepth = depth;
 
 			linksDiscovered = 0;
@@ -51,7 +53,7 @@ var depthTest = function(depth, linksToDiscover) {
 	});
 };
 
-describe("Crawler max depth",function() {
+describe("Crawler max depth with resource override (old default behaviour)",function() {
 
 	// depth: linksToDiscover
 	var linksToDiscover = {
@@ -62,7 +64,21 @@ describe("Crawler max depth",function() {
 	};
 
 	for(var depth in linksToDiscover) {
-		depthTest(depth, linksToDiscover[depth]);
+		depthTest(depth, linksToDiscover[depth], true);
 	}
 
+});
+
+describe("Crawler max depth without fetching resources (new default behaviour)", function() {
+	// depth: linksToDiscover
+	var linksToDiscover = {
+		0: 11, // links for depth 0
+		1: 1,  // links for depth 1
+		2: 3,  // links for depth 2
+		3: 6  // links for depth 3
+	};
+
+	for(var depth in linksToDiscover) {
+		depthTest(depth, linksToDiscover[depth], false);
+	}
 });
