@@ -1,4 +1,10 @@
-# Simple web-crawler for node.js [![Build Status](https://travis-ci.org/cgiffard/node-simplecrawler.svg?branch=master)](https://travis-ci.org/cgiffard/node-simplecrawler)
+# Simple web-crawler for Node.js
+
+[![NPM version](https://img.shields.io/npm/v/simplecrawler.svg)](https://www.npmjs.com/package/simplecrawler)
+[![Build Status: master branch](https://img.shields.io/travis/cgiffard/node-simplecrawler/master.svg?label=master%20branch)](https://travis-ci.org/cgiffard/node-simplecrawler)
+[![Build Status: development branch](https://img.shields.io/travis/cgiffard/node-simplecrawler/development.svg?label=development%20branch)](https://travis-ci.org/cgiffard/node-simplecrawler)
+[![Dependency Status](https://img.shields.io/david/cgiffard/node-simplecrawler.svg)](https://david-dm.org/cgiffard/node-simplecrawler)
+[![devDependency Status](https://img.shields.io/david/dev/cgiffard/node-simplecrawler.svg)](https://david-dm.org/cgiffard/node-simplecrawler#info=devDependencies)
 
 Simplecrawler is designed to provide the most basic possible API for crawling
 websites, while being as flexible and robust as possible. I wrote simplecrawler
@@ -7,12 +13,12 @@ through 50,000 pages and written tens of gigabytes to disk without issue.
 
 #### Example (simple mode)
 
-```javascript
+```js
 var Crawler = require("simplecrawler");
 
 Crawler.crawl("http://example.com/")
-	.on("fetchcomplete",function(queueItem){
-		console.log("Completed fetching resource:",queueItem.url);
+	.on("fetchcomplete", function(queueItem){
+		console.log("Completed fetching resource:", queueItem.url);
 	});
 ```
 
@@ -42,7 +48,7 @@ method which provides a little more room to configure crawl parameters.
 Regardless of wether you use the simple or traditional methods of instantiation,
 you'll need to require simplecrawler:
 
-```javascript
+```js
 var Crawler = require("simplecrawler");
 ```
 
@@ -56,9 +62,9 @@ Simply call `Crawler.crawl`, with a URL first parameter, and two optional
 functions that will be added as event listeners for `fetchcomplete` and
 `fetcherror` respectively.
 
-```javascript
+```js
 Crawler.crawl("http://example.com/", function(queueItem){
-	console.log("Completed fetching resource:",queueItem.url);
+	console.log("Completed fetching resource:", queueItem.url);
 });
 ```
 
@@ -66,13 +72,13 @@ Alternately, if you decide to omit these functions, you can use the returned
 crawler object to add the event listeners yourself, and tweak configuration
 options:
 
-```javascript
+```js
 var crawler = Crawler.crawl("http://example.com/");
 
 crawler.interval = 500;
 
 crawler.on("fetchcomplete",function(queueItem){
-	console.log("Completed fetching resource:",queueItem.url);
+	console.log("Completed fetching resource:", queueItem.url);
 });
 ```
 
@@ -81,19 +87,19 @@ crawler.on("fetchcomplete",function(queueItem){
 The alternative method of creating a crawler is to call the `simplecrawler`
 constructor yourself, and to initiate the crawl manually.
 
-```javascript
+```js
 var myCrawler = new Crawler("www.example.com");
 ```
 
 Nonstandard port? HTTPS? Want to start archiving a specific path? No problem:
 
-```javascript
+```js
 myCrawler.initialPath = "/archive";
 myCrawler.initialPort = 8080;
 myCrawler.initialProtocol = "https";
 
 // Or:
-var myCrawler = new Crawler("www.example.com","/archive",8080);
+var myCrawler = new Crawler("www.example.com", "/archive", 8080);
 
 ```
 
@@ -101,13 +107,13 @@ And of course, you're probably wanting to ensure you don't take down your web
 server. Decrease the concurrency from five simultaneous requests - and increase
 the request interval from the default 250ms like this:
 
-```javascript
+```js
 myCrawler.interval = 10000; // Ten seconds
 myCrawler.maxConcurrency = 1;
 ```
 
 You can also define a max depth for links to fetch :
-```javascript
+```js
 myCrawler.maxDepth = 1; // Only first page is fetched (with linked CSS & images)
 // Or:
 myCrawler.maxDepth = 2; // First page and discovered links from it are fetched
@@ -118,18 +124,18 @@ myCrawler.maxDepth = 3; // Etc.
 For brevity, you may also specify the initial path and request interval when
 creating the crawler:
 
-```javascript
-var myCrawler = new Crawler("www.example.com","/",8080,300);
+```js
+var myCrawler = new Crawler("www.example.com", "/", 8080, 300);
 ```
 
 ### Running the crawler
 
 First, you'll need to set up an event listener to get the fetched data:
 
-```javascript
-myCrawler.on("fetchcomplete",function(queueItem, responseBuffer, response) {
-	console.log("I just received %s (%d bytes)",queueItem.url,responseBuffer.length);
-	console.log("It was a resource of type %s",response.headers['content-type']);
+```js
+myCrawler.on("fetchcomplete", function(queueItem, responseBuffer, response) {
+	console.log("I just received %s (%d bytes)", queueItem.url, responseBuffer.length);
+	console.log("It was a resource of type %s", response.headers['content-type']);
 
 	// Do something with the data in responseBuffer
 });
@@ -139,7 +145,7 @@ Then, when you're satisfied you're ready to go, start the crawler! It'll run
 through its queue finding linked resources on the domain to download, until it
 can't find any more.
 
-```javascript
+```js
 myCrawler.start();
 ```
 
@@ -218,10 +224,10 @@ until either you execute the callback it returns, or a timeout is reached
 
 ##### Example Asynchronous Event Listener
 
-```javascript
-crawler.on("fetchcomplete",function(queueItem,data,res) {
+```js
+crawler.on("fetchcomplete", function(queueItem, data, res) {
 	var continue = this.wait();
-	doSomeDiscovery(data,function(foundURLs){
+	doSomeDiscovery(data, function(foundURLs){
 		foundURLs.forEach(crawler.queueURL.bind(crawler));
 		continue();
 	});
@@ -277,14 +283,16 @@ Here's a complete list of what you can stuff with at this stage:
 	Use simplecrawler's internal resource discovery function. You can replace it
 	with your own function, which must accept a buffer and a queueItem, and add
 	the discovered resources to the crawler queue:
-	
-		crawler.discoverResources = function(buf, queueItem) {
-			// scan buffer for URLs, and then:
-			...
-			crawler.queueURL(aDiscoveredURL, queueItem);
-			...
-		};
-		
+
+	```js
+	crawler.discoverResources = function(buf, queueItem) {
+		// scan buffer for URLs, and then:
+		...
+		crawler.queueURL(aDiscoveredURL, queueItem);
+		...
+	};
+	```
+
 *	`crawler.discoverRegex` -
 	Array of regex objects that simplecrawler uses to discover resources.
 *	`crawler.cache` -
@@ -375,7 +383,7 @@ This example fetch condition prevents URLs ending in `.pdf` from downloading.
 Adding a fetch condition assigns it an ID, which the `addFetchCondition` function
 returns. You can use this ID to remove the condition later.
 
-```javascript
+```js
 var conditionID = myCrawler.addFetchCondition(function(parsedURL) {
 	return !parsedURL.path.match(/\.pdf$/i);
 });
@@ -390,7 +398,7 @@ use `parsedURL.uriPath`.
 If you stored the ID of the fetch condition you added earlier, you can remove it
 from the crawler:
 
-```javascript
+```js
 myCrawler.removeFetchCondition(conditionID);
 ```
 
@@ -401,14 +409,14 @@ at `crawler.queue` (assuming you called your Crawler() object `crawler`.) It
 provides array access, so you can get to queue items just with array notation
 and an index.
 
-```javascript
+```js
 crawler.queue[5];
 ```
 
 For compatibility with different backing stores, it now provides an alternate
 interface which the crawler core makes use of:
 
-```javascript
+```js
 crawler.queue.get(5);
 ```
 
@@ -423,8 +431,8 @@ it, and adds it to the queue.
 If you instead want to add a resource by its components, you may call the
 `queue.add` method directly:
 
-```javascript
-crawler.queue.add(protocol,hostname,port,path);
+```js
+crawler.queue.add(protocol, hostname, port, path);
 ```
 
 That's it! It's basically just a URL, but comma separated (that's how you can
@@ -463,7 +471,7 @@ is expected to have:
 
 You can address these properties like you would any other object:
 
-```javascript
+```js
 crawler.queue[52].url;
 queueItem.stateData.contentLength;
 queueItem.status === "queued";
@@ -489,10 +497,10 @@ And you can get the maximum, minimum, and average values for each with the
 `crawler.queue.max`, `crawler.queue.min`, and `crawler.queue.avg` functions
 respectively. Like so:
 
-```javascript
-console.log("The maximum request latency was %dms.",crawler.queue.max("requestLatency"));
-console.log("The minimum download time was %dms.",crawler.queue.min("downloadTime"));
-console.log("The average resource size received is %d bytes.",crawler.queue.avg("actualDataSize"));
+```js
+console.log("The maximum request latency was %dms.", crawler.queue.max("requestLatency"));
+console.log("The minimum download time was %dms.", crawler.queue.min("downloadTime"));
+console.log("The average resource size received is %d bytes.", crawler.queue.avg("actualDataSize"));
 ```
 
 You'll probably often need to determine how many items in the queue have a given
@@ -503,11 +511,11 @@ status at any one time, and/or retreive them. That's easy with
 status, while `crawler.queue.getWithStatus` returns an array of the queue items
 themselves.
 
-```javascript
+```js
 var redirectCount = crawler.queue.countWithStatus("redirected");
 
 crawler.queue.getWithStatus("failed").forEach(function(queueItem) {
-	console.log("Whoah, the request for %s failed!",queueItem.url);
+	console.log("Whoah, the request for %s failed!", queueItem.url);
 
 	// do something...
 });
@@ -515,10 +523,10 @@ crawler.queue.getWithStatus("failed").forEach(function(queueItem) {
 
 Then there's some even simpler convenience functions:
 
-*	`crawler.queue.complete` - returns the number of queue items which have been
-	completed (marked as fetched)
-*	`crawler.queue.errors` - returns the number of requests which have failed
-	(404s and other 400/500 errors, as well as client errors)
+* `crawler.queue.complete` - returns the number of queue items which have been
+completed (marked as fetched)
+* `crawler.queue.errors` - returns the number of requests which have failed
+(404s and other 400/500 errors, as well as client errors)
 
 #### Saving and reloading the queue (freeze/defrost)
 
@@ -537,7 +545,7 @@ Note that the methods themselves are asynchronous, so if you are going to exit t
 process after you do the freezing, make sure you wait for callback - otherwise
 you'll get an empty file.
 
-```javascript
+```js
 // Freeze queue
 crawler.queue.freeze("mysavedqueue.json", function() {
 	process.exit();
@@ -562,13 +570,6 @@ The cookie jar is accessible via `crawler.cookies`, and is an event emitter itse
 Fired when a new cookie is added to the jar.
 * `removecookie` ( cookie array )
 Fired when one or more cookies are removed from the jar.
-
-## Building and Testing
-
-#### Build Status:
-
-* Master: [![Build Status](https://travis-ci.org/cgiffard/node-simplecrawler.png?branch=master)](https://travis-ci.org/cgiffard/node-simplecrawler)
-* Development: [![Build Status](https://travis-ci.org/cgiffard/node-simplecrawler.png?branch=development)](https://travis-ci.org/cgiffard/node-simplecrawler)
 
 ## Contributors
 
