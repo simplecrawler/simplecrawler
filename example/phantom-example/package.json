@@ -1,0 +1,32 @@
+{
+  "name": "simplecrawler-phantom",
+  "version": "1.0.0",
+  "description": "Phantom link discovery for simplecrawler",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "phantom",
+    "phantomjs",
+    "simplecrawler",
+    "crawler",
+    "node"
+  ],
+  "author": "Christopher Giffard <christopher.giffard@cgiffard.com>",
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "http://github.com/cgiffard/node-simplecrawler.git"
+  },
+  "bugs": {
+    "url": "https://github.com/cgiffard/node-simplecrawler/issues"
+  },
+  "dependencies": {
+    "async": "^0.9.0",
+    "colors": "^1.0.3",
+    "phantom": "^0.7.2",
+    "phantomjs": "^1.9.16",
+    "simplecrawler": "^0.4.1"
+  }
+}
