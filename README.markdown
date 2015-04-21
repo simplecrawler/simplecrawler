@@ -274,8 +274,17 @@ Here's a complete list of what you can stuff with at this stage:
 *	`crawler.stripQuerystring` -
 	Specify to strip querystring parameters from URLs. Defaults to false.
 *	`crawler.discoverResources` -
-	Use simplecrawler's internal resource discovery function. Defaults to true.
-	(switch it off if you'd prefer to discover and queue resources yourself!)
+	Use simplecrawler's internal resource discovery function. You can replace it
+	with your own function, which must accept a buffer and a queueItem, and add
+	the discovered resources to the crawler queue:
+	
+		crawler.discoverResources = function(buf, queueItem) {
+			// scan buffer for URLs, and then:
+			...
+			crawler.queueURL(aDiscoveredURL, queueItem);
+			...
+		};
+		
 *	`crawler.discoverRegex` -
 	Array of regex objects that simplecrawler uses to discover resources.
 *	`crawler.cache` -
