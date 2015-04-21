@@ -1,14 +1,15 @@
-# EditorConfig is awesome: http://EditorConfig.org
+# http://editorconfig.org/
 
 # top-most EditorConfig file
-root = false
+root = true
 
-# Unix-style newlines with a newline ending every file
 [*]
+charset = "utf8"
 end_of_line = lf
-insert_final_newline = true
-
-# Tab indentation
-[*.js]
 indent_style = tab
 indent_size = 4
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+[*.md]
+trim_trailing_whitespace = false
