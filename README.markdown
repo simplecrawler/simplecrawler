@@ -308,7 +308,8 @@ Here's a complete list of what you can stuff with at this stage:
 	The maximum resource size, in bytes, which will be downloaded. Defaults to 16MB.
 *	`crawler.downloadUnsupported` -
 	Simplecrawler will download files it can't parse. Defaults to true, but if
-	you'd rather save the RAM and GC lag, switch it off.
+	you'd rather save the RAM and GC lag, switch it off. When false, it closes
+	sockets for unsupported resources.
 *	`crawler.needsAuth` -
 	Flag to specify if the domain you are hitting requires basic authentication
 *	`crawler.authUser` -
