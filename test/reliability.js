@@ -1,23 +1,23 @@
 // Runs a very simple crawl on an HTTP server
 
+var path = require("path");
+var os = require("os");
 var chai = require("chai");
-	chai.should();
 
-// Require the same server as in our previous tests...
-var testserver = require("./lib/testserver.js");
+var should = chai.should();
 
-describe("Crawler reliability",function() {
+describe("Crawler reliability", function() {
 
 	var Crawler	= require("../");
 
-	it("should be able to handle a timeout",function(done) {
+	it("should be able to handle a timeout", function(done) {
 
-		this.slow('1s');
+		this.slow("1s");
 
 		var localCrawler = Crawler.crawl("http://127.0.0.1:3000/timeout");
-			localCrawler.timeout = 200;
+		localCrawler.timeout = 200;
 
-		localCrawler.on("fetchtimeout",function(queueItem) {
+		localCrawler.on("fetchtimeout", function(queueItem) {
 			queueItem.should.be.an("object");
 			queueItem.fetched.should.equal(true);
 			queueItem.status.should.equal("timeout");
@@ -26,35 +26,37 @@ describe("Crawler reliability",function() {
 		});
 	});
 
-	it("should not decrement _openRequests below zero in the event of a timeout",function(done) {
+	it("should not decrement _openRequests below zero in the event of a timeout", function(done) {
 
-		this.slow('1s');
-		this.timeout('1s');
+		this.slow("1s");
+		this.timeout("1s");
 
 		var localCrawler = Crawler.crawl("http://127.0.0.1:3000/timeout");
-			localCrawler.timeout = 200;
 		var timesCalled = 0;
+		localCrawler.timeout = 200;
 
 		localCrawler.queueURL("http://127.0.0.1:3000/timeout");
 		localCrawler.queueURL("http://127.0.0.1:3000/timeout2");
 
-		localCrawler.on("fetchtimeout", function(queueItem) {
-			timesCalled ++;
-			(localCrawler._openRequests).should.equal(0);
+		localCrawler.on("fetchtimeout", function() {
+			timesCalled++;
+			localCrawler._openRequests.should.equal(0);
 
-			if (timesCalled === 2) done();
+			if (timesCalled === 2) {
+				done();
+			}
 		});
 	});
 
-	it("should emit a fetch404 when given a 410 status code",function(done) {
+	it("should emit a fetch404 when given a 410 status code", function(done) {
 
-		this.slow('1s');
-		this.timeout('1s');
+		this.slow("1s");
+		this.timeout("1s");
 
 		var localCrawler = Crawler.crawl("http://127.0.0.1:3000/410");
-			localCrawler.timeout = 200;
+		localCrawler.timeout = 200;
 
-		localCrawler.on("fetch404", function(queueItem) {
+		localCrawler.on("fetch404", function() {
 			done();
 		});
 	});
@@ -63,8 +65,8 @@ describe("Crawler reliability",function() {
 
 		var localCrawler = new Crawler("127.0.0.1", "/", 3000),
 			newCrawler = new Crawler("127.0.0.1", "/", 3000),
-			tmp = (process.env.TMPDIR || __dirname) + "/queue.json";
-			localCrawler.start();
+			tmp = os.tmpdir() ? path.join(os.tmpdir(), "queue.json") : path.join(__dirname, "queue.json");
+		localCrawler.start();
 
 		var test = function() {
 			this.stop();
@@ -107,6 +109,7 @@ describe("Crawler reliability",function() {
 			newCrawler.queue[2].status.should.equal("queued");
 
 			newCrawler.queue.oldestUnfetchedItem(function(err, queueItem) {
+				should.equal(err, null);
 				queueItem.url.should.equal("http://127.0.0.1:3000/stage/3");
 				done();
 			});

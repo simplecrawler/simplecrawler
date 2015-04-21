@@ -1,26 +1,26 @@
 // Runs a very simple crawl on an HTTP server with different depth
 
-var chai = require("chai");
-    chai.should();
+var chai = require("chai"),
+	Crawler = require("../");
 
-var testserver = require("./lib/testserver.js");
+require("./lib/testserver.js");
 
-var Crawler	= require("../");
+chai.should();
 
 // Test the number of links discovered for the given "depth" and compare it to "linksToDiscover"
 var depthTest = function(depth, linksToDiscover, behaviour) {
-	depth = parseInt(depth); // Force depth to be a number
 
+	depth = parseInt(depth, 10); // Force depth to be a number
 	var crawler;
 	var linksDiscovered;
 
-	describe("depth "+ depth, function() {
+	describe("depth " + depth, function() {
 		before(function() {
 			// Create a new crawler to crawl our local test server
-			crawler = new Crawler("127.0.0.1","/depth/1",3000);
+			crawler = new Crawler("127.0.0.1", "/depth/1", 3000);
 
-			// Speed up tests. No point waiting for every request when we're running
-			// our own server.
+			// Speed up tests. No point waiting for every request
+			// when we're running our own server.
 			crawler.interval = 1;
 			crawler.fetchWhitelistedMimeTypesBelowMaxDepth = !!behaviour;
 
@@ -30,7 +30,7 @@ var depthTest = function(depth, linksToDiscover, behaviour) {
 
 			linksDiscovered = 0;
 
-			crawler.on("fetchcomplete",function(queueItem) {
+			crawler.on("fetchcomplete", function() {
 				linksDiscovered++;
 			});
 
@@ -44,8 +44,8 @@ var depthTest = function(depth, linksToDiscover, behaviour) {
 			crawler = null;
 		});
 
-		it("should discover "+ linksToDiscover +" linked resources",function(done) {
-			crawler.on("complete",function() {
+		it("should discover " + linksToDiscover + " linked resources", function(done) {
+			crawler.on("complete", function() {
 				linksDiscovered.should.equal(linksToDiscover);
 				done();
 			});
@@ -53,7 +53,7 @@ var depthTest = function(depth, linksToDiscover, behaviour) {
 	});
 };
 
-describe("Crawler max depth with resource override (old default behaviour)",function() {
+describe("Crawler max depth with resource override (old default behaviour)", function() {
 
 	// depth: linksToDiscover
 	var linksToDiscover = {
@@ -63,8 +63,10 @@ describe("Crawler max depth with resource override (old default behaviour)",func
 		3: 11  // links for depth 3
 	};
 
-	for(var depth in linksToDiscover) {
-		depthTest(depth, linksToDiscover[depth], true);
+	for (var depth in linksToDiscover) {
+		if (linksToDiscover.hasOwnProperty(depth)) {
+			depthTest(depth, linksToDiscover[depth], true);
+		}
 	}
 
 });
@@ -75,10 +77,12 @@ describe("Crawler max depth without fetching resources (new default behaviour)",
 		0: 11, // links for depth 0
 		1: 1,  // links for depth 1
 		2: 3,  // links for depth 2
-		3: 6  // links for depth 3
+		3: 6   // links for depth 3
 	};
 
-	for(var depth in linksToDiscover) {
-		depthTest(depth, linksToDiscover[depth], false);
+	for (var depth in linksToDiscover) {
+		if (linksToDiscover.hasOwnProperty(depth)) {
+			depthTest(depth, linksToDiscover[depth], false);
+		}
 	}
 });

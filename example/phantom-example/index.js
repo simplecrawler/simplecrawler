@@ -1,11 +1,12 @@
+/* jshint bitwise:false, browser:true */
+
 var phantomAPI	= require("phantom"),
-	Crawler 	= require("simplecrawler"),
-	async		= require("async"),
-	colors		= require("colors"),
-	fs			= require("fs"),
-	phantomBin	= __dirname + "/node_modules/.bin/phantomjs";
+	Crawler		= require("simplecrawler"),
+	colors		= require("colors"), // jshint ignore:line
+	phantomjs	= require("phantomjs");
 
 var crawler = new Crawler("www.example.com", "/", 80, 0);
+var phantomBin = phantomjs.path;
 var phantomBannedExtensions = /\.(png|jpg|jpeg|gif|ico|css|js|csv|doc|docx|pdf)$/i;
 var phantomQueue = [];
 
@@ -22,10 +23,17 @@ var boringEvents = [
 // Replace original emit so we can sample all events easily
 // and log them to console
 var originalEmit = crawler.emit;
+
 crawler.emit = function(name, queueItem) {
 	var url = "";
-	if (queueItem && typeof queueItem === "string") url = queueItem;
-	if (queueItem && queueItem.url) url = queueItem.url;
+
+	if (queueItem) {
+		if (typeof queueItem === "string") {
+			url = queueItem;
+		} else if (queueItem.url) {
+			url = queueItem.url;
+		}
+	}
 
 	function pad(string) {
 		while (string.length < 20) {
@@ -34,8 +42,9 @@ crawler.emit = function(name, queueItem) {
 		return string;
 	}
 
-	if (!~boringEvents.indexOf(name))
+	if (!~boringEvents.indexOf(name)) {
 		console.log("%s".cyan + "%s", pad(name), url);
+	}
 
 	originalEmit.apply(crawler, arguments);
 };
@@ -60,10 +69,10 @@ function getLinks(phantom, url, callback) {
 		console.log(
 			"Phantom opened URL with %s — ".green + "%s".cyan, status, url);
 
-		page.evaluate(findPageLinks, function (result) {
+		page.evaluate(findPageLinks, function(result) {
 			result.forEach(function(url) {
 				crawler.queueURL(url);
-			})
+			});
 			callback();
 		});
 	});
@@ -71,22 +80,20 @@ function getLinks(phantom, url, callback) {
 
 function findPageLinks() {
 	var selector = document.querySelectorAll("a, link, img");
-		selector = [].slice.call(selector);
+	selector = [].slice.call(selector);
 
-	return (
-		selector
-			.map(function(link) {
-				return link.href || link.onclick || link.href || link.src;
-			})
-			.filter(function(src) {
-				return !!src;
-			})
-	);
+	return selector
+				.map(function(link) {
+					return link.href || link.onclick || link.href || link.src;
+				})
+				.filter(function(src) {
+					return !!src;
+				});
 }
 
 function makePage(phantom, url, callback) {
-	phantom.createPage(function (page) {
-		page.open(url, function (status) {
+	phantom.createPage(function(page) {
+		page.open(url, function(status) {
 			callback(page, status);
 		});
 	});
@@ -94,8 +101,10 @@ function makePage(phantom, url, callback) {
 
 var queueBeingProcessed = false;
 function processQueue(phantom, resume) {
-	if (queueBeingProcessed) return;
-		queueBeingProcessed = true;
+	if (queueBeingProcessed) {
+		return;
+	}
+	queueBeingProcessed = true;
 
 	(function processor(item) {
 		if (!item) {

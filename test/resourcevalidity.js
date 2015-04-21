@@ -4,12 +4,12 @@
 var chai = require("chai");
 	chai.should();
 
-describe("Resource validity checker",function() {
+describe("Resource validity checker", function() {
 
 	it("should be able to determine whether a domain is in crawl scope",
 		function() {
 
-		var crawler = new (require("../"))("example.com",3000);
+		var crawler = new (require("../"))("example.com", 3000);
 
 		// The domain itself should be allowed.
 		crawler.domainValid("example.com").should.equal(true);
@@ -24,7 +24,7 @@ describe("Resource validity checker",function() {
 	it("should be able to determine whether a domain is a subdomain of another",
 		function() {
 
-		var crawler = new (require("../"))("example.com",3000);
+		var crawler = new (require("../"))("example.com", 3000);
 
 		// Enable scanning subdomains, important for this test
 		crawler.scanSubdomains = true;
@@ -48,11 +48,10 @@ describe("Resource validity checker",function() {
 
 	});
 
-
 	it("should consider WWW domains and non-WWW domains alike by default",
 		function() {
 
-		var crawler = new (require("../"))("example.com",3000);
+		var crawler = new (require("../"))("example.com", 3000);
 
 		// Explicitly disallow crawling subdomains, important for this test
 		crawler.scanSubdomains = false;
@@ -68,7 +67,7 @@ describe("Resource validity checker",function() {
 	it("should consider WWW domains and non-WWW domains as separate if requested",
 		function() {
 
-		var crawler = new (require("../"))("example.com",3000);
+		var crawler = new (require("../"))("example.com", 3000);
 
 		// Explicitly disallow crawling subdomains, important for this test
 		crawler.scanSubdomains = false;
@@ -87,7 +86,7 @@ describe("Resource validity checker",function() {
 	it("should permit a specified set of domains based on the internal whitelist",
 		function() {
 
-		var crawler = new (require("../"))("example.com",3000);
+		var crawler = new (require("../"))("example.com", 3000);
 
 		// Add a few specific subdomains
 		crawler.domainWhitelist.push("foo.com");
@@ -111,7 +110,7 @@ describe("Resource validity checker",function() {
 	it("should permit fetching of specified protocols based on internal whitelist",
 		function() {
 
-		var crawler = new (require("../"))("example.com",3000);
+		var crawler = new (require("../"))("example.com", 3000);
 
 		// Protocols supported by default
 		crawler.protocolSupported("http://google.com").should.equal(true);
@@ -136,7 +135,7 @@ describe("Resource validity checker",function() {
 			/^xml/i
 		];
 
-		var crawler = new (require("../"))("example.com",3000);
+		var crawler = new (require("../"))("example.com", 3000);
 
 		// Protocols supported by default
 		crawler.mimeTypeSupported("text/plain").should.equal(true);
@@ -164,23 +163,21 @@ describe("Resource validity checker",function() {
 
 	});
 
+	describe("Link parser", function() {
 
-	describe("Link parser",function() {
+		var crawler = new (require("../"))("127.0.0.1", 3000);
 
-		var crawler = new (require("../"))("127.0.0.1",3000);
-
-		it("should throw out junky or invalid URLs without dying",function() {
+		it("should throw out junky or invalid URLs without dying", function() {
 
 			var urlContext = {
 				"url": "http://www.example.com"
 			};
 
-			crawler.processURL("",urlContext).should.equal(false);
-			crawler.processURL("\n\n",urlContext).should.equal(false);
-			crawler.processURL("ur34nfie4985:s////dsf/",urlContext).should.equal(false);
+			crawler.processURL("", urlContext).should.equal(false);
+			crawler.processURL("\n\n", urlContext).should.equal(false);
+			crawler.processURL("ur34nfie4985:s////dsf/", urlContext).should.equal(false);
 
 		});
 
 	});
 });
-

@@ -262,7 +262,7 @@ Here's a complete list of what you can stuff with at this stage:
 	The maximum time in milliseconds the crawler will wait for async listeners.
 *	`crawler.userAgent` -
 	The user agent the crawler will report. Defaults to
-	`Node/SimpleCrawler <version> (http://www.github.com/cgiffard/node-simplecrawler)`.
+	`Node/SimpleCrawler <version> (https://github.com/cgiffard/node-simplecrawler)`.
 *	`crawler.queue` -
 	The queue in use by the crawler (Must implement the `FetchQueue` interface)
 *	`crawler.filterByDomain` -

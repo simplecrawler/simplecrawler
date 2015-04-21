@@ -10,15 +10,15 @@ var httpServer = http.createServer();
 var testRoutes = require("./routes");
 
 // Listen to events
-httpServer.on("request",function(req,res) {
+httpServer.on("request", function(req, res) {
 
-	function write(status,data,contentType) {
+	function write(status, data, contentType) {
 		res.writeHead(
 			status,
 			http.STATUS_CODES[status],
 			{
-				"Content-Type":		contentType || "text/html",
-				"Content-Length":	Buffer.byteLength(data),
+				"Content-Type": contentType || "text/html",
+				"Content-Length": Buffer.byteLength(data)
 			});
 
 		res.write(data);
@@ -32,9 +32,9 @@ httpServer.on("request",function(req,res) {
 			301,
 			http.STATUS_CODES[301],
 			{
-				"Content-Type":		"text/plain",
-				"Content-Length":	Buffer.byteLength(data),
-				"Location":			to
+				"Content-Type": "text/plain",
+				"Content-Length": Buffer.byteLength(data),
+				"Location": to
 			});
 
 		res.write(data);
@@ -46,12 +46,12 @@ httpServer.on("request",function(req,res) {
 
 		// Pass in a function that takes a status and some data to write back
 		// out to the client
-		testRoutes[req.url](write,redir);
+		testRoutes[req.url](write, redir);
 
 	} else {
 
 		// Otherwise, a 404
-		res.writeHead(404,"Page Not Found");
+		res.writeHead(404, "Page Not Found");
 		res.write("Page not found.");
 		res.end();
 	}
