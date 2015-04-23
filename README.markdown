@@ -16,9 +16,9 @@ through 50,000 pages and written tens of gigabytes to disk without issue.
 var Crawler = require("simplecrawler");
 
 Crawler.crawl("http://example.com/")
-	.on("fetchcomplete", function(queueItem) {
-		console.log("Completed fetching resource:", queueItem.url);
-	});
+    .on("fetchcomplete", function(queueItem) {
+        console.log("Completed fetching resource:", queueItem.url);
+    });
 ```
 
 ### What does simplecrawler do?
@@ -63,7 +63,7 @@ functions that will be added as event listeners for `fetchcomplete` and
 
 ```js
 Crawler.crawl("http://example.com/", function(queueItem) {
-	console.log("Completed fetching resource:", queueItem.url);
+    console.log("Completed fetching resource:", queueItem.url);
 });
 ```
 
@@ -77,7 +77,7 @@ var crawler = Crawler.crawl("http://example.com/");
 crawler.interval = 500;
 
 crawler.on("fetchcomplete", function(queueItem) {
-	console.log("Completed fetching resource:", queueItem.url);
+    console.log("Completed fetching resource:", queueItem.url);
 });
 ```
 
@@ -133,10 +133,10 @@ First, you'll need to set up an event listener to get the fetched data:
 
 ```js
 myCrawler.on("fetchcomplete", function(queueItem, responseBuffer, response) {
-	console.log("I just received %s (%d bytes)", queueItem.url, responseBuffer.length);
-	console.log("It was a resource of type %s", response.headers['content-type']);
+    console.log("I just received %s (%d bytes)", queueItem.url, responseBuffer.length);
+    console.log("It was a resource of type %s", response.headers['content-type']);
 
-	// Do something with the data in responseBuffer
+    // Do something with the data in responseBuffer
 });
 ```
 
@@ -225,11 +225,11 @@ until either you execute the callback it returns, or a timeout is reached
 
 ```js
 crawler.on("fetchcomplete", function(queueItem, data, res) {
-	var continue = this.wait();
-	doSomeDiscovery(data, function(foundURLs) {
-		foundURLs.forEach(crawler.queueURL.bind(crawler));
-		continue();
-	});
+    var continue = this.wait();
+    doSomeDiscovery(data, function(foundURLs) {
+        foundURLs.forEach(crawler.queueURL.bind(crawler));
+        continue();
+    });
 });
 ```
 
@@ -237,131 +237,131 @@ crawler.on("fetchcomplete", function(queueItem, data, res) {
 
 Here's a complete list of what you can stuff with at this stage:
 
-*	`crawler.host` -
-	The domain to scan. By default, simplecrawler will restrict all requests to
-	this domain.
-*	`crawler.initialPath` -
-	The initial path with which the crawler will formulate its first request.
-	Does not restrict subsequent requests.
-*	`crawler.initialPort` -
-	The initial port with which the crawler will formulate its first request.
-	Does not restrict subsequent requests.
-*	`crawler.initialProtocol` -
-	The initial protocol with which the crawler will formulate its first request.
-	Does not restrict subsequent requests.
-*	`crawler.interval` -
-	The interval with which the crawler will spool up new requests (one per
-	tick.) Defaults to 250 ms.
-*	`crawler.maxConcurrency` -
-	The maximum number of requests the crawler will run simultaneously. Defaults
-	to 5 - the default number of http agents node will run.
-*	`crawler.timeout` -
-	The maximum time in milliseconds the crawler will wait for headers before
-	aborting the request.
-*	`crawler.listenerTTL` -
-	The maximum time in milliseconds the crawler will wait for async listeners.
-*	`crawler.userAgent` -
-	The user agent the crawler will report. Defaults to
-	`Node/SimpleCrawler <version> (https://github.com/cgiffard/node-simplecrawler)`.
-*	`crawler.queue` -
-	The queue in use by the crawler (Must implement the `FetchQueue` interface)
-*	`crawler.filterByDomain` -
-	Specifies whether the crawler will restrict queued requests to a given
-	domain/domains.
-*	`crawler.scanSubdomains` -
-	Enables scanning subdomains (other than www) as well as the specified domain.
-	Defaults to false.
-*	`crawler.ignoreWWWDomain` -
-	Treats the `www` domain the same as the originally specified domain.
-	Defaults to true.
-*	`crawler.stripWWWDomain` -
-	Or go even further and strip WWW subdomain from requests altogether!
-*	`crawler.stripQuerystring` -
-	Specify to strip querystring parameters from URLs. Defaults to false.
-*	`crawler.discoverResources` -
-	Use simplecrawler's internal resource discovery function. You can replace it
-	with your own function, which must accept a buffer and a queueItem, and add
-	the discovered resources to the crawler queue:
+*    `crawler.host` -
+    The domain to scan. By default, simplecrawler will restrict all requests to
+    this domain.
+*    `crawler.initialPath` -
+    The initial path with which the crawler will formulate its first request.
+    Does not restrict subsequent requests.
+*    `crawler.initialPort` -
+    The initial port with which the crawler will formulate its first request.
+    Does not restrict subsequent requests.
+*    `crawler.initialProtocol` -
+    The initial protocol with which the crawler will formulate its first request.
+    Does not restrict subsequent requests.
+*    `crawler.interval` -
+    The interval with which the crawler will spool up new requests (one per
+    tick.) Defaults to 250 ms.
+*    `crawler.maxConcurrency` -
+    The maximum number of requests the crawler will run simultaneously. Defaults
+    to 5 - the default number of http agents node will run.
+*    `crawler.timeout` -
+    The maximum time in milliseconds the crawler will wait for headers before
+    aborting the request.
+*    `crawler.listenerTTL` -
+    The maximum time in milliseconds the crawler will wait for async listeners.
+*    `crawler.userAgent` -
+    The user agent the crawler will report. Defaults to
+    `Node/SimpleCrawler <version> (https://github.com/cgiffard/node-simplecrawler)`.
+*    `crawler.queue` -
+    The queue in use by the crawler (Must implement the `FetchQueue` interface)
+*    `crawler.filterByDomain` -
+    Specifies whether the crawler will restrict queued requests to a given
+    domain/domains.
+*    `crawler.scanSubdomains` -
+    Enables scanning subdomains (other than www) as well as the specified domain.
+    Defaults to false.
+*    `crawler.ignoreWWWDomain` -
+    Treats the `www` domain the same as the originally specified domain.
+    Defaults to true.
+*    `crawler.stripWWWDomain` -
+    Or go even further and strip WWW subdomain from requests altogether!
+*    `crawler.stripQuerystring` -
+    Specify to strip querystring parameters from URLs. Defaults to false.
+*    `crawler.discoverResources` -
+    Use simplecrawler's internal resource discovery function. You can replace it
+    with your own function, which must accept a buffer and a queueItem, and add
+    the discovered resources to the crawler queue:
 
-	```js
-	crawler.discoverResources = function(buf, queueItem) {
-		// scan buffer for URLs, and then:
-		...
-		crawler.queueURL(aDiscoveredURL, queueItem);
-		...
-	};
-	```
+    ```js
+    crawler.discoverResources = function(buf, queueItem) {
+        // scan buffer for URLs, and then:
+        ...
+        crawler.queueURL(aDiscoveredURL, queueItem);
+        ...
+    };
+    ```
 
-*	`crawler.discoverRegex` -
-	Array of regex objects that simplecrawler uses to discover resources.
-*	`crawler.cache` -
-	Specify a cache architecture to use when crawling. Must implement
-	`SimpleCache` interface. You can save the site to disk using the built in file
-	system cache like this: `crawler.cache = new Crawler.cache('pathToCacheDirectory');`
-*	`crawler.useProxy` -
-	The crawler should use an HTTP proxy to make its requests.
-*	`crawler.proxyHostname` -
-	The hostname of the proxy to use for requests.
-*	`crawler.proxyPort` -
-	The port of the proxy to use for requests.
-*	`crawler.proxyUser` -
-	The username for HTTP/Basic proxy authentication (leave unset for unauthenticated proxies.)
-*	`crawler.proxyPass` -
-	The password for HTTP/Basic proxy authentication (leave unset for unauthenticated proxies.)
-*	`crawler.domainWhitelist` -
-	An array of domains the crawler is permitted to crawl from. If other settings
-	are more permissive, they will override this setting.
-*	`crawler.supportedMimeTypes` -
-	An array of RegEx objects used to determine supported MIME types (types of
-	data simplecrawler will scan for links.) If you're  not using simplecrawler's
-	resource discovery function, this won't have any effect.
-*	`crawler.allowedProtocols` -
-	An array of RegEx objects used to determine whether a URL protocol is supported.
-	This is to deal with nonstandard protocol handlers that regular HTTP is
-	sometimes given, like `feed:`. It does not provide support for non-http
-	protocols (and why would it!?)
-*	`crawler.maxResourceSize` -
-	The maximum resource size, in bytes, which will be downloaded. Defaults to 16MB.
-*	`crawler.downloadUnsupported` -
-	Simplecrawler will download files it can't parse. Defaults to true, but if
-	you'd rather save the RAM and GC lag, switch it off. When false, it closes
-	sockets for unsupported resources.
-*	`crawler.needsAuth` -
-	Flag to specify if the domain you are hitting requires basic authentication
-*	`crawler.authUser` -
-	Username provided for needsAuth flag
-*	`crawler.authPass` -
-	Password provided for needsAuth flag
-*	`crawler.customHeaders` -
-	An object specifying a number of custom headers simplecrawler will add to
-	every request. These override the default headers simplecrawler sets, so
-	be careful with them. If you want to tamper with headers on a per-request basis,
-	see the `fetchqueue` event.
-*	`crawler.acceptCookies` -
-	Flag to indicate if the crawler should hold on to cookies
-*	`crawler.urlEncoding` -
-	Set this to `iso8859` to trigger URIjs' re-encoding of iso8859 URLs to unicode.
-	Defaults to `unicode`.
-*	`crawler.parseHTMLComments` -
-	Whether to scan for URLs inside HTML comments.
-	Defaults to `true`.
-*	`crawler.parseScriptTags` -
-	Whether to scan for URLs inside script tags.
-	Defaults to `true`.
-*	`crawler.maxDepth` -
-	Defines a maximum distance from the original request at which resources will
-	be downloaded. Asset files are excluded from this distance condition if
-	`crawler.fetchWhitelistedMimeTypesBelowMaxDepth` is `true`. Defaults to `0`
-	— no max depth.
-*	`crawler.fetchWhitelistedMimeTypesBelowMaxDepth` — Defaults to `false`. If
-	`true`, then resources (fonts, images, CSS) will be excluded from `maxDepth`
-	checks. (And therefore downloaded regardless of their depth.)
-*	`crawler.ignoreInvalidSSL` -
-	Treat self-signed SSL certificates as valid. SSL certificates will not be
-	validated against known CAs. Only applies to https requests. You may also have
-	to set the environment variable NODE_TLS_REJECT_UNAUTHORIZED to '0'.
-	For example: `process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';`
-	Defaults to false.
+*   `crawler.discoverRegex` -
+    Array of regex objects that simplecrawler uses to discover resources.
+*   `crawler.cache` -
+    Specify a cache architecture to use when crawling. Must implement
+    `SimpleCache` interface. You can save the site to disk using the built in file
+    system cache like this: `crawler.cache = new Crawler.cache('pathToCacheDirectory');`
+*   `crawler.useProxy` -
+    The crawler should use an HTTP proxy to make its requests.
+*   `crawler.proxyHostname` -
+    The hostname of the proxy to use for requests.
+*   `crawler.proxyPort` -
+    The port of the proxy to use for requests.
+*   `crawler.proxyUser` -
+    The username for HTTP/Basic proxy authentication (leave unset for unauthenticated proxies.)
+*   `crawler.proxyPass` -
+    The password for HTTP/Basic proxy authentication (leave unset for unauthenticated proxies.)
+*   `crawler.domainWhitelist` -
+    An array of domains the crawler is permitted to crawl from. If other settings
+    are more permissive, they will override this setting.
+*   `crawler.supportedMimeTypes` -
+    An array of RegEx objects used to determine supported MIME types (types of
+    data simplecrawler will scan for links.) If you're  not using simplecrawler's
+    resource discovery function, this won't have any effect.
+*   `crawler.allowedProtocols` -
+    An array of RegEx objects used to determine whether a URL protocol is supported.
+    This is to deal with nonstandard protocol handlers that regular HTTP is
+    sometimes given, like `feed:`. It does not provide support for non-http
+    protocols (and why would it!?)
+*   `crawler.maxResourceSize` -
+    The maximum resource size, in bytes, which will be downloaded. Defaults to 16MB.
+*   `crawler.downloadUnsupported` -
+    Simplecrawler will download files it can't parse. Defaults to true, but if
+    you'd rather save the RAM and GC lag, switch it off. When false, it closes
+    sockets for unsupported resources.
+*   `crawler.needsAuth` -
+    Flag to specify if the domain you are hitting requires basic authentication
+*   `crawler.authUser` -
+    Username provided for needsAuth flag
+*   `crawler.authPass` -
+    Password provided for needsAuth flag
+*   `crawler.customHeaders` -
+    An object specifying a number of custom headers simplecrawler will add to
+    every request. These override the default headers simplecrawler sets, so
+    be careful with them. If you want to tamper with headers on a per-request basis,
+    see the `fetchqueue` event.
+*   `crawler.acceptCookies` -
+    Flag to indicate if the crawler should hold on to cookies
+*   `crawler.urlEncoding` -
+    Set this to `iso8859` to trigger URIjs' re-encoding of iso8859 URLs to unicode.
+    Defaults to `unicode`.
+*   `crawler.parseHTMLComments` -
+    Whether to scan for URLs inside HTML comments.
+    Defaults to `true`.
+*   `crawler.parseScriptTags` -
+    Whether to scan for URLs inside script tags.
+    Defaults to `true`.
+*   `crawler.maxDepth` -
+    Defines a maximum distance from the original request at which resources will
+    be downloaded. Asset files are excluded from this distance condition if
+    `crawler.fetchWhitelistedMimeTypesBelowMaxDepth` is `true`. Defaults to `0`
+    — no max depth.
+*   `crawler.fetchWhitelistedMimeTypesBelowMaxDepth` — Defaults to `false`. If
+    `true`, then resources (fonts, images, CSS) will be excluded from `maxDepth`
+    checks. (And therefore downloaded regardless of their depth.)
+*   `crawler.ignoreInvalidSSL` -
+    Treat self-signed SSL certificates as valid. SSL certificates will not be
+    validated against known CAs. Only applies to https requests. You may also have
+    to set the environment variable NODE_TLS_REJECT_UNAUTHORIZED to '0'.
+    For example: `process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';`
+    Defaults to false.
 
 #### Excluding certain resources from downloading
 
@@ -384,7 +384,7 @@ returns. You can use this ID to remove the condition later.
 
 ```js
 var conditionID = myCrawler.addFetchCondition(function(parsedURL) {
-	return !parsedURL.path.match(/\.pdf$/i);
+    return !parsedURL.path.match(/\.pdf$/i);
 });
 ```
 
@@ -459,23 +459,23 @@ is expected to have:
 * `path` - The bit of the URL after the domain - includes the query string.
 * `fetched` - Has the request for this item been completed? You can monitor this as requests are processed.
 * `status` - The internal status of the item, always a string. This can be one of:
-	* `queued` - The resource is in the queue to be fetched, but nothing's happened to it yet.
-	* `spooled` - A request has been made to the remote server, but we're still waiting for a response.
-	* `headers` - The headers for the resource have been received.
-	* `downloaded` - The item has been entirely downloaded.
-	* `redirected` - The resource request returned a 300 series response, with a Location header and a new URL.
-	* `notfound` - The resource could not be found. (404)
-	* `failed` - An error occurred when attempting to fetch the resource.
+    * `queued` - The resource is in the queue to be fetched, but nothing's happened to it yet.
+    * `spooled` - A request has been made to the remote server, but we're still waiting for a response.
+    * `headers` - The headers for the resource have been received.
+    * `downloaded` - The item has been entirely downloaded.
+    * `redirected` - The resource request returned a 300 series response, with a Location header and a new URL.
+    * `notfound` - The resource could not be found. (404)
+    * `failed` - An error occurred when attempting to fetch the resource.
 * `stateData` - An object containing state data and other information about the request:
-	* `requestLatency` - The time taken for headers to be received after the request was made.
-	* `requestTime` - The total time taken for the request (including download time.)
-	* `downloadTime` - The total time taken for the resource to be downloaded.
-	* `contentLength` - The length (in bytes) of the returned content. Calculated based on the `content-length` header.
-	* `contentType` - The MIME type of the content.
-	* `code` - The HTTP status code returned for the request.
-	* `headers` - An object containing the header information returned by the server. This is the object node returns as part of the `response` object.
-	* `actualDataSize` - The length (in bytes) of the returned content. Calculated based on what is actually received, not the `content-length` header.
-	* `sentIncorrectSize` - True if the data length returned by the server did not match what we were told to expect by the `content-length` header.
+    * `requestLatency` - The time taken for headers to be received after the request was made.
+    * `requestTime` - The total time taken for the request (including download time.)
+    * `downloadTime` - The total time taken for the resource to be downloaded.
+    * `contentLength` - The length (in bytes) of the returned content. Calculated based on the `content-length` header.
+    * `contentType` - The MIME type of the content.
+    * `code` - The HTTP status code returned for the request.
+    * `headers` - An object containing the header information returned by the server. This is the object node returns as part of the `response` object.
+    * `actualDataSize` - The length (in bytes) of the returned content. Calculated based on what is actually received, not the `content-length` header.
+    * `sentIncorrectSize` - True if the data length returned by the server did not match what we were told to expect by the `content-length` header.
 
 You can address these properties like you would any other object:
 
@@ -523,9 +523,9 @@ themselves.
 var redirectCount = crawler.queue.countWithStatus("redirected");
 
 crawler.queue.getWithStatus("failed").forEach(function(queueItem) {
-	console.log("Whoah, the request for %s failed!", queueItem.url);
+    console.log("Whoah, the request for %s failed!", queueItem.url);
 
-	// do something...
+    // do something...
 });
 ```
 
@@ -556,7 +556,7 @@ you'll get an empty file.
 ```js
 // Freeze queue
 crawler.queue.freeze("mysavedqueue.json", function() {
-	process.exit();
+    process.exit();
 });
 
 // Defrost queue
@@ -583,32 +583,32 @@ Fired when one or more cookies are removed from the jar.
 
 I'd like to extend sincere thanks to:
 
-*	[Nick Crohn](https://github.com/ncrohn) for the HTTP Basic auth support, and
-	initial cookie support.
-*	[Mike Moulton](https://github.com/mmoulton) for
-	[fixing a bug in the URL discovery mechanism]
-	(https://github.com/cgiffard/node-simplecrawler/pull/3), as well as
-	[adding the `discoverycomplete` event]
-	(https://github.com/cgiffard/node-simplecrawler/pull/10),
-*	[Mike Iannacone](https://github.com/mikeiannacone) for correcting a keyword
-	naming collision with node 0.8's EventEmitter.
-*	[Greg Molnar](https://github.com/gregmolnar) for
-	[adding a querystring-free path parameter to parsed URL objects.]
-	(https://github.com/cgiffard/node-simplecrawler/pull/31)
-*	[Breck Yunits](https://github.com/breck7) for contributing a useful code
-	sample demonstrating using simplecrawler for caching a website to disk!
-*	[Luke Plaster](https://github.com/notatestuser) for enabling protocol-agnostic
-	link discovery
-*	[Zeus](https://github.com/distracteddev) for fixing a bug where [default port
-	info was wrongly specified in requests]
-	(https://github.com/cgiffard/node-simplecrawler/pull/40)
-	and for fixing the missing request timeout handling!
-*	[Graham Hutchinson](https://github.com/ghhutch) for adding
-	querystring-stripping option
-*	[Jellyfrog](https://github.com/jellyfrog) for assisting in diagnosing some
-	nasty EventEmitter issues.
-*	[Brian Moeskau](https://github.com/bmoeskau) for helping to fix the confusing
-	'async' events API, and providing invaluable feedback.
+*   [Nick Crohn](https://github.com/ncrohn) for the HTTP Basic auth support, and
+    initial cookie support.
+*   [Mike Moulton](https://github.com/mmoulton) for
+    [fixing a bug in the URL discovery mechanism]
+    (https://github.com/cgiffard/node-simplecrawler/pull/3), as well as
+    [adding the `discoverycomplete` event]
+    (https://github.com/cgiffard/node-simplecrawler/pull/10),
+*   [Mike Iannacone](https://github.com/mikeiannacone) for correcting a keyword
+    naming collision with node 0.8's EventEmitter.
+*   [Greg Molnar](https://github.com/gregmolnar) for
+    [adding a querystring-free path parameter to parsed URL objects.]
+    (https://github.com/cgiffard/node-simplecrawler/pull/31)
+*   [Breck Yunits](https://github.com/breck7) for contributing a useful code
+    sample demonstrating using simplecrawler for caching a website to disk!
+*   [Luke Plaster](https://github.com/notatestuser) for enabling protocol-agnostic
+    link discovery
+*   [Zeus](https://github.com/distracteddev) for fixing a bug where [default port
+    info was wrongly specified in requests]
+    (https://github.com/cgiffard/node-simplecrawler/pull/40)
+    and for fixing the missing request timeout handling!
+*   [Graham Hutchinson](https://github.com/ghhutch) for adding
+    querystring-stripping option
+*   [Jellyfrog](https://github.com/jellyfrog) for assisting in diagnosing some
+    nasty EventEmitter issues.
+*   [Brian Moeskau](https://github.com/bmoeskau) for helping to fix the confusing
+    'async' events API, and providing invaluable feedback.
 
 And everybody else who has helped out in some way! :)
 

@@ -1,9 +1,9 @@
 /* jshint bitwise:false, browser:true */
 
-var phantomAPI	= require("phantom"),
-	Crawler		= require("simplecrawler"),
-	colors		= require("colors"), // jshint ignore:line
-	phantomjs	= require("phantomjs");
+var phantomAPI  = require("phantom"),
+    Crawler     = require("simplecrawler"),
+    colors      = require("colors"), // jshint ignore:line
+    phantomjs   = require("phantomjs");
 
 var crawler = new Crawler("www.example.com", "/", 80, 0);
 var phantomBin = phantomjs.path;
@@ -15,9 +15,9 @@ phantomAPI.create({ binary: phantomBin }, runCrawler);
 
 // Events which end up being a bit noisy
 var boringEvents = [
-	"queueduplicate",
-	"fetchstart",
-	"discoverycomplete"
+    "queueduplicate",
+    "fetchstart",
+    "discoverycomplete"
 ];
 
 // Replace original emit so we can sample all events easily
@@ -25,98 +25,98 @@ var boringEvents = [
 var originalEmit = crawler.emit;
 
 crawler.emit = function(name, queueItem) {
-	var url = "";
+    var url = "";
 
-	if (queueItem) {
-		if (typeof queueItem === "string") {
-			url = queueItem;
-		} else if (queueItem.url) {
-			url = queueItem.url;
-		}
-	}
+    if (queueItem) {
+        if (typeof queueItem === "string") {
+            url = queueItem;
+        } else if (queueItem.url) {
+            url = queueItem.url;
+        }
+    }
 
-	function pad(string) {
-		while (string.length < 20) {
-			string += " ";
-		}
-		return string;
-	}
+    function pad(string) {
+        while (string.length < 20) {
+            string += " ";
+        }
+        return string;
+    }
 
-	if (!~boringEvents.indexOf(name)) {
-		console.log("%s".cyan + "%s", pad(name), url);
-	}
+    if (!~boringEvents.indexOf(name)) {
+        console.log("%s".cyan + "%s", pad(name), url);
+    }
 
-	originalEmit.apply(crawler, arguments);
+    originalEmit.apply(crawler, arguments);
 };
 
 crawler.on("complete", process.exit.bind(process, 0));
 
 function runCrawler(phantom) {
-	crawler.start();
-	crawler.on("queueadd", function(queueItem) {
-		if (!queueItem.url.match(phantomBannedExtensions)) {
-			var resume = this.wait();
-			phantomQueue.push(queueItem.url);
-			processQueue(phantom, resume);
-		}
-	});
+    crawler.start();
+    crawler.on("queueadd", function(queueItem) {
+        if (!queueItem.url.match(phantomBannedExtensions)) {
+            var resume = this.wait();
+            phantomQueue.push(queueItem.url);
+            processQueue(phantom, resume);
+        }
+    });
 }
 
 function getLinks(phantom, url, callback) {
-	console.log("Phantom attempting to load ".green + "%s".cyan, url);
+    console.log("Phantom attempting to load ".green + "%s".cyan, url);
 
-	makePage(phantom, url, function(page, status) {
-		console.log(
-			"Phantom opened URL with %s — ".green + "%s".cyan, status, url);
+    makePage(phantom, url, function(page, status) {
+        console.log(
+            "Phantom opened URL with %s — ".green + "%s".cyan, status, url);
 
-		page.evaluate(findPageLinks, function(result) {
-			result.forEach(function(url) {
-				crawler.queueURL(url);
-			});
-			callback();
-		});
-	});
+        page.evaluate(findPageLinks, function(result) {
+            result.forEach(function(url) {
+                crawler.queueURL(url);
+            });
+            callback();
+        });
+    });
 }
 
 function findPageLinks() {
-	var selector = document.querySelectorAll("a, link, img");
-	selector = [].slice.call(selector);
+    var selector = document.querySelectorAll("a, link, img");
+    selector = [].slice.call(selector);
 
-	return selector
-				.map(function(link) {
-					return link.href || link.onclick || link.href || link.src;
-				})
-				.filter(function(src) {
-					return !!src;
-				});
+    return selector
+                .map(function(link) {
+                    return link.href || link.onclick || link.href || link.src;
+                })
+                .filter(function(src) {
+                    return !!src;
+                });
 }
 
 function makePage(phantom, url, callback) {
-	phantom.createPage(function(page) {
-		page.open(url, function(status) {
-			callback(page, status);
-		});
-	});
+    phantom.createPage(function(page) {
+        page.open(url, function(status) {
+            callback(page, status);
+        });
+    });
 }
 
 var queueBeingProcessed = false;
 function processQueue(phantom, resume) {
-	if (queueBeingProcessed) {
-		return;
-	}
-	queueBeingProcessed = true;
+    if (queueBeingProcessed) {
+        return;
+    }
+    queueBeingProcessed = true;
 
-	(function processor(item) {
-		if (!item) {
-			console.log("Phantom reached end of queue! ------------".green);
-			queueBeingProcessed = false;
-			return resume();
-		}
+    (function processor(item) {
+        if (!item) {
+            console.log("Phantom reached end of queue! ------------".green);
+            queueBeingProcessed = false;
+            return resume();
+        }
 
-		getLinks(phantom, item, function() {
-			// Break up stack so we don't blow it
-			setTimeout(processor.bind(null, phantomQueue.shift()), 10);
-		});
+        getLinks(phantom, item, function() {
+            // Break up stack so we don't blow it
+            setTimeout(processor.bind(null, phantomQueue.shift()), 10);
+        });
 
-	})(phantomQueue.shift());
+    })(phantomQueue.shift());
 }
