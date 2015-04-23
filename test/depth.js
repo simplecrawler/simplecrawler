@@ -11,8 +11,8 @@ chai.should();
 var depthTest = function(depth, linksToDiscover, behaviour) {
 
     depth = parseInt(depth, 10); // Force depth to be a number
-    var crawler;
-    var linksDiscovered;
+    var crawler,
+        linksDiscovered;
 
     describe("depth " + depth, function() {
         before(function() {

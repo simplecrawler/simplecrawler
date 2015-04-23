@@ -5,10 +5,9 @@ var request = require("request"),
 	Crawler = require("../"),
 	parseRobots = require("robots-parser");
 
+var crawler = new Crawler("example.com");
 
-
-var crawler =  new Crawler("example.com"),
-	robotsUrl = "http://example.com/robots.txt";
+var robotsUrl = "http://example.com/robots.txt";
 
 request(robotsUrl, function (res, body) {
 	var robots = parseRobots(robotsUrl, body);

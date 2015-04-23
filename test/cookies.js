@@ -16,8 +16,8 @@ var cookies = [
 
 describe("Cookies", function() {
 
-    var CookieJar   = require("../lib/cookies.js"),
-        Cookie      = CookieJar.Cookie;
+    var CookieJar = require("../lib/cookies.js"),
+        Cookie = CookieJar.Cookie;
 
     it("should be able parse from string properly", function() {
 
@@ -61,9 +61,9 @@ describe("Cookies", function() {
     it("should be able to output the cookie object as a string", function() {
 
         cookies.forEach(function(cookie) {
-            var tmpCookie       = Cookie.fromString(cookie),
-                outputString    = tmpCookie.toString(true),
-                reParsedCookie  = Cookie.fromString(outputString);
+            var tmpCookie = Cookie.fromString(cookie),
+                outputString = tmpCookie.toString(true),
+                reParsedCookie = Cookie.fromString(outputString);
 
             tmpCookie.name.should.equal(reParsedCookie.name);
             tmpCookie.value.should.equal(reParsedCookie.value);
@@ -86,13 +86,12 @@ describe("Cookies", function() {
             cookies.forEach(function(cookie) {
                 var parsedCookie = Cookie.fromString(cookie);
 
-                cookieJar.add(
-                        parsedCookie.name,
-                        parsedCookie.value,
-                        parsedCookie.expires,
-                        parsedCookie.path,
-                        parsedCookie.domain,
-                        parsedCookie.httponly);
+                cookieJar.add(parsedCookie.name,
+                              parsedCookie.value,
+                              parsedCookie.expires,
+                              parsedCookie.path,
+                              parsedCookie.domain,
+                              parsedCookie.httponly);
 
                 var cookiesAdded = cookieJar.get(parsedCookie.name),
                     parsedCookie2 = cookiesAdded.pop();
@@ -114,13 +113,12 @@ describe("Cookies", function() {
             cookies.forEach(function(cookie) {
                 var parsedCookie = Cookie.fromString(cookie);
 
-                cookieJar.add(
-                        parsedCookie.name,
-                        parsedCookie.value,
-                        parsedCookie.expires,
-                        parsedCookie.path,
-                        parsedCookie.domain,
-                        parsedCookie.httponly);
+                cookieJar.add(parsedCookie.name,
+                              parsedCookie.value,
+                              parsedCookie.expires,
+                              parsedCookie.path,
+                              parsedCookie.domain,
+                              parsedCookie.httponly);
             });
 
             cookieJar.cookies.length.should.equal(cookies.length);
@@ -130,8 +128,7 @@ describe("Cookies", function() {
 
                 cookieJar.remove(parsedCookie.name);
 
-                cookieJar.cookies.length.should.equal(
-                                        cookies.length - (index + 1));
+                cookieJar.cookies.length.should.equal(cookies.length - (index + 1));
             });
         });
 
@@ -141,13 +138,12 @@ describe("Cookies", function() {
             cookies.forEach(function(cookie) {
                 var parsedCookie = Cookie.fromString(cookie);
 
-                cookieJar.add(
-                        parsedCookie.name,
-                        parsedCookie.value,
-                        parsedCookie.expires,
-                        parsedCookie.path,
-                        parsedCookie.domain,
-                        parsedCookie.httponly);
+                cookieJar.add(parsedCookie.name,
+                              parsedCookie.value,
+                              parsedCookie.expires,
+                              parsedCookie.path,
+                              parsedCookie.domain,
+                              parsedCookie.httponly);
 
                 var returnedCookies = cookieJar.get(parsedCookie.name),
                     parsedCookie2 = returnedCookies.pop();
@@ -166,8 +162,8 @@ describe("Cookies", function() {
             cookieJar.addFromHeaders(cookies);
 
             cookies.forEach(function(cookie) {
-                var parsedCookie = Cookie.fromString(cookie);
-                var returnedCookies = cookieJar.get(parsedCookie.name),
+                var parsedCookie = Cookie.fromString(cookie),
+                    returnedCookies = cookieJar.get(parsedCookie.name),
                     parsedCookie2 = returnedCookies.slice(0, 1).pop();
 
                 returnedCookies.length.should.equal(1);

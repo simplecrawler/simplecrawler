@@ -27,7 +27,6 @@ describe("Crawler object", function() {
 
     it("should be able to be initialised", function() {
         var myCrawler = new Crawler("127.0.0.1", "/", 3000);
-
         myCrawler.should.be.an.instanceof(Crawler);
     });
 

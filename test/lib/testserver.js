@@ -15,8 +15,7 @@ httpServer.on("request", function(req, res) {
     function write(status, data, contentType) {
         res.writeHead(
             status,
-            http.STATUS_CODES[status],
-            {
+            http.STATUS_CODES[status], {
                 "Content-Type": contentType || "text/html",
                 "Content-Length": Buffer.byteLength(data)
             });
@@ -30,8 +29,7 @@ httpServer.on("request", function(req, res) {
 
         res.writeHead(
             301,
-            http.STATUS_CODES[301],
-            {
+            http.STATUS_CODES[301], {
                 "Content-Type": "text/plain",
                 "Content-Length": Buffer.byteLength(data),
                 "Location": to

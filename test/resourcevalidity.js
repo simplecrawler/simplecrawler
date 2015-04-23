@@ -6,8 +6,7 @@ var chai = require("chai");
 
 describe("Resource validity checker", function() {
 
-    it("should be able to determine whether a domain is in crawl scope",
-        function() {
+    it("should be able to determine whether a domain is in crawl scope", function() {
 
         var crawler = new (require("../"))("example.com", 3000);
 
@@ -21,8 +20,7 @@ describe("Resource validity checker", function() {
 
     });
 
-    it("should be able to determine whether a domain is a subdomain of another",
-        function() {
+    it("should be able to determine whether a domain is a subdomain of another", function() {
 
         var crawler = new (require("../"))("example.com", 3000);
 
@@ -48,8 +46,7 @@ describe("Resource validity checker", function() {
 
     });
 
-    it("should consider WWW domains and non-WWW domains alike by default",
-        function() {
+    it("should consider WWW domains and non-WWW domains alike by default", function() {
 
         var crawler = new (require("../"))("example.com", 3000);
 
@@ -64,8 +61,7 @@ describe("Resource validity checker", function() {
 
     });
 
-    it("should consider WWW domains and non-WWW domains as separate if requested",
-        function() {
+    it("should consider WWW domains and non-WWW domains as separate if requested", function() {
 
         var crawler = new (require("../"))("example.com", 3000);
 
@@ -83,8 +79,7 @@ describe("Resource validity checker", function() {
 
     });
 
-    it("should permit a specified set of domains based on the internal whitelist",
-        function() {
+    it("should permit a specified set of domains based on the internal whitelist", function() {
 
         var crawler = new (require("../"))("example.com", 3000);
 
@@ -107,8 +102,7 @@ describe("Resource validity checker", function() {
 
     });
 
-    it("should permit fetching of specified protocols based on internal whitelist",
-        function() {
+    it("should permit fetching of specified protocols based on internal whitelist", function() {
 
         var crawler = new (require("../"))("example.com", 3000);
 
@@ -125,8 +119,7 @@ describe("Resource validity checker", function() {
         crawler.protocolSupported("wss://google.com").should.equal(false);
     });
 
-    it("should permit parsing of specified resources based on mimetype checks",
-        function() {
+    it("should permit parsing of specified resources based on mimetype checks", function() {
 
         this.supportedMimeTypes = [
             /^text\//i,

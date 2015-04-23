@@ -1,15 +1,15 @@
 // Example use of simplecrawler, courtesy of @breck7! Thanks mate. :)
 
-var fs = require("node-fs"),
-    url = require("url"),
-    path = require("path"),
-    Crawler = require("simplecrawler").Crawler;
-
 /**
  * @param String. Domain to download.
  * @Param Function. Callback when crawl is complete.
  */
 var downloadSite = function(domain, callback) {
+    var fs = require("node-fs"),
+        url = require("url"),
+        path = require("path"),
+        Crawler = require("simplecrawler").Crawler;
+
     var myCrawler = new Crawler(domain);
     myCrawler.interval = 250;
     myCrawler.maxConcurrency = 5;
