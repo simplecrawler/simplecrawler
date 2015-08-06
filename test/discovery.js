@@ -111,7 +111,7 @@ describe("Crawler link discovery",function() {
 		links.should.be.an("array");
 		links.length.should.equal(3);
 		links[0].should.equal("example.com/resource?with%28parentheses%29");
-		links[1].should.equal("example.com/resource?with\"double quotes\"");
-		links[2].should.equal("example.com/resource?with'single quotes'");
+		links[1].should.equal("example.com/resource?with%22double+quotes%22");
+		links[2].should.equal("example.com/resource?with%27single+quotes%27");
 	});
 });
