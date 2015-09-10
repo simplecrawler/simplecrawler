@@ -67,6 +67,17 @@ describe("Crawler link discovery",function() {
 		links[1].should.equal("http://example.com/resource");
 	});
 
+	it("should replace all '&#38;'s and '&#x00026;'s with ampersands",function() {
+
+		var links =
+			discover("<a href='http://example.com/resource?with&#38;query=params&#x00026;and=entities'>");
+
+		links.should.be.an("array");
+		links.length.should.equal(2);
+		links[0].should.equal("http://example.com/resource?with&query=params&and=entities");
+		links[1].should.equal("http://example.com/resource");
+	});
+
 	it("should ignore HTML comments with parseHTMLComments = false",function() {
 
 		crawler.parseHTMLComments = false;
