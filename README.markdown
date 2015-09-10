@@ -1,8 +1,7 @@
 # Simple web-crawler for Node.js
 
 [![NPM version](https://img.shields.io/npm/v/simplecrawler.svg)](https://www.npmjs.com/package/simplecrawler)
-[![Build Status: master branch](https://img.shields.io/travis/cgiffard/node-simplecrawler/master.svg?label=master%20branch)](https://travis-ci.org/cgiffard/node-simplecrawler)
-[![Build Status: development branch](https://img.shields.io/travis/cgiffard/node-simplecrawler/development.svg?label=development%20branch)](https://travis-ci.org/cgiffard/node-simplecrawler)
+[![Build Status](https://img.shields.io/travis/cgiffard/node-simplecrawler/master.svg)](https://travis-ci.org/cgiffard/node-simplecrawler)
 [![Dependency Status](https://img.shields.io/david/cgiffard/node-simplecrawler.svg)](https://david-dm.org/cgiffard/node-simplecrawler)
 [![devDependency Status](https://img.shields.io/david/dev/cgiffard/node-simplecrawler.svg)](https://david-dm.org/cgiffard/node-simplecrawler#info=devDependencies)
 
@@ -17,7 +16,7 @@ through 50,000 pages and written tens of gigabytes to disk without issue.
 var Crawler = require("simplecrawler");
 
 Crawler.crawl("http://example.com/")
-	.on("fetchcomplete", function(queueItem){
+	.on("fetchcomplete", function(queueItem) {
 		console.log("Completed fetching resource:", queueItem.url);
 	});
 ```
@@ -26,7 +25,7 @@ Crawler.crawl("http://example.com/")
 
 * Provides a very simple event driven API using `EventEmitter`
 * Extremely configurable base for writing your own crawler
-* Provides some simple logic for autodetecting linked resources - which you can
+* Provides some simple logic for auto-detecting linked resources - which you can
 replace or augment
 * Has a flexible queue system which can be frozen to disk and defrosted
 * Provides basic statistics on network performance
@@ -45,7 +44,7 @@ There are two ways of instantiating a new crawler - a simple but less flexible
 method inspired by [anemone](http://anemone.rubyforge.org), and the traditional
 method which provides a little more room to configure crawl parameters.
 
-Regardless of wether you use the simple or traditional methods of instantiation,
+Regardless of whether you use the simple or traditional methods of instantiation,
 you'll need to require simplecrawler:
 
 ```js
@@ -63,7 +62,7 @@ functions that will be added as event listeners for `fetchcomplete` and
 `fetcherror` respectively.
 
 ```js
-Crawler.crawl("http://example.com/", function(queueItem){
+Crawler.crawl("http://example.com/", function(queueItem) {
 	console.log("Completed fetching resource:", queueItem.url);
 });
 ```
@@ -77,7 +76,7 @@ var crawler = Crawler.crawl("http://example.com/");
 
 crawler.interval = 500;
 
-crawler.on("fetchcomplete",function(queueItem){
+crawler.on("fetchcomplete", function(queueItem) {
 	console.log("Completed fetching resource:", queueItem.url);
 });
 ```
@@ -105,14 +104,14 @@ var myCrawler = new Crawler("www.example.com", "/archive", 8080);
 
 And of course, you're probably wanting to ensure you don't take down your web
 server. Decrease the concurrency from five simultaneous requests - and increase
-the request interval from the default 250ms like this:
+the request interval from the default 250 ms like this:
 
 ```js
 myCrawler.interval = 10000; // Ten seconds
 myCrawler.maxConcurrency = 1;
 ```
 
-You can also define a max depth for links to fetch :
+You can also define a max depth for links to fetch:
 ```js
 myCrawler.maxDepth = 1; // Only first page is fetched (with linked CSS & images)
 // Or:
@@ -155,42 +154,42 @@ Of course, once you've got that down pat, there's a fair bit more you can listen
 
 * `crawlstart`
 Fired when the crawl begins or is restarted.
-* `queueadd` ( queueItem )
+* `queueadd` (queueItem)
 Fired when a new item is automatically added to the queue (not when you manually
 queue an item yourself.)
-* `queueduplicate` ( URLData )
+* `queueduplicate` (URLData)
 Fired when an item cannot be added to the queue because it is already present in
 the queue. Frequent firing of this event is normal and expected.
-* `queueerror` ( errorData , URLData )
+* `queueerror` (errorData, URLData)
 Fired when an item cannot be added to the queue due to error.
-* `fetchstart` ( queueItem , requestOptions )
+* `fetchstart` (queueItem, requestOptions)
 Fired when an item is spooled for fetching. If your event handler is synchronous,
 you can modify the crawler request options (including headers and request method.)
-* `fetchheaders` ( queueItem , responseObject )
+* `fetchheaders` (queueItem, responseObject)
 Fired when the headers for a resource are received from the server. The node http
 response object is returned for your perusal.
-* `fetchcomplete` ( queueItem , responseBuffer , response )
+* `fetchcomplete` (queueItem, responseBuffer, response)
 Fired when the resource is completely downloaded. The entire file data is provided
 as a buffer, as well as the response object.
-* `fetchdataerror` ( queueItem, response )
+* `fetchdataerror` (queueItem, response)
 Fired when a resource can't be downloaded, because it exceeds the maximum size
 we're prepared to receive (16MB by default.)
-* `fetchredirect` ( queueItem, parsedURL, response )
+* `fetchredirect` (queueItem, parsedURL, response)
 Fired when a redirect header is encountered. The new URL is validated and returned
 as a complete canonical link to the new resource.
-* `fetch404` ( queueItem, response )
+* `fetch404` (queueItem, response)
 Fired when a 404 or 410 HTTP status code is returned for a request.
-* `fetcherror` ( queueItem, response )
+* `fetcherror` (queueItem, response)
 Fired when an alternate 400 or 500 series HTTP status code is returned for a
 request.
-* `gziperror` ( queueItem, error, resourceData )
+* `gziperror` (queueItem, error, resourceData)
 Fired when a gzipped resource cannot be unzipped.
-* `fetchtimeout` ( queueItem, crawlerTimeoutValue )
+* `fetchtimeout` (queueItem, crawlerTimeoutValue)
 Fired when a request time exceeds the internal crawler threshold.
-* `fetchclienterror` ( queueItem, errorData )
+* `fetchclienterror` (queueItem, errorData)
 Fired when a request dies locally for some reason. The error data is returned as
 the second parameter.
-* `discoverycomplete` ( queueItem, resources )
+* `discoverycomplete` (queueItem, resources)
 Fired when linked resources have been discovered. Passes an array of resources
 (as URLs) as the second parameter.
 * `complete`
@@ -210,7 +209,7 @@ people I might put it back in. :)
 #### Waiting for Asynchronous Event Listeners
 
 Sometimes, you might want to wait for simplecrawler to wait for you while you
-perform sone asynchronous tasks in an event listener, instead of having it
+perform some asynchronous tasks in an event listener, instead of having it
 racing off and firing the `complete` event, halting your crawl. For example,
 if you're doing your own link discovery using an asynchronous library method.
 
@@ -220,14 +219,14 @@ a callback function.
 
 Once you've called this method, simplecrawler will not fire the `complete` event
 until either you execute the callback it returns, or a timeout is reached
-(configured in `crawler.listenerTTL`, by default 10000 msec.)
+(configured in `crawler.listenerTTL`, by default 10000 ms.)
 
 ##### Example Asynchronous Event Listener
 
 ```js
 crawler.on("fetchcomplete", function(queueItem, data, res) {
 	var continue = this.wait();
-	doSomeDiscovery(data, function(foundURLs){
+	doSomeDiscovery(data, function(foundURLs) {
 		foundURLs.forEach(crawler.queueURL.bind(crawler));
 		continue();
 	});
@@ -252,7 +251,7 @@ Here's a complete list of what you can stuff with at this stage:
 	Does not restrict subsequent requests.
 *	`crawler.interval` -
 	The interval with which the crawler will spool up new requests (one per
-	tick.) Defaults to 250ms.
+	tick.) Defaults to 250 ms.
 *	`crawler.maxConcurrency` -
 	The maximum number of requests the crawler will run simultaneously. Defaults
 	to 5 - the default number of http agents node will run.
@@ -367,13 +366,13 @@ Here's a complete list of what you can stuff with at this stage:
 #### Excluding certain resources from downloading
 
 Simplecrawler has a mechanism you can use to prevent certain resources from being
-fetched, based on the URL, called *Fetch Conditions**. A fetch condition is just
+fetched, based on the URL, called **Fetch Conditions**. A fetch condition is just
 a function, which, when given a parsed URL object, will return a true or a false
 value, indicating whether a given resource should be downloaded.
 
 You may add as many fetch conditions as you like, and remove them at runtime.
 Simplecrawler will evaluate every single condition against every queued URL, and
-should just one of them return a falsy value (this includes null and undefined,
+should just one of them return a falsy value (this includes `null` and `undefined`,
 so remember to always return a value!) then the resource in question will not be
 fetched.
 
@@ -405,7 +404,7 @@ myCrawler.removeFetchCondition(conditionID);
 ### The Simplecrawler Queue
 
 Simplecrawler has a queue like any other web crawler. It can be directly accessed
-at `crawler.queue` (assuming you called your Crawler() object `crawler`.) It
+at `crawler.queue` (assuming you called your `Crawler()` object `crawler`.) It
 provides array access, so you can get to queue items just with array notation
 and an index.
 
@@ -448,7 +447,7 @@ is expected to have:
 * `protocol` - The protocol of the resource (http, https)
 * `host` - The full domain/hostname of the resource
 * `port` - The port of the resource
-* `path` - The bit of the URL after the domain - includes the querystring.
+* `path` - The bit of the URL after the domain - includes the query string.
 * `fetched` - Has the request for this item been completed? You can monitor this as requests are processed.
 * `status` - The internal status of the item, always a string. This can be one of:
 	* `queued` - The resource is in the queue to be fetched, but nothing's happened to it yet.
@@ -504,7 +503,7 @@ console.log("The average resource size received is %d bytes.", crawler.queue.avg
 ```
 
 You'll probably often need to determine how many items in the queue have a given
-status at any one time, and/or retreive them. That's easy with
+status at any one time, and/or retrieve them. That's easy with
 `crawler.queue.countWithStatus` and `crawler.queue.getWithStatus`.
 
 `crawler.queue.countWithStatus` returns the number of queued items with a given
@@ -566,9 +565,9 @@ The cookie jar is accessible via `crawler.cookies`, and is an event emitter itse
 
 ### Cookie Events
 
-* `addcookie` ( cookie )
+* `addcookie` (cookie)
 Fired when a new cookie is added to the jar.
-* `removecookie` ( cookie array )
+* `removecookie` (cookie array)
 Fired when one or more cookies are removed from the jar.
 
 ## Contributors
