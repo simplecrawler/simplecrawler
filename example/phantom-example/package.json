@@ -4,10 +4,10 @@
   "description": "Phantom link discovery for simplecrawler",
   "author": "Christopher Giffard <christopher.giffard@cgiffard.com>",
   "homepage": "https://github.com/cgiffard/node-simplecrawler",
-  "license": "ISC",
+  "license": "BSD-2-Clause",
   "repository": {
     "type": "git",
-    "url": "https://github.com/cgiffard/node-simplecrawler.git"
+    "url": "git+https://github.com/cgiffard/node-simplecrawler.git"
   },
   "bugs": {
     "url": "https://github.com/cgiffard/node-simplecrawler/issues"
@@ -24,7 +24,7 @@
     "async": "^1.4.2",
     "colors": "^1.1.2",
     "phantom": "^0.7.2",
-    "phantomjs": "^1.9.16",
-    "simplecrawler": "^0.5.2"
+    "phantomjs": "^1.9.18",
+    "simplecrawler": "^0.5.3"
   }
 }

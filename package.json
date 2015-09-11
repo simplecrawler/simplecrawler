@@ -4,9 +4,10 @@
   "version": "0.5.3",
   "homepage": "https://github.com/cgiffard/node-simplecrawler",
   "author": "Christopher Giffard <christopher.giffard@cgiffard.com>",
+  "license": "BSD-2-Clause",
   "repository": {
     "type": "git",
-    "url": "https://github.com/cgiffard/node-simplecrawler.git"
+    "url": "git+https://github.com/cgiffard/node-simplecrawler.git"
   },
   "bugs": {
     "url": "https://github.com/cgiffard/node-simplecrawler/issues"
