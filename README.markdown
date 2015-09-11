@@ -401,6 +401,15 @@ from the crawler:
 myCrawler.removeFetchCondition(conditionID);
 ```
 
+##### Excluding resources based on robots.txt
+
+Simplecrawler [purposely](https://github.com/cgiffard/node-simplecrawler/issues/153)
+doesn't come with any built in support for parsing robots.txt rules. Adding
+support manually is very straightforward using fetch conditions however, and
+in `examples/robots-txt-example.js` you'll find an example that makes use of
+the [robots-parser](https://www.npmjs.com/package/robots-parser) module to do
+just that.
+
 ### The Simplecrawler Queue
 
 Simplecrawler has a queue like any other web crawler. It can be directly accessed
