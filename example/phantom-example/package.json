@@ -21,8 +21,8 @@
     "node"
   ],
   "dependencies": {
-    "async": "^0.9.0",
-    "colors": "^1.0.3",
+    "async": "^1.4.2",
+    "colors": "^1.1.2",
     "phantom": "^0.7.2",
     "phantomjs": "^1.9.16",
     "simplecrawler": "^0.5.2"

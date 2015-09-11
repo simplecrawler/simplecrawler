@@ -30,12 +30,12 @@
   },
   "main": "./lib/index.js",
   "dependencies": {
-    "URIjs": "^1.15.0"
+    "URIjs": "^1.16.0"
   },
   "devDependencies": {
-    "chai": "^2.2.0",
-    "jshint": "^2.7.0",
-    "mocha": "^2.2.4"
+    "chai": "^3.2.0",
+    "jshint": "^2.8.0",
+    "mocha": "^2.3.2"
   },
   "engines": {
     "node": ">=0.10.0"
