@@ -1,6 +1,8 @@
 // Ensures that the crawler object is requireable,
 // and doesn't die horribly right off the bat
 
+/* eslint-env mocha */
+
 var chai = require("chai");
 
 chai.should();

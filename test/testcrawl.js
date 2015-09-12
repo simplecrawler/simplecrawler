@@ -1,6 +1,8 @@
 // Runs a very simple crawl on an HTTP server
 // This is more of an integration test than a unit test.
 
+/* eslint-env mocha */
+
 var chai = require("chai");
 
 chai.should();

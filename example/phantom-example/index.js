@@ -1,14 +1,12 @@
-/* jshint bitwise:false, browser:true */
-
 var phantomAPI  = require("phantom"),
     Crawler     = require("simplecrawler"),
-    colors      = require("colors"), // jshint ignore:line
+    colors      = require("colors"),    // eslint-disable-line
     phantomjs   = require("phantomjs");
 
-var crawler = new Crawler("www.example.com", "/", 80, 0);
-var phantomBin = phantomjs.path;
-var phantomBannedExtensions = /\.(png|jpg|jpeg|gif|ico|css|js|csv|doc|docx|pdf)$/i;
-var phantomQueue = [];
+var crawler = new Crawler("www.example.com", "/", 80, 0),
+    phantomBin = phantomjs.path,
+    phantomBannedExtensions = /\.(png|jpg|jpeg|gif|ico|css|js|csv|doc|docx|pdf)$/i,
+    phantomQueue = [];
 
 phantomAPI.create({ binary: phantomBin }, runCrawler);
 
@@ -42,7 +40,7 @@ crawler.emit = function(name, queueItem) {
         return string;
     }
 
-    if (!~boringEvents.indexOf(name)) {
+    if (boringEvents.indexOf(name) === -1) {
         console.log("%s".cyan + "%s", pad(name), url);
     }
 

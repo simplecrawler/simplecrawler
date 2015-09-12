@@ -1,8 +1,11 @@
 // Tests whether a given resource is considered 'valid' for crawling under
 // a number of different conditions.
 
+/* eslint-env mocha */
+
 var chai = require("chai");
-    chai.should();
+
+chai.should();
 
 describe("Resource validity checker", function() {
 
@@ -177,7 +180,7 @@ describe("Resource validity checker", function() {
         it("should throw out junky or invalid URLs without dying", function() {
 
             var urlContext = {
-                "url": "http://www.example.com"
+                url: "http://www.example.com"
             };
 
             crawler.processURL("", urlContext).should.equal(false);
