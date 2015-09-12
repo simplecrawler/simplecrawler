@@ -2,97 +2,101 @@
 // This is more of an integration test than a unit test.
 
 var chai = require("chai");
-    chai.should();
 
-var testserver = require("./lib/testserver.js");
+chai.should();
 
-describe("Test Crawl",function() {
+describe("Test Crawl", function() {
 
-	var Crawler	= require("../");
+    var Crawler = require("../");
 
-	// Create a new crawler to crawl this server
-	var localCrawler = new Crawler("127.0.0.1","/",3000),
-		asyncCrawler = new Crawler("127.0.0.1","/",3000);
+    // Create a new crawler to crawl this server
+    var localCrawler = new Crawler("127.0.0.1", "/", 3000),
+        asyncCrawler = new Crawler("127.0.0.1", "/", 3000);
 
-	// Speed up tests. No point waiting for every request when we're running
-	// our own server.
-	localCrawler.interval = asyncCrawler.interval = 1;
+    // Speed up tests. No point waiting for every request
+    // when we're running our own server.
+    localCrawler.interval = asyncCrawler.interval = 1;
 
-	var linksDiscovered = 0;
+    var linksDiscovered = 0;
 
-	it("should be able to be started",function(done) {
+    it("should be able to be started", function(done) {
 
-		localCrawler.on("crawlstart",function() { done() });
-		localCrawler.on("discoverycomplete",function() {
-			linksDiscovered ++;
-		});
+        localCrawler.on("crawlstart", function() {
+            done();
+        });
+        localCrawler.on("discoverycomplete", function() {
+            linksDiscovered++;
+        });
 
-		localCrawler.start();
-		localCrawler.running.should.be.truthy;
-	});
+        localCrawler.start();
+        localCrawler.running.should.equal(true);
+    });
 
-	it("should have a queue with at least the initial crawl path",function() {
+    it("should have a queue with at least the initial crawl path", function() {
 
-		localCrawler.queue.length.should.be.greaterThan(0);
-	});
+        localCrawler.queue.length.should.be.greaterThan(0);
+    });
 
-	it("should discover all linked resources in the queue",function(done) {
+    it("should discover all linked resources in the queue", function(done) {
 
-		localCrawler.on("complete",function() {
-			linksDiscovered.should.equal(5);
-			done();
-		});
-	});
+        localCrawler.on("complete", function() {
+            linksDiscovered.should.equal(5);
+            done();
+        });
+    });
 
-	it("should support async event listeners for manual discovery",function(done) {
+    it("should support async event listeners for manual discovery", function(done) {
 
-		this.slow('1s')
+        this.slow("1s");
 
-		// Use a different crawler this time
-		asyncCrawler.discoverResources = false;
-		asyncCrawler.queueURL("http://127.0.0.1:3000/async-stage1");
-		asyncCrawler.start();
+        // Use a different crawler this time
+        asyncCrawler.discoverResources = false;
+        asyncCrawler.queueURL("http://127.0.0.1:3000/async-stage1");
+        asyncCrawler.start();
 
-		asyncCrawler.on("fetchcomplete",function(queueItem,data,res) {
-			var evtDone = this.wait();
+        asyncCrawler.on("fetchcomplete", function(queueItem, data) {
+            var evtDone = this.wait();
 
-			setTimeout(function(){
-				linksDiscovered ++;
+            setTimeout(function() {
+                linksDiscovered++;
 
-				if (String(data).match(/complete/i))
-					return evtDone();
+                if (String(data).match(/complete/i)) {
+                    return evtDone();
+                }
 
-				// Taking advantage of the fact that for these, the sum total
-				// of the body data is a URL.
-				asyncCrawler.queueURL(String(data)).should.be.true;
+                // Taking advantage of the fact that for these,
+                // the sum total of the body data is a URL.
+                asyncCrawler.queueURL(String(data)).should.equal(true);
 
-				evtDone();
-			},100);
-		});
+                evtDone();
+            }, 100);
+        });
 
-		asyncCrawler.on("complete",function() {
-			linksDiscovered.should.equal(8);
-			done();
-		});
-	});
+        asyncCrawler.on("complete", function() {
+            linksDiscovered.should.equal(8);
+            done();
+        });
+    });
 
-	it('should not throw an error if header Referer is undefined', function (done) {
-		var crawler = new Crawler("127.0.0.1","/depth/1",3000);
-		crawler.maxDepth = 1;
-		crawler.start();
-		crawler.on('complete', function () { done(); });
-	});
+    it("should not throw an error if header Referer is undefined", function(done) {
+        var crawler = new Crawler("127.0.0.1", "/depth/1", 3000);
+        crawler.maxDepth = 1;
+        crawler.start();
+        crawler.on("complete", function() {
+            done();
+        });
+    });
 
-	// TODO
+    // TODO
 
-	// Test how simple error conditions, content types, and responses are handled.
+    // Test how simple error conditions, content types, and responses are handled
 
-	// Test encodings.
+    // Test encodings
 
-	// Test URL detection
+    // Test URL detection
 
-	// Test handling binary data
+    // Test handling binary data
 
-	// Test bad content length
+    // Test bad content length
 
 });

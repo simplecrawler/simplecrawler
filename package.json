@@ -4,9 +4,10 @@
   "version": "0.5.3",
   "homepage": "https://github.com/cgiffard/node-simplecrawler",
   "author": "Christopher Giffard <christopher.giffard@cgiffard.com>",
+  "license": "BSD-2-Clause",
   "repository": {
     "type": "git",
-    "url": "https://github.com/cgiffard/node-simplecrawler.git"
+    "url": "git+https://github.com/cgiffard/node-simplecrawler.git"
   },
   "bugs": {
     "url": "https://github.com/cgiffard/node-simplecrawler/issues"
@@ -21,19 +22,21 @@
     "eventemitter"
   ],
   "scripts": {
-    "test": "mocha -R spec -t 5000"
+    "lint": "jshint .",
+    "mocha": "mocha -R spec -t 5000",
+    "test": "npm run lint && npm run mocha"
   },
   "bin": {
     "crawl": "./lib/cli.js"
   },
   "main": "./lib/index.js",
   "dependencies": {
-    "URIjs": "^1.15.0"
+    "URIjs": "^1.16.0"
   },
   "devDependencies": {
-    "chai": "^2.2.0",
-    "jshint": "^2.7.0",
-    "mocha": "^2.2.4"
+    "chai": "^3.2.0",
+    "jshint": "^2.8.0",
+    "mocha": "^2.3.2"
   },
   "engines": {
     "node": ">=0.10.0"
