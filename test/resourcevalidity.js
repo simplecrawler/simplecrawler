@@ -102,6 +102,20 @@ describe("Resource validity checker", function() {
 
     });
 
+    it("should strip WWW from processed URL's altogether", function () {
+
+        var crawler = new (require("../"))("example.com", 3000);
+
+        crawler.stripWWWDomain = true;
+
+        crawler.processURL("http://www.example.com").host.should.equal("example.com");
+        crawler.processURL("http://example.com").host.should.equal("example.com");
+
+        crawler.stripWWWDomain = false;
+
+        crawler.processURL("http://www.example.com").host.should.equal("www.example.com");
+    });
+
     it("should permit fetching of specified protocols based on internal whitelist", function() {
 
         var crawler = new (require("../"))("example.com", 3000);
