@@ -50,6 +50,22 @@ describe("Crawler reliability", function() {
         });
     });
 
+    it("should decrement _openRequests in the event of a non-supported mimetype", function(done) {
+
+        var localCrawler = new Crawler("127.0.0.1", "/", 3000);
+        localCrawler.downloadUnsupported = false;
+
+        localCrawler.queueURL("http://127.0.0.1:3000/img/1");
+        localCrawler.queueURL("http://127.0.0.1:3000/img/2");
+
+        localCrawler.on("complete", function() {
+            localCrawler._openRequests.should.equal(0);
+            done();
+        });
+
+        localCrawler.start();
+    });
+
     it("should emit a fetch404 when given a 410 status code", function(done) {
 
         this.slow("1s");
