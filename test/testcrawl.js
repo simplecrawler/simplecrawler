@@ -87,6 +87,18 @@ describe("Test Crawl", function() {
         });
     });
 
+    it("it should remove script tags if parseScriptTags is disabled", function(done) {
+        var crawler = new Crawler("127.0.0.1", "/script", 3000);
+        crawler.maxDepth = 1;
+        crawler.parseScriptTags = false;
+        crawler.start();
+
+        crawler.on("complete", function() {
+            crawler.queue.length.should.equal(2);
+            done();
+        });
+    });
+
     // TODO
 
     // Test how simple error conditions, content types, and responses are handled
