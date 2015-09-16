@@ -2,8 +2,11 @@
 // a variety of different cookie formats. The more cookies I can add to this
 // cookies array, the better the tests!
 
+/* eslint-env mocha */
+
 var chai = require("chai");
-    chai.should();
+
+chai.should();
 
 var cookies = [
     "Set-Cookie: RMID=007f010019155170d6ca005f; Expires=Sat, 19 Apr 2020 05:31:54 GMT; Path=/; Domain=.nytimes.com;",
@@ -16,8 +19,8 @@ var cookies = [
 
 describe("Cookies", function() {
 
-    var CookieJar = require("../lib/cookies.js"),
-        Cookie = CookieJar.Cookie;
+    var CookieJar = require("../lib/cookies.js");
+    var Cookie = CookieJar.Cookie;
 
     it("should be able parse from string properly", function() {
 
@@ -77,7 +80,7 @@ describe("Cookies", function() {
     describe("Cookie Jar", function() {
 
         it("should be able to be instantiated", function() {
-            var cookieJar = new CookieJar(); // jshint ignore:line
+            var cookieJar = new CookieJar();    // eslint-disable-line
         });
 
         it("should be able to add cookies", function() {

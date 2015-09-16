@@ -1,5 +1,7 @@
 // Runs a very simple crawl on an HTTP server
 
+/* eslint-env mocha */
+
 var path = require("path");
 var os = require("os");
 var chai = require("chai");

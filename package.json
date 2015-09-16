@@ -22,7 +22,7 @@
     "eventemitter"
   ],
   "scripts": {
-    "lint": "jshint .",
+    "lint": "eslint example/ lib/ test/",
     "mocha": "mocha -R spec -t 5000",
     "test": "npm run lint && npm run mocha"
   },
@@ -35,7 +35,7 @@
   },
   "devDependencies": {
     "chai": "^3.2.0",
-    "jshint": "^2.8.0",
+    "eslint": "^1.4.3",
     "mocha": "^2.3.2"
   },
   "engines": {

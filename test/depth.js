@@ -1,5 +1,7 @@
 // Runs a very simple crawl on an HTTP server with different depth
 
+/* eslint-env mocha */
+
 var chai = require("chai"),
     Crawler = require("../");
 
