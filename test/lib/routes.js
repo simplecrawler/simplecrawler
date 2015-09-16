@@ -92,5 +92,9 @@ module.exports = {
 
     "/410": function(write) {
         write(410, "this page no longer exists!");
+    },
+
+    "/script": function(write) {
+        write(200, "<script src='/not/existent/file.js'></script><script>var foo = 'bar';</script><a href='/stage2'>stage2</a><script>var bar = 'foo';</script>");
     }
 };
