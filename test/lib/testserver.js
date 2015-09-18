@@ -55,6 +55,11 @@ httpServer.on("request", function(req, res) {
     }
 });
 
+httpServer.on("error", function (error) {
+    console.log(error);
+    process.exit(1);
+});
+
 httpServer.listen(3000);
 
 module.exports = httpServer;
