@@ -1,4 +1,6 @@
 {
+    "root": true,
+
     "env": {
         "node": true
     },
@@ -85,7 +87,7 @@
         "object-curly-spacing": [2, "always"],
         "one-var": [0, "always"],
         "operator-assignment": [2, "always"],
-        "quote-props": [2, "as-needed"],
+        "quote-props": [2, "consistent-as-needed"],
         "quotes": [2, "double"],
         "radix": 2,
         "semi": [2, "always"],

@@ -32,7 +32,7 @@ httpServer.on("request", function(req, res) {
             http.STATUS_CODES[301], {
                 "Content-Type": "text/plain",
                 "Content-Length": Buffer.byteLength(data),
-                Location: to
+                "Location": to
             });
 
         res.write(data);
