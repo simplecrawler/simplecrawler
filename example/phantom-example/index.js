@@ -4,7 +4,7 @@
 
 var phantomAPI  = require("phantom"),
     Crawler     = require("simplecrawler"),
-    colors      = require("colors"),    // eslint-disable-line
+    colors      = require("colors/safe"),
     phantomjs   = require("phantomjs");
 
 var crawler = new Crawler("www.example.com", "/", 80, 0),
@@ -45,7 +45,7 @@ crawler.emit = function(name, queueItem) {
     }
 
     if (boringEvents.indexOf(name) === -1) {
-        console.log("%s".cyan + "%s", pad(name), url);
+        console.log(colors.cyan("%s") + "%s", pad(name), url);
     }
 
     originalEmit.apply(crawler, arguments);
@@ -65,11 +65,11 @@ function runCrawler(phantom) {
 }
 
 function getLinks(phantom, url, callback) {
-    console.log("Phantom attempting to load ".green + "%s".cyan, url);
+    console.log(colors.green("Phantom attempting to load ") + colors.cyan("%s"), url);
 
     makePage(phantom, url, function(page, status) {
         console.log(
-            "Phantom opened URL with %s — ".green + "%s".cyan, status, url);
+            colors.green("Phantom opened URL with %s — ") + colors.cyan("%s"), status, url);
 
         page.evaluate(findPageLinks, function(result) {
             result.forEach(function(url) {
@@ -110,7 +110,7 @@ function processQueue(phantom, resume) {
 
     (function processor(item) {
         if (!item) {
-            console.log("Phantom reached end of queue! ------------".green);
+            console.log(colors.green("Phantom reached end of queue! ------------"));
             queueBeingProcessed = false;
             return resume();
         }
