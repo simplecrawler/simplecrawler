@@ -1,3 +1,7 @@
+/* eslint-env phantomjs */
+
+/* globals document: true */
+
 var phantomAPI  = require("phantom"),
     Crawler     = require("simplecrawler"),
     colors      = require("colors"),    // eslint-disable-line
