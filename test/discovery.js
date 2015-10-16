@@ -128,4 +128,19 @@ describe("Crawler link discovery", function() {
         links[1].should.equal("example.com/resource?with%22double+quotes%22");
         links[2].should.equal("example.com/resource?with%27single+quotes%27");
     });
+
+    it("should discard 'javascript:' links except for any arguments in there passed to functions", function () {
+
+        var links =
+            discover("<a href='javascript:;'>" +
+                     " <a href='javascript: void(0);'>" +
+                     " <a href='javascript: goToURL(\"/page/one\")'>", {
+                         url: "http://example.com/"
+                     });
+
+        links.should.be.an("array");
+        links.length.should.equal(2);
+        links[0].should.equal("http://example.com/");
+        links[1].should.equal("http://example.com/page/one");
+    });
 });
