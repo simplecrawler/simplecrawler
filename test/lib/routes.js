@@ -1,5 +1,7 @@
 // Routes for testing server
 
+var iconv = require("iconv-lite");
+
 module.exports = {
     "/": function(write) {
         write(200, "Home. <a href='stage2'>stage2</a>");
@@ -96,5 +98,9 @@ module.exports = {
 
     "/script": function(write) {
         write(200, "<script src='/not/existent/file.js'></script><script>var foo = 'bar';</script><a href='/stage2'>stage2</a><script>var bar = 'foo';</script>");
+    },
+
+    "/encoded": function(write) {
+        write(200, iconv.encode("test ströng with ä few non english chåracters", "iso-8859-1"), "text/html; charset=ISO-8859-1");
     }
 };

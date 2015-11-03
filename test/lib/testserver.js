@@ -17,7 +17,7 @@ httpServer.on("request", function(req, res) {
             status,
             http.STATUS_CODES[status], {
                 "Content-Type": contentType || "text/html",
-                "Content-Length": Buffer.byteLength(data)
+                "Content-Length": data instanceof Buffer ? data.length : Buffer.byteLength(data)
             });
 
         res.write(data);
