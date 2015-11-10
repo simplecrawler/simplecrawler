@@ -1,6 +1,7 @@
 // Routes for testing server
 
-var iconv = require("iconv-lite");
+var fs = require("fs");
+var path = require("path");
 
 module.exports = {
     "/": function(write) {
@@ -101,6 +102,10 @@ module.exports = {
     },
 
     "/encoded": function(write) {
-        write(200, iconv.encode("test ströng with ä few non english chåracters", "iso-8859-1"), "text/html; charset=ISO-8859-1");
+        write(200, fs.readFileSync(path.join(__dirname, "encoded.html")), "text/html; charset=ISO-8859-1");
+    },
+
+    "/inline-encoding": function(write) {
+        write(200, fs.readFileSync(path.join(__dirname, "inline-encoding.html")));
     }
 };

@@ -173,13 +173,27 @@ describe("Resource validity checker", function() {
 
     });
 
-    it("should decode responses when decodeResponses is true", function (done) {
+    it("should decode responses based on Content-Type headers", function (done) {
         var localCrawler = new (require("../"))("127.0.0.1", "/encoded", 3000);
         localCrawler.decodeResponses = true;
 
         localCrawler.on("fetchcomplete", function(queueItem, responseBody) {
             responseBody.should.be.a("string");
-            responseBody.should.equal("test ströng with ä few non english chåracters");
+            responseBody.trim().should.equal("Eyjafjallajökull er fimmti stærsti jökull Íslands.");
+            done();
+        });
+
+        localCrawler.start();
+
+    });
+
+    it("should decode responses based on inline charset definitions", function (done) {
+        var localCrawler = new (require("../"))("127.0.0.1", "/inline-encoding", 3000);
+        localCrawler.decodeResponses = true;
+
+        localCrawler.on("fetchcomplete", function(queueItem, responseBody) {
+            responseBody.should.be.a("string");
+            responseBody.trim().should.equal("<meta charset=\"iso-8859-1\"><p>Pippi Långstrump är en av Astrid Lindgrens mest kända litterära figurer.<p>");
             done();
         });
 
