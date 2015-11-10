@@ -1,7 +1,11 @@
 // Routes for testing server
 
-var fs = require("fs");
-var path = require("path");
+var fs = require("fs"),
+    path = require("path");
+
+var getFixtureFile = function (filename) {
+    return fs.readFileSync(path.join(__dirname, "..", "fixtures", filename));
+};
 
 module.exports = {
     "/": function(write) {
@@ -101,11 +105,15 @@ module.exports = {
         write(200, "<script src='/not/existent/file.js'></script><script>var foo = 'bar';</script><a href='/stage2'>stage2</a><script>var bar = 'foo';</script>");
     },
 
-    "/encoded": function(write) {
-        write(200, fs.readFileSync(path.join(__dirname, "encoded.html")), "text/html; charset=ISO-8859-1");
+    "/encoded/header": function(write) {
+        write(200, getFixtureFile("encoded.html"), "text/html; charset=ISO-8859-1");
     },
 
-    "/inline-encoding": function(write) {
-        write(200, fs.readFileSync(path.join(__dirname, "inline-encoding.html")));
+    "/encoded/inline": function(write) {
+        write(200, getFixtureFile("inline-encoding.html"));
+    },
+
+    "/encoded/old-inline": function(write) {
+        write(200, getFixtureFile("old-inline-encoding.html"));
     }
 };

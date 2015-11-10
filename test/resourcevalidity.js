@@ -173,32 +173,33 @@ describe("Resource validity checker", function() {
 
     });
 
-    it("should decode responses based on Content-Type headers", function (done) {
-        var localCrawler = new (require("../"))("127.0.0.1", "/encoded", 3000);
+    var decodingTest = function (url, callback) {
+        var localCrawler = new (require("../"))("127.0.0.1", url, 3000);
         localCrawler.decodeResponses = true;
 
-        localCrawler.on("fetchcomplete", function(queueItem, responseBody) {
-            responseBody.should.be.a("string");
+        localCrawler.on("fetchcomplete", callback);
+        localCrawler.start();
+    };
+
+    it("should decode responses based on Content-Type headers", function (done) {
+        decodingTest("/encoded/header", function(queueItem, responseBody) {
             responseBody.trim().should.equal("Eyjafjallajökull er fimmti stærsti jökull Íslands.");
             done();
         });
-
-        localCrawler.start();
-
     });
 
     it("should decode responses based on inline charset definitions", function (done) {
-        var localCrawler = new (require("../"))("127.0.0.1", "/inline-encoding", 3000);
-        localCrawler.decodeResponses = true;
-
-        localCrawler.on("fetchcomplete", function(queueItem, responseBody) {
-            responseBody.should.be.a("string");
+        decodingTest("/encoded/inline", function(queueItem, responseBody) {
             responseBody.trim().should.equal("<meta charset=\"iso-8859-1\"><p>Pippi Långstrump är en av Astrid Lindgrens mest kända litterära figurer.<p>");
             done();
         });
+    });
 
-        localCrawler.start();
-
+    it("should decode responses based on older inline charset definitions", function (done) {
+        decodingTest("/encoded/old-inline", function(queueItem, responseBody) {
+            responseBody.trim().should.equal("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=iso-8859-1\" /><p>Preikestolen er et fjellplatå på nordsiden av Lysefjorden i Forsand.<p>");
+            done();
+        });
     });
 
     describe("Link parser", function() {
