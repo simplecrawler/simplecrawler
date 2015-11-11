@@ -1,5 +1,12 @@
 // Routes for testing server
 
+var fs = require("fs"),
+    path = require("path");
+
+var getFixtureFile = function (filename) {
+    return fs.readFileSync(path.join(__dirname, "..", "fixtures", filename));
+};
+
 module.exports = {
     "/": function(write) {
         write(200, "Home. <a href='stage2'>stage2</a>");
@@ -96,5 +103,17 @@ module.exports = {
 
     "/script": function(write) {
         write(200, "<script src='/not/existent/file.js'></script><script>var foo = 'bar';</script><a href='/stage2'>stage2</a><script>var bar = 'foo';</script>");
+    },
+
+    "/encoded/header": function(write) {
+        write(200, getFixtureFile("encoded.html"), "text/html; charset=ISO-8859-1");
+    },
+
+    "/encoded/inline": function(write) {
+        write(200, getFixtureFile("inline-encoding.html"));
+    },
+
+    "/encoded/old-inline": function(write) {
+        write(200, getFixtureFile("old-inline-encoding.html"));
     }
 };

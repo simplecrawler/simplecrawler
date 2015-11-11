@@ -168,9 +168,10 @@ you can modify the crawler request options (including headers and request method
 * `fetchheaders` (queueItem, responseObject)
 Fired when the headers for a resource are received from the server. The node http
 response object is returned for your perusal.
-* `fetchcomplete` (queueItem, responseBuffer, response)
-Fired when the resource is completely downloaded. The entire file data is provided
-as a buffer, as well as the response object.
+* `fetchcomplete` (queueItem, responseBody, responseObject)
+Fired when the resource is completely downloaded. The response body is provided as
+a Buffer per default, unless `decodeResponses` is truthy, in which case it's a
+decoded string representation of the body.
 * `fetchdataerror` (queueItem, response)
 Fired when a resource can't be downloaded, because it exceeds the maximum size
 we're prepared to receive (16MB by default.)
@@ -263,6 +264,11 @@ Here's a complete list of what you can stuff with at this stage:
 *    `crawler.userAgent` -
     The user agent the crawler will report. Defaults to
     `Node/SimpleCrawler <version> (https://github.com/cgiffard/node-simplecrawler)`.
+*   `crawler.decodeResponses` -
+    The response bodies will be intelligently character converted to standard
+    JavaScript strings using the `iconv-lite` module. The character encoding
+    is interpreted from the Content-Type header firstly, and secondly from any
+    &lt;meta charset="xxx" /&gt; tags.
 *    `crawler.queue` -
     The queue in use by the crawler (Must implement the `FetchQueue` interface)
 *    `crawler.filterByDomain` -
