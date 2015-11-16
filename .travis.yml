@@ -4,5 +4,6 @@ node_js:
     - "0.10"
     - "0.12"
     - "4"
+    - "stable"
 matrix:
   fast_finish: true
