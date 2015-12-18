@@ -115,5 +115,9 @@ module.exports = {
 
     "/encoded/old-inline": function(write) {
         write(200, getFixtureFile("old-inline-encoding.html"));
+    },
+
+    "/encoded/empty": function(write) {
+        write(200, "");
     }
 };

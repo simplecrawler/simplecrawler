@@ -202,6 +202,14 @@ describe("Resource validity checker", function() {
         });
     });
 
+    it("should decode responses that are empty", function (done) {
+        decodingTest("/encoded/empty", function(queueItem, responseBody) {
+            responseBody.should.be.a("string");
+            responseBody.should.equal("");
+            done();
+        });
+    });
+
     describe("Link parser", function() {
 
         var crawler = new (require("../"))("127.0.0.1", 3000);
