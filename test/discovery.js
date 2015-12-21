@@ -154,4 +154,19 @@ describe("Crawler link discovery", function() {
         links[0].should.equal("https://example.com/?src=3");
         links[1].should.equal("https://example.com/");
     });
+
+    it("should strip fragment identifiers from URL's", function () {
+
+        var links =
+            discover("<a href='https://example.com/#section'>My web page</a>" +
+                     "<a href='/other/page#blabla'>Link</a>" +
+                     "<a href='#section'>Section</a>", {
+                         url: "https://example.com/"
+                     });
+
+        links.should.be.an("array");
+        links.length.should.equal(2);
+        links[0].should.equal("https://example.com/");
+        links[1].should.equal("https://example.com/other/page");
+    });
 });
