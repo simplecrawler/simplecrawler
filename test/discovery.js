@@ -143,4 +143,15 @@ describe("Crawler link discovery", function() {
         links[0].should.equal("http://example.com/");
         links[1].should.equal("http://example.com/page/one");
     });
+
+    it("should not pick up 'href' or 'src' inside href attributes as full URL's", function () {
+
+        var links =
+            discover("<a href='https://example.com/?src=3'>My web page</a>");
+
+        links.should.be.an("array");
+        links.length.should.equal(2);
+        links[0].should.equal("https://example.com/?src=3");
+        links[1].should.equal("https://example.com/");
+    });
 });
