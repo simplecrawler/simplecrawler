@@ -24,6 +24,7 @@ describe("Test Crawl", function() {
     it("should be able to be started", function(done) {
 
         localCrawler.on("crawlstart", function() {
+            localCrawler.running.should.equal(true);
             done();
         });
         localCrawler.on("discoverycomplete", function() {
@@ -31,7 +32,6 @@ describe("Test Crawl", function() {
         });
 
         localCrawler.start();
-        localCrawler.running.should.equal(true);
     });
 
     it("should have a queue with at least the initial crawl path", function() {
