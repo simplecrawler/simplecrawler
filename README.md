@@ -27,6 +27,7 @@ Crawler.crawl("http://example.com/")
 * Extremely configurable base for writing your own crawler
 * Provides some simple logic for auto-detecting linked resources - which you can
 replace or augment
+* Automatically respects any robots.txt rules
 * Has a flexible queue system which can be frozen to disk and defrosted
 * Provides basic statistics on network performance
 * Uses buffers for fetching and managing data, preserving binary data (except
@@ -264,11 +265,15 @@ Here's a complete list of what you can stuff with at this stage:
 *    `crawler.userAgent` -
     The user agent the crawler will report. Defaults to
     `Node/SimpleCrawler <version> (https://github.com/cgiffard/node-simplecrawler)`.
-*   `crawler.decodeResponses` -
+*    `crawler.decodeResponses` -
     The response bodies will be intelligently character converted to standard
-    JavaScript strings using the `iconv-lite` module. The character encoding
-    is interpreted from the Content-Type header firstly, and secondly from any
-    &lt;meta charset="xxx" /&gt; tags.
+    JavaScript strings using the [`iconv-lite`](https://www.npmjs.com/package/iconv-lite)
+    module. The character encoding is interpreted from the Content-Type header
+    firstly, and secondly from any &lt;meta charset="xxx" /&gt; tags.
+*    `crawler.respectRobotsTxt` -
+    Controls whether the crawler should respect rules in robots.txt (if such a
+    file is present). True by default. The [`robots-parser`](https://www.npmjs.com/package/robots-parser)
+    module is used to do the actual parsing.
 *    `crawler.queue` -
     The queue in use by the crawler (Must implement the `FetchQueue` interface)
 *    `crawler.filterByDomain` -
