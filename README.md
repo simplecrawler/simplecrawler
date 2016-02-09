@@ -163,6 +163,8 @@ Fired when an item cannot be added to the queue because it is already present in
 the queue. Frequent firing of this event is normal and expected.
 * `queueerror` (errorData, URLData)
 Fired when an item cannot be added to the queue due to error.
+* `robotstxterror` (error)
+Fired when robots.txt couldn't be fetched. `error.message` has details on why.
 * `fetchstart` (queueItem, requestOptions)
 Fired when an item is spooled for fetching. If your event handler is synchronous,
 you can modify the crawler request options (including headers and request method.)
