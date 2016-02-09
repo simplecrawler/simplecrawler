@@ -49,36 +49,29 @@ describe("Test Crawl", function() {
 
     it("should obey rules in robots.txt", function(done) {
 
-        this.slow("2s");
-
         var crawler = new Crawler("127.0.0.1", "/", 3000);
         crawler.start();
 
-        crawler.on("fetchcomplete", function(queueItem) {
-            queueItem.url.should.not.equal("http://127.0.0.1:3000/forbidden");
-        });
-        crawler.on("complete", function() {
+        crawler.on("fetchdisallowed", function(parsedURL) {
+            parsedURL.path.should.equal("/forbidden");
             done();
         });
     });
 
     it("should be able to disregard rules in robots.txt", function(done) {
 
-        this.slow("2s");
-
         var crawler = new Crawler("127.0.0.1", "/", 3000);
         crawler.respectRobotsTxt = false;
         crawler.start();
 
-        var visitedForbiddenUrl = false;
-
         crawler.on("fetchcomplete", function(queueItem) {
-            visitedForbiddenUrl =
-                visitedForbiddenUrl || queueItem.url === "http://127.0.0.1:3000/forbidden";
+            if (queueItem.url === "http://127.0.0.1:3000/forbidden") {
+                crawler.stop();
+                done();
+            }
         });
         crawler.on("complete", function() {
-            visitedForbiddenUrl.should.equal(true);
-            done();
+            done(new Error("Didn't visit forbidden URL (even though it should have)"));
         });
     });
 
