@@ -173,6 +173,10 @@ response object is returned for your perusal.
 Fired when the resource is completely downloaded. The response body is provided as
 a Buffer per default, unless `decodeResponses` is truthy, in which case it's a
 decoded string representation of the body.
+* `fetchdisallowed` (parsedURL)
+Fired when a resource isn't fetched due to robots.txt rules. See `respectRobotsTxt`
+option. See [Adding a fetch condition](#adding-a-fetch-condition) for details on
+the `parsedURL` object.
 * `fetchdataerror` (queueItem, response)
 Fired when a resource can't be downloaded, because it exceeds the maximum size
 we're prepared to receive (16MB by default.)
