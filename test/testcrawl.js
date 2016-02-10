@@ -101,6 +101,21 @@ describe("Test Crawl", function() {
         });
     });
 
+    it("it should emit an error when resource is too big", function(done) {
+
+        var crawler = new Crawler("127.0.0.1", "/big", 3000);
+        crawler.start();
+
+        crawler.on("fetchdataerror", function(queueItem) {
+            queueItem.url.should.equal("http://127.0.0.1:3000/big");
+            done();
+        });
+
+        crawler.on("complete", function() {
+            done(new Error("Didn't emit an error for a resource that's too big"));
+        });
+    });
+
     // TODO
 
     // Test how simple error conditions, content types, and responses are handled
@@ -110,7 +125,5 @@ describe("Test Crawl", function() {
     // Test URL detection
 
     // Test handling binary data
-
-    // Test bad content length
 
 });
