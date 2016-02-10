@@ -118,12 +118,6 @@ describe("Test Crawl", function() {
 
     // TODO
 
-    // Test how simple error conditions, content types, and responses are handled
-
-    // Test encodings
-
-    // Test URL detection
-
-    // Test handling binary data
+    // Test how simple error conditions are handled
 
 });
