@@ -37,6 +37,14 @@ describe("Test Crawl", function() {
         localCrawler.start();
     });
 
+    it("should emit an error when it gets a faulty cookie", function(done) {
+
+        localCrawler.on("cookieerror", function(queueItem) {
+            queueItem.url.should.equal("http://127.0.0.1:3000/stage2");
+            done();
+        });
+    });
+
     it("should have a queue with at least the initial crawl path", function() {
 
         localCrawler.queue.length.should.be.greaterThan(0);
@@ -160,16 +168,24 @@ describe("Test Crawl", function() {
         });
     });
 
+    it("it should emit an error when resource is too big", function(done) {
+
+        var crawler = new Crawler("127.0.0.1", "/big", 3000);
+        var visitedUrl = false;
+
+        crawler.start();
+
+        crawler.on("fetchdataerror", function(queueItem) {
+            visitedUrl = visitedUrl || queueItem.url === "http://127.0.0.1:3000/big";
+        });
+
+        crawler.on("complete", function() {
+            done();
+        });
+    });
+
     // TODO
 
-    // Test how simple error conditions, content types, and responses are handled
-
-    // Test encodings
-
-    // Test URL detection
-
-    // Test handling binary data
-
-    // Test bad content length
+    // Test how simple error conditions are handled
 
 });

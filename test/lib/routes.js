@@ -22,7 +22,10 @@ module.exports = {
     },
 
     "/stage2": function(write) {
-        write(200, "Stage2. http://127.0.0.1:3000/stage/3");
+        write(200, "Stage2. http://127.0.0.1:3000/stage/3", {
+            // Faulty cookie! Should generate a cookieerror event
+            "Set-Cookie": "=test; path=/stage2; domain=test.com"
+        });
     },
 
     "/stage/3": function(write) {
@@ -75,35 +78,35 @@ module.exports = {
     },
 
     "/css": function(write) {
-        write(200, "/* CSS 1 */ @import url('/css/2'); @font-face { url(/font/1) format('woff'); }", "text/css");
+        write(200, "/* CSS 1 */ @import url('/css/2'); @font-face { url(/font/1) format('woff'); }", { "Content-Type": "text/css" });
     },
 
     "/css/2": function(write) {
-        write(200, "/* CSS 2 */ @import url('/css/3'); .img1 { background-image:url('/img/1'); }", "text/css");
+        write(200, "/* CSS 2 */ @import url('/css/3'); .img1 { background-image:url('/img/1'); }", { "Content-Type": "text/css" });
     },
 
     "/css/3": function(write) {
-        write(200, "/* CSS 3 */", "text/css");
+        write(200, "/* CSS 3 */", { "Content-Type": "text/css" });
     },
 
     "/css/4": function(write) {
-        write(200, "/* CSS 4 */ .img1 { background-image:url('/img/2'); } @font-face { url(/font/2) format('woff'); }", "text/css");
+        write(200, "/* CSS 4 */ .img1 { background-image:url('/img/2'); } @font-face { url(/font/2) format('woff'); }", { "Content-Type": "text/css" });
     },
 
     "/img/1": function(write) {
-        write(200, "", "image/png");
+        write(200, "", { "Content-Type": "image/png" });
     },
 
     "/img/2": function(write) {
-        write(200, "", "image/png");
+        write(200, "", { "Content-Type": "image/png" });
     },
 
     "/font/1": function(write) {
-        write(200, "", "font/woff");
+        write(200, "", { "Content-Type": "font/woff" });
     },
 
     "/font/2": function(write) {
-        write(200, "", "application/font-woff");
+        write(200, "", { "Content-Type": "application/font-woff" });
     },
 
     "/410": function(write) {
@@ -119,7 +122,7 @@ module.exports = {
     },
 
     "/encoded/header": function(write) {
-        write(200, getFixtureFile("encoded.html"), "text/html; charset=ISO-8859-1");
+        write(200, getFixtureFile("encoded.html"), { "Content-Type": "text/html; charset=ISO-8859-1" });
     },
 
     "/encoded/inline": function(write) {
@@ -132,5 +135,9 @@ module.exports = {
 
     "/encoded/empty": function(write) {
         write(200, "");
+    },
+
+    "/big": function(write) {
+        write(200, new Buffer(1024 * 1024 * 17));
     }
 };
