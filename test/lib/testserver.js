@@ -12,14 +12,21 @@ var testRoutes = require("./routes");
 // Listen to events
 httpServer.on("request", function(req, res) {
 
-    function write(status, data, contentType) {
-        res.writeHead(
-            status,
-            http.STATUS_CODES[status], {
-                "Content-Type": contentType || "text/html",
-                "Content-Length": data instanceof Buffer ? data.length : Buffer.byteLength(data)
-            });
+    function write(status, data, customHeaders) {
+        var headers = {
+            "Content-Type": "text/html",
+            "Content-Length": data instanceof Buffer ? data.length : Buffer.byteLength(data)
+        };
 
+        if (typeof customHeaders === "object") {
+            for (var header in customHeaders) {
+                if (customHeaders.hasOwnProperty(header)) {
+                    headers[header] = customHeaders[header];
+                }
+            }
+        }
+
+        res.writeHead(status, http.STATUS_CODES[status], headers);
         res.write(data);
         res.end();
     }
