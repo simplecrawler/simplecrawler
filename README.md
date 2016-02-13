@@ -168,6 +168,8 @@ you can modify the crawler request options (including headers and request method
 * `fetchheaders` (queueItem, responseObject)
 Fired when the headers for a resource are received from the server. The node http
 response object is returned for your perusal.
+* `cookieerror` (queueItem, error, setCookieHeader)
+Fired when an error was caught trying to add a cookie to the cookie jar.
 * `fetchcomplete` (queueItem, responseBody, responseObject)
 Fired when the resource is completely downloaded. The response body is provided as
 a Buffer per default, unless `decodeResponses` is truthy, in which case it's a

@@ -34,6 +34,14 @@ describe("Test Crawl", function() {
         localCrawler.running.should.equal(true);
     });
 
+    it("should emit an error when it gets a faulty cookie", function(done) {
+
+        localCrawler.on("cookieerror", function(queueItem) {
+            queueItem.url.should.equal("http://127.0.0.1:3000/stage2");
+            done();
+        });
+    });
+
     it("should have a queue with at least the initial crawl path", function() {
 
         localCrawler.queue.length.should.be.greaterThan(0);
