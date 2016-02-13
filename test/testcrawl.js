@@ -3,7 +3,10 @@
 
 /* eslint-env mocha */
 
-var chai = require("chai");
+var chai = require("chai"),
+    uri = require("urijs");
+
+var Server = require("./lib/testserver.js");
 
 chai.should();
 
@@ -72,6 +75,34 @@ describe("Test Crawl", function() {
         });
         crawler.on("complete", function() {
             done(new Error("Didn't visit forbidden URL (even though it should have)"));
+        });
+    });
+
+    it("should obey robots.txt on different hosts", function(done) {
+
+        var server = new Server({
+            "/robots.txt": function(write) {
+                write(200, "User-agent: *\nDisallow: /disallowed\n");
+            },
+
+            "/disallowed": function(write) {
+                write(200, "This is forbidden crawler fruit");
+            }
+        });
+        server.listen(3001);
+
+        var crawler = new Crawler("127.0.0.1", "/to/other/port", 3000);
+        crawler.start();
+
+        crawler.on("fetchdisallowed", function(parsedURL) {
+            uri({
+                protocol: parsedURL.protocol,
+                hostname: parsedURL.host,
+                port: parsedURL.port,
+                path: parsedURL.path
+            }).href().should.equal("http://127.0.0.1:3001/disallowed");
+
+            done();
         });
     });
 

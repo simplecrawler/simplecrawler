@@ -114,6 +114,10 @@ module.exports = {
         write(200, "<script src='/not/existent/file.js'></script><script>var foo = 'bar';</script><a href='/stage2'>stage2</a><script>var bar = 'foo';</script>");
     },
 
+    "/to/other/port": function(write) {
+        write(200, "<a href='//127.0.0.1:3001/disallowed'>Don't go there!</a>");
+    },
+
     "/encoded/header": function(write) {
         write(200, getFixtureFile("encoded.html"), "text/html; charset=ISO-8859-1");
     },
