@@ -1,9 +1,12 @@
-language: node_js
 sudo: false
+
+language: node_js
+
 node_js:
-    - "0.10"
-    - "0.12"
+    - "5"
     - "4"
-    - "stable"
+    - "0.12"
+    - "0.10"
+
 matrix:
-  fast_finish: true
+    fast_finish: true

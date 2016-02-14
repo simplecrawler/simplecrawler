@@ -6,23 +6,22 @@
 var chai = require("chai"),
     uri = require("urijs");
 
-var Server = require("./lib/testserver.js");
+var Server = require("./lib/testserver.js"),
+    Crawler = require("../");
 
 chai.should();
 
+var makeCrawler = function (host, path, port) {
+    var crawler = new Crawler(host, path, port);
+    crawler.interval = 1;
+    return crawler;
+};
+
 describe("Test Crawl", function() {
 
-    var Crawler = require("../");
-
     // Create a new crawler to crawl this server
-    var localCrawler = new Crawler("127.0.0.1", "/", 3000),
-        asyncCrawler = new Crawler("127.0.0.1", "/", 3000);
-
-    // Speed up tests. No point waiting for every request
-    // when we're running our own server.
-    localCrawler.interval = asyncCrawler.interval = 1;
-
-    var linksDiscovered = 0;
+    var localCrawler = makeCrawler("127.0.0.1", "/", 3000),
+        linksDiscovered = 0;
 
     it("should be able to be started", function(done) {
 
@@ -116,14 +115,14 @@ describe("Test Crawl", function() {
 
     it("should support async event listeners for manual discovery", function(done) {
 
-        this.slow("1s");
+        var crawler = makeCrawler("127.0.0.1", "/", 3000);
 
         // Use a different crawler this time
-        asyncCrawler.discoverResources = false;
-        asyncCrawler.queueURL("http://127.0.0.1:3000/async-stage1");
-        asyncCrawler.start();
+        crawler.discoverResources = false;
+        crawler.queueURL("http://127.0.0.1:3000/async-stage1");
+        crawler.start();
 
-        asyncCrawler.on("fetchcomplete", function(queueItem, data) {
+        crawler.on("fetchcomplete", function(queueItem, data) {
             var evtDone = this.wait();
 
             setTimeout(function() {
@@ -135,31 +134,36 @@ describe("Test Crawl", function() {
 
                 // Taking advantage of the fact that for these,
                 // the sum total of the body data is a URL.
-                asyncCrawler.queueURL(String(data)).should.equal(true);
+                crawler.queueURL(String(data)).should.equal(true);
 
                 evtDone();
-            }, 100);
+            }, 10);
         });
 
-        asyncCrawler.on("complete", function() {
+        crawler.on("complete", function() {
             linksDiscovered.should.equal(8);
             done();
         });
     });
 
     it("should not throw an error if header Referer is undefined", function(done) {
-        var crawler = new Crawler("127.0.0.1", "/depth/1", 3000);
+
+        var crawler = makeCrawler("127.0.0.1", "/depth/1", 3000);
         crawler.maxDepth = 1;
+
         crawler.start();
+
         crawler.on("complete", function() {
             done();
         });
     });
 
     it("it should remove script tags if parseScriptTags is disabled", function(done) {
-        var crawler = new Crawler("127.0.0.1", "/script", 3000);
+
+        var crawler = makeCrawler("127.0.0.1", "/script", 3000);
         crawler.maxDepth = 1;
         crawler.parseScriptTags = false;
+
         crawler.start();
 
         crawler.on("complete", function() {
@@ -170,7 +174,7 @@ describe("Test Crawl", function() {
 
     it("it should emit an error when resource is too big", function(done) {
 
-        var crawler = new Crawler("127.0.0.1", "/big", 3000);
+        var crawler = makeCrawler("127.0.0.1", "/big", 3000);
         var visitedUrl = false;
 
         crawler.start();

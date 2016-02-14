@@ -312,7 +312,8 @@ Here's a complete list of what you can stuff with at this stage:
     ```
 
 *   `crawler.discoverRegex` -
-    Array of regex objects that simplecrawler uses to discover resources.
+    Array of regular expressions and functions that simplecrawler uses to
+    discover resources. Functions in this array are expected to return an array.
 *   `crawler.cache` -
     Specify a cache architecture to use when crawling. Must implement
     `SimpleCache` interface. You can save the site to disk using the built in file
@@ -386,8 +387,8 @@ Here's a complete list of what you can stuff with at this stage:
 
 Simplecrawler has a mechanism you can use to prevent certain resources from being
 fetched, based on the URL, called **Fetch Conditions**. A fetch condition is just
-a function, which, when given a parsed URL object, will return a true or a false
-value, indicating whether a given resource should be downloaded.
+a function, which, when given a parsed URL object, will return a boolean that
+indicates whether a given resource should be downloaded.
 
 You may add as many fetch conditions as you like, and remove them at runtime.
 Simplecrawler will evaluate every single condition against every queued URL, and
@@ -397,19 +398,52 @@ fetched.
 
 ##### Adding a fetch condition
 
-This example fetch condition prevents URLs ending in `.pdf` from downloading.
+This example fetch condition prevents URLs ending in `.pdf` from being downloaded.
 Adding a fetch condition assigns it an ID, which the `addFetchCondition` function
 returns. You can use this ID to remove the condition later.
 
 ```js
-var conditionID = myCrawler.addFetchCondition(function(parsedURL) {
+var conditionID = myCrawler.addFetchCondition(function(parsedURL, queueItem) {
     return !parsedURL.path.match(/\.pdf$/i);
 });
 ```
 
-NOTE: simplecrawler uses slightly different terminology to URIjs. `parsedURL.path`
-includes the query string too. If you want the path without the query string,
-use `parsedURL.uriPath`.
+Fetch conditions are called with two arguments: `parsedURL` and `queueItem`.
+`parsedURL` is the resource to be fetched (or not) and has the following structure:
+
+```js
+{
+    protocol: "http",
+    host: "example.com",
+    port: 80,
+    path: "/search?q=hello",
+    uriPath: "/search",
+    depth: 2
+}
+```
+
+`queueItem` is a representation of the page where this resource was found, it
+looks like this:
+
+```js
+{
+    url: "http://example.com/index.php",
+    protocol: "http",
+    host: "example.com",
+    port: 80,
+    path: "/index.php",
+    depth: 1,
+    fetched: true,
+    status: "downloaded",
+    stateData: {...}
+}
+```
+
+This information enables you to write sophisticated logic for which pages to
+fetch and which to avoid. You could, for example, implement a link checker that
+not only checks your site, but also links to external sites, but doesn't continue
+crawling those sites by setting `filterByDomain` to false and checking that
+`queueItem.host` is the same as `crawler.host`.
 
 ##### Removing a fetch condition
 
