@@ -107,7 +107,7 @@ describe("Test Crawl", function() {
         crawler.interval = 1;
         crawler.maxDepth = 1;
         crawler.parseScriptTags = false;
-                
+
         crawler.start();
 
         crawler.on("complete", function() {
