@@ -59,7 +59,7 @@ describe("Test Crawl", function() {
 
     it("should obey rules in robots.txt", function(done) {
 
-        var crawler = new Crawler("127.0.0.1", "/", 3000);
+        var crawler = makeCrawler("127.0.0.1", "/", 3000);
         crawler.start();
 
         crawler.on("fetchdisallowed", function(parsedURL) {
@@ -70,7 +70,7 @@ describe("Test Crawl", function() {
 
     it("should be able to disregard rules in robots.txt", function(done) {
 
-        var crawler = new Crawler("127.0.0.1", "/", 3000);
+        var crawler = makeCrawler("127.0.0.1", "/", 3000);
         crawler.respectRobotsTxt = false;
         crawler.start();
 
@@ -98,7 +98,7 @@ describe("Test Crawl", function() {
         });
         server.listen(3001);
 
-        var crawler = new Crawler("127.0.0.1", "/to/other/port", 3000);
+        var crawler = makeCrawler("127.0.0.1", "/to/other/port", 3000);
         crawler.start();
 
         crawler.on("fetchdisallowed", function(parsedURL) {
