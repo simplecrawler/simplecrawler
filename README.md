@@ -301,7 +301,8 @@ Here's a complete list of what you can stuff with at this stage:
     ```
 
 *   `crawler.discoverRegex` -
-    Array of regex objects that simplecrawler uses to discover resources.
+    Array of regular expressions and functions that simplecrawler uses to
+    discover resources. Functions in this array are expected to return an array.
 *   `crawler.cache` -
     Specify a cache architecture to use when crawling. Must implement
     `SimpleCache` interface. You can save the site to disk using the built in file
