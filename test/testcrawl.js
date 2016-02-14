@@ -89,18 +89,25 @@ describe("Test Crawl", function() {
     });
 
     it("should not throw an error if header Referer is undefined", function(done) {
+
         var crawler = new Crawler("127.0.0.1", "/depth/1", 3000);
+        crawler.interval = 1;
         crawler.maxDepth = 1;
+
         crawler.start();
+
         crawler.on("complete", function() {
             done();
         });
     });
 
     it("it should remove script tags if parseScriptTags is disabled", function(done) {
+
         var crawler = new Crawler("127.0.0.1", "/script", 3000);
+        crawler.interval = 1;
         crawler.maxDepth = 1;
         crawler.parseScriptTags = false;
+                
         crawler.start();
 
         crawler.on("complete", function() {
@@ -112,6 +119,7 @@ describe("Test Crawl", function() {
     it("it should emit an error when resource is too big", function(done) {
 
         var crawler = new Crawler("127.0.0.1", "/big", 3000);
+        crawler.interval = 1;
         var visitedUrl = false;
 
         crawler.start();
