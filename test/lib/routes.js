@@ -100,6 +100,10 @@ module.exports = {
         write(200, "", { "Content-Type": "application/font-woff" });
     },
 
+    "/404": function(write) {
+        write(404, "page not found");
+    },
+
     "/410": function(write) {
         write(410, "this page no longer exists!");
     },
