@@ -109,6 +109,28 @@ describe("Test Crawl", function() {
                 path: parsedURL.path
             }).href().should.equal("http://127.0.0.1:3001/disallowed");
 
+            server.close();
+            done();
+        });
+    });
+
+    it("should emit an error when robots.txt redirects to a disallowed domain", function(done) {
+
+        var server = new Server({
+            "/robots.txt": function(write) {
+                write(301, "Redirecting you...", {
+                    Location: "http://example.com/robots.txt"
+                });
+            }
+        });
+        server.listen(3002);
+
+        var crawler = makeCrawler("127.0.0.1", "/", 3002);
+        crawler.start();
+
+        crawler.on("robotstxterror", function(error) {
+            error.message.should.contain("redirected to a disallowed domain");
+            server.close();
             done();
         });
     });
