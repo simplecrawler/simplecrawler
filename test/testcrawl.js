@@ -129,6 +129,52 @@ describe("Test Crawl", function() {
         });
     });
 
+    it("should allow initial redirect to different domain if configured", function(done) {
+        var crawler = makeCrawler("0.0.0.0", "/domain-redirect", 3000);
+
+        crawler.allowInitialDomainChange = true;
+
+        crawler.on("queueadd", function(queueItem) {
+            queueItem.host.should.equal("127.0.0.1");
+            crawler.stop();
+            done();
+        });
+
+        crawler.start();
+    });
+
+    it("should only allow redirect to different domain for initial request", function(done) {
+        var crawler = makeCrawler("0.0.0.0", "/to-domain-redirect", 3000),
+            linksDiscovered = 0;
+
+        crawler.on("discoverycomplete", function() {
+            linksDiscovered++;
+        });
+
+        crawler.on("complete", function() {
+            linksDiscovered.should.equal(1);
+            done();
+        });
+
+        crawler.start();
+    });
+
+    it("should disallow initial redirect to different domain by default", function(done) {
+        var crawler = makeCrawler("0.0.0.0", "/domain-redirect", 3000),
+            linksDiscovered = 0;
+
+        crawler.on("discoverycomplete", function() {
+            linksDiscovered++;
+        });
+
+        crawler.on("complete", function() {
+            linksDiscovered.should.equal(0);
+            done();
+        });
+
+        crawler.start();
+    });
+
     // TODO
 
     // Test how simple error conditions are handled

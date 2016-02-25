@@ -55,6 +55,14 @@ module.exports = {
         // We want to trigger a timeout. Never respond.
     },
 
+    "/domain-redirect": function(write, redir) {
+        redir("http://127.0.0.1:3000/");
+    },
+
+    "/to-domain-redirect": function(write) {
+        write(200, "<a href='/domain-redirect'>redirect</a>");
+    },
+
     // Routes for depth tests
     "/depth/1": function(write) {
         write(200, "<link rel='stylesheet' href='/css'> Home. <a href='/depth/2'>depth2</a>");
