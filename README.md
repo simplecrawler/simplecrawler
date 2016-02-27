@@ -188,7 +188,9 @@ we're prepared to receive (16MB by default.)
 Fired when a redirect header is encountered. The new URL is validated and returned
 as a complete canonical link to the new resource.
 * `fetch404` (queueItem, response)
-Fired when a 404 or 410 HTTP status code is returned for a request.
+Fired when a 404 HTTP status code is returned for a request.
+* `fetch410` (queueItem, response)
+Fired when a 410 HTTP status code is returned for a request.
 * `fetcherror` (queueItem, response)
 Fired when an alternate 400 or 500 series HTTP status code is returned for a
 request.
@@ -284,6 +286,10 @@ Here's a complete list of what you can stuff with at this stage:
     module is used to do the actual parsing.
 *    `crawler.queue` -
     The queue in use by the crawler (Must implement the `FetchQueue` interface)
+*   `crawler.allowInitialDomainChange` -
+    If the response for the initial url is a redirect to another domain 
+    (e.g. from github.net to github.com), update `crawler.host` to
+    continue the crawling on that domain. Defaults to false.
 *    `crawler.filterByDomain` -
     Specifies whether the crawler will restrict queued requests to a given
     domain/domains.

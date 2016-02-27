@@ -66,7 +66,21 @@ describe("Crawler reliability", function() {
         localCrawler.start();
     });
 
-    it("should emit a fetch404 when given a 410 status code", function(done) {
+    it("should emit a fetch404 when given a 404 status code", function(done) {
+
+        this.slow("1s");
+        this.timeout("1s");
+
+        var localCrawler = Crawler.crawl("http://127.0.0.1:3000/404");
+        localCrawler.timeout = 200;
+
+        localCrawler.on("fetch404", function() {
+            done();
+        });
+    });
+
+
+    it("should emit a fetch410 when given a 410 status code", function(done) {
 
         this.slow("1s");
         this.timeout("1s");
@@ -74,7 +88,7 @@ describe("Crawler reliability", function() {
         var localCrawler = Crawler.crawl("http://127.0.0.1:3000/410");
         localCrawler.timeout = 200;
 
-        localCrawler.on("fetch404", function() {
+        localCrawler.on("fetch410", function() {
             done();
         });
     });
