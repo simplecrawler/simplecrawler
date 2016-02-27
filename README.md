@@ -275,6 +275,10 @@ Here's a complete list of what you can stuff with at this stage:
     &lt;meta charset="xxx" /&gt; tags.
 *    `crawler.queue` -
     The queue in use by the crawler (Must implement the `FetchQueue` interface)
+*   `crawler.allowInitialDomainChange` -
+    If the response for the initial url is a redirect to another domain 
+    (e.g. from github.net to github.com), update `crawler.host` to
+    continue the crawling on that domain. Defaults to false.
 *    `crawler.filterByDomain` -
     Specifies whether the crawler will restrict queued requests to a given
     domain/domains.
