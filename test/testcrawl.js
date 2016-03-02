@@ -117,10 +117,8 @@ describe("Test Crawl", function() {
     it("should emit an error when robots.txt redirects to a disallowed domain", function(done) {
 
         var server = new Server({
-            "/robots.txt": function(write) {
-                write(301, "Redirecting you...", {
-                    Location: "http://example.com/robots.txt"
-                });
+            "/robots.txt": function(write, redir) {
+                redir("http://example.com/robots.txt");
             }
         });
         server.listen(3002);
