@@ -1,11 +1,10 @@
 /* eslint-env phantomjs */
-
 /* globals document: true */
 
 var phantomAPI  = require("phantom"),
     Crawler     = require("simplecrawler"),
     colors      = require("colors/safe"),
-    phantomjs   = require("phantomjs");
+    phantomjs   = require("phantomjs-prebuilt");
 
 var crawler = new Crawler("www.example.com", "/", 80, 0),
     phantomBin = phantomjs.path,

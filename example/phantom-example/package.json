@@ -21,10 +21,10 @@
     "node"
   ],
   "dependencies": {
-    "async": "^1.4.2",
+    "async": "^1.5.2",
     "colors": "^1.1.2",
-    "phantom": "^0.7.2",
-    "phantomjs": "^1.9.18",
-    "simplecrawler": "^0.5.3"
+    "phantom": "^2.1.7",
+    "phantomjs-prebuilt": "^2.1.7",
+    "simplecrawler": "^0.7.0"
   }
 }
