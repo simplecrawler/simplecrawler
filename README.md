@@ -1,7 +1,8 @@
 # Simple web-crawler for Node.js
 
 [![NPM version](https://img.shields.io/npm/v/simplecrawler.svg)](https://www.npmjs.com/package/simplecrawler)
-[![Build Status](https://img.shields.io/travis/cgiffard/node-simplecrawler/master.svg)](https://travis-ci.org/cgiffard/node-simplecrawler)
+[![Linux Build Status](https://img.shields.io/travis/cgiffard/node-simplecrawler/master.svg)](https://travis-ci.org/cgiffard/node-simplecrawler)
+[![Windows Build Status](https://img.shields.io/appveyor/ci/cgiffard/node-simplecrawler/master.svg?label=Windows%20build)](https://ci.appveyor.com/project/cgiffard/node-simplecrawler/branch/master)
 [![Dependency Status](https://img.shields.io/david/cgiffard/node-simplecrawler.svg)](https://david-dm.org/cgiffard/node-simplecrawler)
 [![devDependency Status](https://img.shields.io/david/dev/cgiffard/node-simplecrawler.svg)](https://david-dm.org/cgiffard/node-simplecrawler#info=devDependencies)
 
@@ -276,7 +277,7 @@ Here's a complete list of what you can stuff with at this stage:
 *    `crawler.queue` -
     The queue in use by the crawler (Must implement the `FetchQueue` interface)
 *   `crawler.allowInitialDomainChange` -
-    If the response for the initial url is a redirect to another domain 
+    If the response for the initial url is a redirect to another domain
     (e.g. from github.net to github.com), update `crawler.host` to
     continue the crawling on that domain. Defaults to false.
 *    `crawler.filterByDomain` -

@@ -1,0 +1,34 @@
+# http://www.appveyor.com/docs/appveyor-yml
+
+clone_depth: 10
+
+version: "{build}"
+
+# What combinations to test
+environment:
+    matrix:
+        - nodejs_version: "0.12"
+          platform: x86
+        - nodejs_version: "4"
+          platform: x64
+        - nodejs_version: "4"
+          platform: x86
+        - nodejs_version: "5"
+          platform: x86
+
+install:
+    - ps: Install-Product node $env:nodejs_version $env:platform
+    - npm install
+
+test_script:
+    - node --version
+    - npm --version
+    - npm test
+
+build: off
+
+matrix:
+    fast_finish: true
+
+cache:
+    - node_modules -> package.json
