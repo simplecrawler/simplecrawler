@@ -4,16 +4,17 @@ clone_depth: 10
 
 version: "{build}"
 
-# What combinations to test
 environment:
     matrix:
-        - nodejs_version: "0.12"
+        - nodejs_version: "5"
           platform: x86
         - nodejs_version: "4"
           platform: x64
         - nodejs_version: "4"
           platform: x86
-        - nodejs_version: "5"
+        - nodejs_version: "0.12"
+          platform: x86
+        - nodejs_version: "0.10"
           platform: x86
 
 install:
