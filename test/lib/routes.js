@@ -56,7 +56,7 @@ module.exports = {
     },
 
     "/domain-redirect": function(write, redir) {
-        redir("http://127.0.0.1:3000/");
+        redir("http://localhost:3000/");
     },
 
     "/to-domain-redirect": function(write) {
