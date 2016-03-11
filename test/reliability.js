@@ -151,4 +151,20 @@ describe("Crawler reliability", function() {
             localCrawler.once.bind(localCrawler, "fetchcomplete", test));
 
     });
+
+    it("should only be able to start once per run", function(done) {
+
+        var localCrawler = Crawler.crawl("http://127.0.0.1:3000/");
+
+        setTimeout(function() {
+            var crawlIntervalID = localCrawler.crawlIntervalID;
+            localCrawler.start();
+
+            setTimeout(function() {
+                localCrawler.crawlIntervalID.should.equal(crawlIntervalID);
+                localCrawler.stop();
+                done();
+            }, 10);
+        }, 10);
+    });
 });

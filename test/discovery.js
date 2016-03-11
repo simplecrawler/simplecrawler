@@ -181,4 +181,17 @@ describe("Crawler link discovery", function() {
         links[0].should.equal("https://example.com/");
         links[1].should.equal("https://example.com/other/page");
     });
+
+    it("should find resources in srcset attributes", function() {
+
+        var links =
+            discover("<img src='pic-200.png' srcset='pic-200.png 200px, pic-400.png 400w'>", {
+                url: "https://example.com/"
+            });
+
+        links.should.be.an("array");
+        links.length.should.equal(2);
+        links[0].should.equal("https://example.com/pic-200.png");
+        links[1].should.equal("https://example.com/pic-400.png");
+    });
 });

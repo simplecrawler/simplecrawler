@@ -209,12 +209,12 @@ describe("Test Crawl", function() {
     });
 
     it("should allow initial redirect to different domain if configured", function(done) {
-        var crawler = makeCrawler("0.0.0.0", "/domain-redirect", 3000);
+        var crawler = makeCrawler("127.0.0.1", "/domain-redirect", 3000);
 
         crawler.allowInitialDomainChange = true;
 
         crawler.on("queueadd", function(queueItem) {
-            queueItem.host.should.equal("127.0.0.1");
+            queueItem.host.should.equal("localhost");
             crawler.stop();
             done();
         });
@@ -223,7 +223,7 @@ describe("Test Crawl", function() {
     });
 
     it("should only allow redirect to different domain for initial request", function(done) {
-        var crawler = makeCrawler("0.0.0.0", "/to-domain-redirect", 3000),
+        var crawler = makeCrawler("127.0.0.1", "/to-domain-redirect", 3000),
             linksDiscovered = 0;
 
         crawler.on("discoverycomplete", function() {
@@ -239,7 +239,7 @@ describe("Test Crawl", function() {
     });
 
     it("should disallow initial redirect to different domain by default", function(done) {
-        var crawler = makeCrawler("0.0.0.0", "/domain-redirect", 3000),
+        var crawler = makeCrawler("127.0.0.1", "/domain-redirect", 3000),
             linksDiscovered = 0;
 
         crawler.on("discoverycomplete", function() {
