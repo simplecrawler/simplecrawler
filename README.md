@@ -11,19 +11,20 @@ crawling websites. I wrote simplecrawler to archive, analyse, and search some
 very large websites. It has happily chewed through hundreds of thousands of
 pages and written tens of gigabytes to disk without issue.
 
-### What does simplecrawler do?
+## What does simplecrawler do?
 
 * Provides a very simple event driven API using `EventEmitter`
 * Extremely configurable base for writing your own crawler
 * Provides some simple logic for auto-detecting linked resources - which you can
-replace or augment
+  replace or augment
 * Automatically respects any robots.txt rules
 * Has a flexible queue system which can be frozen to disk and defrosted
 * Provides basic statistics on network performance
 * Uses buffers for fetching and managing data, preserving binary data (except
-when discovering links)
+  when discovering links)
 
 ## Documentation
+
 - [Getting started](#getting-started)
     - [Simplified mode](#simplified-mode)
     - [Regular mode](#regular-mode)
@@ -109,7 +110,6 @@ crawler.initialProtocol = "https";
 
 // Or:
 var crawler = new Crawler("www.example.com", "/archive", 8080);
-
 ```
 
 And of course, you're probably wanting to ensure you don't take down your web
@@ -216,6 +216,7 @@ in parentheses.
     does not find any more to add. This event returns no arguments.
 
 ### A note about HTTP error conditions
+
 By default, simplecrawler does not download the response body when it encounters
 an HTTP error status in the response. If you need this information, you can listen
 to simplecrawler's error events, and through node's native `data` event
@@ -283,7 +284,7 @@ change to adapt it to your specific needs.
     JavaScript strings using the
     [iconv-lite](https://www.npmjs.com/package/iconv-lite) module. The character
     encoding is interpreted from the Content-Type header firstly, and secondly
-    from any `&lt;meta charset="xxx" /&gt;` tags.
+    from any `<meta charset="xxx" />` tags.
 * `crawler.respectRobotsTxt=true` -
     Controls whether the crawler should respect rules in robots.txt (if such a
     file is present). The
@@ -291,7 +292,7 @@ change to adapt it to your specific needs.
     to do the actual parsing.
 * `crawler.queue` -
     The queue in use by the crawler (Must implement the `FetchQueue` interface)
-*   `crawler.allowInitialDomainChange=false` -
+* `crawler.allowInitialDomainChange=false` -
     If the response for the initial URL is a redirect to another domain (e.g.
     from github.net to github.com), update `crawler.host` to continue the
     crawling on that domain.
@@ -589,9 +590,9 @@ crawler.queue.getWithStatus("failed", function (failedItems) {
 Then there's some even simpler convenience functions:
 
 * `crawler.queue.complete` - provides the number of queue items which have been
-completed (marked as fetched).
+  completed (marked as fetched).
 * `crawler.queue.errors` - provides the number of requests which have failed
-(404s and other 400/500 errors, as well as client errors).
+  (404s and other 400/500 errors, as well as client errors).
 
 ### Saving and reloading the queue (freeze/defrost)
 
@@ -627,10 +628,8 @@ automatically and by default. If you want to turn this off, set the
 
 ### Cookie events
 
-* `addcookie` (cookie)
-Fired when a new cookie is added to the jar.
-* `removecookie` (cookie array)
-Fired when one or more cookies are removed from the jar.
+* `addcookie` (cookie) - Fired when a new cookie is added to the jar.
+* `removecookie` (cookie array) - Fired when one or more cookies are removed from the jar.
 
 ## Link Discovery
 
@@ -666,34 +665,34 @@ list below before submitting an issue.
 
 - **Q: Why does simplecrawler discover so many invalid URLs?**
 
-    A: simplecrawler's built-in discovery method is purposefully naïve - it's a
+    A: simplecrawler's built-in discovery method is purposefully naive - it's a
     brute force approach intended to find everything: URLs in comments, binary files,
     scripts, image EXIF data, inside CSS documents, and more — useful for archiving
     and use cases where it's better to have false positives than fail to discover a
     resource.
-    
+
     It's definitely not a solution for every case, though — if you're
     writing a link checker or validator, you don't want erroneous 404s
     throwing errors. Therefore, simplecrawler allows you to tune discovery in a few
     key ways:
-    
+
     - You can either add to (or remove from) the `discoverRegex` array, tweaking
       the search patterns to meet your requirements; or
     - Swap out the `discoverResources` method. Parsing HTML pages is beyond the
       scope of simplecrawler, but it is very common to combine simplecrawler with
       a module like [cheerio](https://npmjs.com/package/cheerio) for more
       sophisticated resource discovery.
-    
+
     Further documentation is available in the [link discovery](#link-discovery)
     section.
-      
+
 - **Q: Why did simplecrawler complete without fetching any resources?**
 
     A: When this happens, it is usually because the initial request was redirected
     to a different domain that wasn't in the `domainWhitelist`.
 
 - **Q: What does it mean that events are asynchronous?**
-    
+
     A: One of the core concepts of node.js is its asynchronous nature. I/O
     operations (like network requests) take place outside of the main thread (which
     is where your code is executed). This is what makes node fast, the fact that it
@@ -719,7 +718,7 @@ list below before submitting an issue.
 
 simplecrawler has benefited from the kind efforts of dozens of contributors, to
 whom we are incredibly grateful. We originally listed their individual
-contributions but it became pretty unweildy - the
+contributions but it became pretty unwieldy - the
 [full list can be found here.](https://github.com/cgiffard/node-simplecrawler/graphs/contributors)
 
 ## License
