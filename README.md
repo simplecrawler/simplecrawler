@@ -28,6 +28,7 @@ Crawler.crawl("http://example.com/")
 * Extremely configurable base for writing your own crawler
 * Provides some simple logic for auto-detecting linked resources - which you can
 replace or augment
+* Automatically respects any robots.txt rules
 * Has a flexible queue system which can be frozen to disk and defrosted
 * Provides basic statistics on network performance
 * Uses buffers for fetching and managing data, preserving binary data (except
@@ -163,6 +164,8 @@ Fired when an item cannot be added to the queue because it is already present in
 the queue. Frequent firing of this event is normal and expected.
 * `queueerror` (errorData, URLData)
 Fired when an item cannot be added to the queue due to error.
+* `robotstxterror` (error)
+Fired when robots.txt couldn't be fetched. `error.message` has details on why.
 * `fetchstart` (queueItem, requestOptions)
 Fired when an item is spooled for fetching. If your event handler is synchronous,
 you can modify the crawler request options (including headers and request method.)
@@ -175,6 +178,10 @@ Fired when an error was caught trying to add a cookie to the cookie jar.
 Fired when the resource is completely downloaded. The response body is provided as
 a Buffer per default, unless `decodeResponses` is truthy, in which case it's a
 decoded string representation of the body.
+* `fetchdisallowed` (parsedURL)
+Fired when a resource isn't fetched due to robots.txt rules. See `respectRobotsTxt`
+option. See [Adding a fetch condition](#adding-a-fetch-condition) for details on
+the `parsedURL` object.
 * `fetchdataerror` (queueItem, response)
 Fired when a resource can't be downloaded, because it exceeds the maximum size
 we're prepared to receive (16MB by default.)
@@ -269,11 +276,15 @@ Here's a complete list of what you can stuff with at this stage:
 *    `crawler.userAgent` -
     The user agent the crawler will report. Defaults to
     `Node/SimpleCrawler <version> (https://github.com/cgiffard/node-simplecrawler)`.
-*   `crawler.decodeResponses` -
+*    `crawler.decodeResponses` -
     The response bodies will be intelligently character converted to standard
-    JavaScript strings using the `iconv-lite` module. The character encoding
-    is interpreted from the Content-Type header firstly, and secondly from any
-    &lt;meta charset="xxx" /&gt; tags.
+    JavaScript strings using the [`iconv-lite`](https://www.npmjs.com/package/iconv-lite)
+    module. The character encoding is interpreted from the Content-Type header
+    firstly, and secondly from any &lt;meta charset="xxx" /&gt; tags.
+*    `crawler.respectRobotsTxt` -
+    Controls whether the crawler should respect rules in robots.txt (if such a
+    file is present). True by default. The [`robots-parser`](https://www.npmjs.com/package/robots-parser)
+    module is used to do the actual parsing.
 *    `crawler.queue` -
     The queue in use by the crawler (Must implement the `FetchQueue` interface)
 *   `crawler.allowInitialDomainChange` -
@@ -449,15 +460,6 @@ from the crawler:
 ```js
 myCrawler.removeFetchCondition(conditionID);
 ```
-
-##### Excluding resources based on robots.txt
-
-Simplecrawler [purposely](https://github.com/cgiffard/node-simplecrawler/issues/153)
-doesn't come with any built in support for parsing robots.txt rules. Adding
-support manually is very straightforward using fetch conditions however, and
-in `examples/robots-txt-example.js` you'll find an example that makes use of
-the [robots-parser](https://www.npmjs.com/package/robots-parser) module to do
-just that.
 
 ### The Simplecrawler Queue
 
