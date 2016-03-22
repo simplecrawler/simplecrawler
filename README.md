@@ -308,7 +308,7 @@ change to adapt it to your specific needs.
 * `crawler.stripQuerystring=false` -
     Specify to strip querystring parameters from URL's.
 * `crawler.discoverResources` -
-    Function containing simplecrawler's default resource discovery function -
+    simplecrawler's default resource discovery function -
     which, given a buffer containing a resource, returns an array of URLs.
     For more details about link discovery, see [Link Discovery](#link-discovery)
 * `crawler.discoverRegex` -
@@ -672,8 +672,8 @@ list below before submitting an issue.
     and use cases where it's better to have false positives than fail to discover a
     resource.
     
-    It's definitely not a solution for every case, though —  If you're
-    writing a link checker or validator, though, you don't want erroneous 404s
+    It's definitely not a solution for every case, though — if you're
+    writing a link checker or validator, you don't want erroneous 404s
     throwing errors. Therefore, simplecrawler allows you to tune discovery in a few
     key ways:
     
