@@ -39,7 +39,9 @@ when discovering links)
     - [Saving and reloading the queue (freeze/defrost)](#saving-and-reloading-the-queue-freezedefrost)
 - [Cookies](#cookies)
     - [Cookie events](#cookie-events)
-- [FAQ](#faq)
+- [Link Discovery](#link-discovery)
+- [FAQ/Troubleshooting](#faqtroubleshooting)
+- [Current Maintainers](#current-maintainers)
 - [Contributors](#contributors)
 - [License](#license)
 
@@ -306,32 +308,9 @@ change to adapt it to your specific needs.
 * `crawler.stripQuerystring=false` -
     Specify to strip querystring parameters from URL's.
 * `crawler.discoverResources` -
-    simplecrawler's built-in discovery function is purposefully naïve. The
-    reasoning behind this comes from the different demands that different  types
-    of crawls have. If you're archiving a website, maybe some false positives
-    are better than the risk of missing some resources.
-
-    But what if you're checking for dead links and the 404's on the website is
-    what you're really interested in?
-
-    Well, simplecrawler's discovery function is made to be replaceable, you can
-    easily write your own that discovers only the links you're interested in.
-    The method must accept a buffer and a queueItem, and return the resources
-    that are to be added to the queue.
-
-    It is quite common to pair simplecrawler with a module like [cheerio](https://npmjs.com/package/cheerio)
-    that can actually parse HTML and provide a DOM like API for querying.
-
-    ```js
-    crawler.discoverResources = function(buffer, queueItem) {
-        var $ = cheerio.load(buffer.toString("utf8"));
-
-        return $("a[href]").map(function (element) {
-            return $(element).attr("href");
-        });
-    };
-    ```
-
+    Function containing simplecrawler's default resource discovery function -
+    which, given a buffer containing a resource, returns an array of URLs.
+    For more details about link discovery, see [Link Discovery](#link-discovery)
 * `crawler.discoverRegex` -
     Array of regular expressions and functions that simplecrawler uses to
     discover resources. Functions in this array are expected to return an array.
@@ -653,65 +632,95 @@ Fired when a new cookie is added to the jar.
 * `removecookie` (cookie array)
 Fired when one or more cookies are removed from the jar.
 
-## FAQ
+## Link Discovery
+
+simplecrawler's discovery function is made to be replaceable — you can
+easily write your own that discovers only the links you're interested in.
+
+The method must accept a buffer and a [`queueItem`](#queue-items), and
+return the resources that are to be added to the queue.
+
+It is quite common to pair simplecrawler with a module like
+[cheerio](https://npmjs.com/package/cheerio) that can correctly parse
+HTML and provide a DOM like API for querying — or even a whole headless
+browser, like phantomJS.
+
+The example below demonstrates how one might achieve basic HTML-correct
+discovery of only link tags using cheerio.
+
+```js
+crawler.discoverResources = function(buffer, queueItem) {
+    var $ = cheerio.load(buffer.toString("utf8"));
+
+    return $("a[href]").map(function (element) {
+        return $(element).attr("href");
+    });
+};
+```
+
+## FAQ/Troubleshooting
 
 There are a couple of questions that pop up more often than others in the issue
 tracker. If you're having trouble with simplecrawler, please have a look at the
 list below before submitting an issue.
 
-- **Q: Why does simplecrawler discover so many crappy URL's?**
-A: simplecrawler's built-in discovery method is purposefully naïve (there are
-more details on why under the [configuration section](#configuration)). If you need to change what resources are
-discovered, you can either add to (or remove from) the `discoverRegex` array or
-swap out the `discoverResources` method. Parsing HTML pages is beyond the scope
-of simplecrawler, but it is very common to combine simplecrawler with a module
-like [cheerio](https://npmjs.com/package/cheerio) for more sophisticated
-resource discovery.
+- **Q: Why does simplecrawler discover so many invalid URLs?**
+
+    A: simplecrawler's built-in discovery method is purposefully naïve - it's a
+    brute force approach intended to find everything: URLs in comments, binary files,
+    scripts, image EXIF data, inside CSS documents, and more — useful for archiving
+    and use cases where it's better to have false positives than fail to discover a
+    resource.
+    
+    It's definitely not a solution for every case, though —  If you're
+    writing a link checker or validator, though, you don't want erroneous 404s
+    throwing errors. Therefore, simplecrawler allows you to tune discovery in a few
+    key ways:
+    
+    - You can either add to (or remove from) the `discoverRegex` array, tweaking
+      the search patterns to meet your requirements; or
+    - Swap out the `discoverResources` method. Parsing HTML pages is beyond the
+      scope of simplecrawler, but it is very common to combine simplecrawler with
+      a module like [cheerio](https://npmjs.com/package/cheerio) for more
+      sophisticated resource discovery.
+    
+    Further documentation is available in the [link discovery](#link-discovery)
+    section.
+      
 - **Q: Why did simplecrawler complete without fetching any resources?**
-A: When this happens, it is usually because the initial request was redirected
-to a different domain that wasn't in the `domainWhitelist`.
+
+    A: When this happens, it is usually because the initial request was redirected
+    to a different domain that wasn't in the `domainWhitelist`.
+
 - **Q: What does it mean that events are asynchronous?**
-A: One of the core concepts of node.js is its asynchronous nature. I/O
-operations (like network requests) take place outside of the main thread (which
-is where your code is executed). This is what makes node fast, the fact that it
-can continue executing code while there are multiple HTTP requests in flight,
-for example. But to be able to get back the result of the HTTP request, we need
-to register a function that will be called when the result is ready. This is the
-same concept as with AJAX requests in the browser.
+    
+    A: One of the core concepts of node.js is its asynchronous nature. I/O
+    operations (like network requests) take place outside of the main thread (which
+    is where your code is executed). This is what makes node fast, the fact that it
+    can continue executing code while there are multiple HTTP requests in flight,
+    for example. But to be able to get back the result of the HTTP request, we need
+    to register a function that will be called when the result is ready. This is the
+    same concept as with AJAX requests in the browser.
+
 - **Q: Promises are nice, can I use them with simplecrawler?**
-A: No, not really. Promises are meant as a replacement for callbacks, but
-simplecrawler is event driven, not callback driven. Using callbacks to any
-greater extent in simplecrawler wouldn't make much sense, since you normally
-need to react more than once to what happens in simplecrawler.
+
+    A: No, not really. Promises are meant as a replacement for callbacks, but
+    simplecrawler is event driven, not callback driven. Using callbacks to any
+    greater extent in simplecrawler wouldn't make much sense, since you normally
+    need to react more than once to what happens in simplecrawler.
+
+## Current Maintainers
+
+* [Christopher Giffard](https://github.com/cgiffard)
+* [Fredrik Ekelund](https://github.com/fredrikekelund)
+* [XhmikosR](https://github.com/XhmikosR)
 
 ## Contributors
 
-I'd like to extend sincere thanks to:
-
-* [Nick Crohn](https://github.com/ncrohn) for the HTTP Basic auth support, and
-initial cookie support.
-* [Mike Moulton](https://github.com/mmoulton) for [fixing a bug in the URL
-discovery mechanism](https://github.com/cgiffard/node-simplecrawler/pull/3), as
-well as [adding the `discoverycomplete` event](https://github.com/cgiffard/node-simplecrawler/pull/10).
-* [Mike Iannacone](https://github.com/mikeiannacone) for correcting a keyword
-naming collision with node 0.8's EventEmitter.
-* [Greg Molnar](https://github.com/gregmolnar) for
-[adding a querystring-free path parameter to parsed URL objects](https://github.com/cgiffard/node-simplecrawler/pull/31).
-* [Breck Yunits](https://github.com/breck7) for contributing a useful code
-sample demonstrating using simplecrawler for caching a website to disk!
-* [Luke Plaster](https://github.com/notatestuser) for enabling protocol-agnostic
-link discovery.
-* [Zeus](https://github.com/distracteddev) for fixing a bug where [default port
-info was wrongly specified in requests](https://github.com/cgiffard/node-simplecrawler/pull/40)
-and for fixing the missing request timeout handling!
-* [Graham Hutchinson](https://github.com/ghhutch) for adding
-querystring-stripping option.
-* [Jellyfrog](https://github.com/jellyfrog) for assisting in diagnosing some
-nasty EventEmitter issues.
-* [Brian Moeskau](https://github.com/bmoeskau) for helping to fix the confusing
-'async' events API, and providing invaluable feedback.
-
-And everybody else who has helped out in some way! :)
+simplecrawler has benefited from the kind efforts of dozens of contributors, to
+whom we are incredibly grateful. We originally listed their individual
+contributions but it became pretty unweildy - the
+[full list can be found here.](https://github.com/cgiffard/node-simplecrawler/graphs/contributors)
 
 ## License
 
