@@ -44,6 +44,14 @@ module.exports = {
         write(200, "Crawl complete!");
     },
 
+    "/cookie": function(write) {
+        var expires = new Date();
+        expires.setHours(expires.getHours() + 10);
+        var cookie = "thing=stuff; expires=" + expires + "; path=/; domain=.localhost";
+
+        write(200, "<a href='/stage6'>Link</a>", { "Set-Cookie": cookie });
+    },
+
     "/async-stage1": function(write) {
         write(200, "http://127.0.0.1:3000/async-stage2");
     },

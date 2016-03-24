@@ -13,7 +13,7 @@ chai.should();
 
 var makeCrawler = function (host, path, port) {
     var crawler = new Crawler(host, path, port);
-    crawler.interval = 1;
+    crawler.interval = 5;
     return crawler;
 };
 
@@ -42,6 +42,23 @@ describe("Test Crawl", function() {
             queueItem.url.should.equal("http://127.0.0.1:3000/stage2");
             done();
         });
+    });
+
+    it("should parse, store and send cookies properly", function(done) {
+
+        var crawler = makeCrawler("localhost", "/cookie", 3000),
+            i = 0;
+
+        crawler.on("fetchstart", function(queueItem, requestOptions) {
+            if (i++) {
+                requestOptions.headers.cookie.should.be.an("array");
+                requestOptions.headers.cookie.should.have.lengthOf(1);
+                requestOptions.headers.cookie[0].should.match(/^thing=stuff/);
+                done();
+            }
+        });
+
+        crawler.start();
     });
 
     it("should have a queue with at least the initial crawl path", function() {
