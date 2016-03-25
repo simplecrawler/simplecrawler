@@ -98,6 +98,7 @@ describe("Crawler reliability", function() {
         var localCrawler = new Crawler("127.0.0.1", "/", 3000),
             newCrawler = new Crawler("127.0.0.1", "/", 3000),
             tmp = os.tmpdir() ? path.join(os.tmpdir(), "queue.json") : path.join(__dirname, "queue.json");
+
         localCrawler.start();
 
         var test = function() {

@@ -61,12 +61,12 @@ describe("Test Crawl", function() {
         crawler.start();
     });
 
-    it("should have a queue with at least the initial crawl path", function() {
+    it("should have added the initial item to the queue", function() {
 
         localCrawler.queue.length.should.be.greaterThan(0);
     });
 
-    it("should discover all linked resources in the queue", function(done) {
+    it("should discover all available linked resources", function(done) {
 
         localCrawler.on("complete", function() {
             linksDiscovered.should.equal(5);

@@ -450,11 +450,10 @@ myCrawler.removeFetchCondition(conditionID);
 ## The queue
 
 Like any other web crawler, simplecrawler has a queue. It can be directly
-accessed through `crawler.queue` and is by default only backed by an array,
-which means items in the queue can be accessed through array notation. However,
-since simplecrawler also supports different backing stores for the queue, the
-recommended way of accessing items is through the (pseudo) asynchronous
-`crawler.queue.get` method.
+accessed through `crawler.queue` and implements an asynchronous interface for
+accessing queue items and statistics. There are several methods for interacting
+with the queue, the simplest being `crawler.queue.get`, which lets you get a
+queue item at a specific index in the queue.
 
 ```js
 crawler.queue.get(5, function (queueItem) {
@@ -462,9 +461,10 @@ crawler.queue.get(5, function (queueItem) {
 });
 ```
 
-Even though this operation is actually synchronous when the default backing
-store is used, this method helps maintain compatibility with asynchronous
-backing stores that would let you eg. store the queue in a database.
+*All queue method are in reality synchronous by default, but simplecrawler is
+built to be able to use different queues that implement the same interface, and
+those implementations can be asynchronous - which means they could eg. be backed
+by a database.*
 
 ### Manually adding to the queue
 
@@ -550,18 +550,16 @@ a second. You can test the following properties:
 
 You can get the maximum, minimum, and average values for each with the
 `crawler.queue.max`, `crawler.queue.min`, and `crawler.queue.avg` functions
-respectively. Like the `crawler.queue.get` method, these methods are pseudo
-asynchronous to support different backing stores for the queue. That means they
-will provide both a return value and a callback.
+respectively.
 
 ```js
-crawler.queue.max("requestLatency", function (max) {
+crawler.queue.max("requestLatency", function(error, max) {
     console.log("The maximum request latency was %dms.", max);
 });
-crawler.queue.min("downloadTime", function (min) {
+crawler.queue.min("downloadTime", function(error, min) {
     console.log("The minimum download time was %dms.", min);
 });
-crawler.queue.avg("actualDataSize", function (avg) {
+crawler.queue.avg("actualDataSize", function(error, avg) {
     console.log("The average resource size received is %d bytes.", avg);
 });
 ```
@@ -571,15 +569,15 @@ and/or retrieve them. That's easily done with the methods
 `crawler.queue.countWithStatus` and `crawler.queue.getWithStatus`.
 
 `crawler.queue.countWithStatus` provides the number of queued items with a given
-status, while `crawler.queue.getWithStatus` returns an array of the queue items
-themselves. Again, by default, these methods both return and accept callbacks.
+status, while `crawler.queue.getWithStatus` provides an array of the queue items
+themselves.
 
 ```js
-crawler.queue.countWithStatus("redirected", function (redirectCount) {
+crawler.queue.countWithStatus("redirected", function(error, redirectCount) {
     console.log("The redirect count is %d", redirectCount);
 });
 
-crawler.queue.getWithStatus("failed", function (failedItems) {
+crawler.queue.getWithStatus("failed", function(error, failedItems) {
     failedItems.forEach(function(queueItem) {
         console.log("Whoah, the request for %s failed!", queueItem.url);
     });
@@ -671,29 +669,29 @@ list below before submitting an issue.
     scripts, image EXIF data, inside CSS documents, and more — useful for archiving
     and use cases where it's better to have false positives than fail to discover a
     resource.
-    
+
     It's definitely not a solution for every case, though — if you're
     writing a link checker or validator, you don't want erroneous 404s
     throwing errors. Therefore, simplecrawler allows you to tune discovery in a few
     key ways:
-    
+
     - You can either add to (or remove from) the `discoverRegex` array, tweaking
       the search patterns to meet your requirements; or
     - Swap out the `discoverResources` method. Parsing HTML pages is beyond the
       scope of simplecrawler, but it is very common to combine simplecrawler with
       a module like [cheerio](https://npmjs.com/package/cheerio) for more
       sophisticated resource discovery.
-    
+
     Further documentation is available in the [link discovery](#link-discovery)
     section.
-      
+
 - **Q: Why did simplecrawler complete without fetching any resources?**
 
     A: When this happens, it is usually because the initial request was redirected
     to a different domain that wasn't in the `domainWhitelist`.
 
 - **Q: What does it mean that events are asynchronous?**
-    
+
     A: One of the core concepts of node.js is its asynchronous nature. I/O
     operations (like network requests) take place outside of the main thread (which
     is where your code is executed). This is what makes node fast, the fact that it

@@ -1,0 +1,103 @@
+{
+  "0": {
+    "url": "http://127.0.0.1:3000/",
+    "protocol": "http",
+    "host": "127.0.0.1",
+    "port": 3000,
+    "path": "/",
+    "depth": 1,
+    "fetched": true,
+    "status": "downloaded",
+    "stateData": {
+      "requestLatency": 1,
+      "requestTime": 2,
+      "contentLength": 68,
+      "contentType": "text/html",
+      "code": 200,
+      "headers": {
+        "content-type": "text/html",
+        "content-length": "68",
+        "date": "Fri, 25 Mar 2016 11:00:50 GMT",
+        "connection": "close"
+      },
+      "downloadTime": 2,
+      "actualDataSize": 68,
+      "sentIncorrectSize": false
+    }
+  },
+  "1": {
+    "url": "http://127.0.0.1:3000/404",
+    "protocol": "http",
+    "host": "127.0.0.1",
+    "port": "3000",
+    "path": "/404",
+    "depth": 2,
+    "fetched": true,
+    "status": "notfound",
+    "stateData": {
+      "requestLatency": 2,
+      "requestTime": 2,
+      "contentLength": 14,
+      "contentType": "text/html",
+      "code": 404,
+      "headers": {
+        "content-type": "text/html",
+        "content-length": "14",
+        "date": "Fri, 25 Mar 2016 11:00:50 GMT",
+        "connection": "close"
+      }
+    },
+    "referrer": null
+  },
+  "2": {
+    "url": "http://127.0.0.1:3000/stage2",
+    "protocol": "http",
+    "host": "127.0.0.1",
+    "port": "3000",
+    "path": "/stage2",
+    "depth": 2,
+    "fetched": true,
+    "status": "downloaded",
+    "stateData": {
+      "requestLatency": 4,
+      "requestTime": 5,
+      "contentLength": 37,
+      "contentType": "text/html",
+      "code": 200,
+      "headers": {
+        "content-type": "text/html",
+        "content-length": "37",
+        "set-cookie": [
+          "=test; path=/stage2; domain=test.com"
+        ],
+        "date": "Fri, 25 Mar 2016 11:00:50 GMT",
+        "connection": "close"
+      },
+      "downloadTime": 1,
+      "actualDataSize": 37,
+      "sentIncorrectSize": false
+    },
+    "referrer": "http://127.0.0.1:3000/"
+  },
+  "3": {
+    "url": "http://127.0.0.1:3000/stage/3",
+    "protocol": "http",
+    "host": "127.0.0.1",
+    "port": "3000",
+    "path": "/stage/3",
+    "depth": 3,
+    "fetched": false,
+    "status": "queued",
+    "stateData": {},
+    "referrer": "http://127.0.0.1:3000/stage2"
+  },
+  "oldestUnfetchedIndex": 2,
+  "completeCache": 0,
+  "scanIndex": {
+    "http://127.0.0.1:3000/": true,
+    "http://127.0.0.1:3000/404": true,
+    "http://127.0.0.1:3000/stage2": true,
+    "http://127.0.0.1:3000/stage/3": true
+  },
+  "length": 4
+}
