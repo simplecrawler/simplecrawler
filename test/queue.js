@@ -55,6 +55,16 @@ describe("Queue methods", function() {
         });
     });
 
+    it("should error when getting queue items out of range", function(done) {
+        crawler.queue.getLength(function(error, length) {
+            crawler.queue.get(length * 2, function(error, queueItem) {
+                should.not.exist(queueItem);
+                error.should.be.an("error");
+                done();
+            });
+        });
+    });
+
     it("should get the last item from the queue", function(done) {
         crawler.queue.last(function(error, item) {
             item.url.should.equal("http://127.0.0.1:3000/stage/3");
