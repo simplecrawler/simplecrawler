@@ -651,9 +651,9 @@ discovery of only link tags using cheerio.
 crawler.discoverResources = function(buffer, queueItem) {
     var $ = cheerio.load(buffer.toString("utf8"));
 
-    return $("a[href]").map(function (element) {
-        return $(element).attr("href");
-    });
+    return $("a[href]").map(function () {
+        return $(this).attr("href");
+    }).get();
 };
 ```
 
