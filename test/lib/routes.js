@@ -68,6 +68,10 @@ module.exports = {
         redir("http://localhost:3000/");
     },
 
+    "/domain-redirect2": function(write, redir) {
+        redir("http://localhost:3000/domain-redirect");
+    },
+
     "/to-domain-redirect": function(write) {
         write(200, "<a href='/domain-redirect'>redirect</a>");
     },
