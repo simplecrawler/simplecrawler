@@ -726,7 +726,7 @@ list below before submitting an issue.
                     throw err;
                 }
 
-                console.log("fetched %d of %d — %d open requests, %d open listeners".green,
+                console.log("fetched %d of %d — %d open requests, %d open listeners",
                     completeCount,
                     length,
                     crawler._openRequests,
