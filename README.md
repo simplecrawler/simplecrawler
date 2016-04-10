@@ -708,6 +708,40 @@ list below before submitting an issue.
     greater extent in simplecrawler wouldn't make much sense, since you normally
     need to react more than once to what happens in simplecrawler.
 
+- **Q: Something's happening and I don't see the output I'm expecting!**
+    
+    Before filing an issue, check to see that you're not just missing something by
+    logging *all* crawler events with the code below:
+
+    ```js
+    var originalEmit = crawler.emit;
+    crawler.emit = function(evtName, queueItem) {
+        crawler.queue.complete(function(err, completeCount) {
+            if (err) {
+                throw err;
+            }
+
+            crawler.queue.getLength(function(err, length) {
+                if (err) {
+                    throw err;
+                }
+
+                console.log("fetched %d of %d — %d open requests, %d open listeners".green,
+                    completeCount,
+                    length,
+                    crawler._openRequests,
+                    crawler._openListeners);
+            });
+        });
+
+        console.log(evtName, queueItem ? queueItem.url ? queueItem.url : queueItem : null);
+        originalEmit.apply(crawler, arguments);
+    };
+    ```
+    
+    If you don't see what you need after inserting that code block, and you still need help,
+    please attach the output of all the events fired with your email/issue.
+
 ## Current Maintainers
 
 * [Christopher Giffard](https://github.com/cgiffard)
