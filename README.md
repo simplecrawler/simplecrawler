@@ -279,8 +279,13 @@ change to adapt it to your specific needs.
     The maximum time in milliseconds the crawler will wait for async listeners.
 * `crawler.userAgent="Node/simplecrawler <version> (https://github.com/cgiffard/node-simplecrawler)"` -
     The user agent the crawler will report.
+* `crawler.decompressResponses=true` -
+    Response bodies that are compressed will be automatically decompressed
+    before they're emitted in the `fetchcomplete` event. Even if this is falsy,
+    compressed responses will be decompressed before they're passed to the
+    `discoverResources` method.
 * `crawler.decodeResponses=false` -
-    The response bodies will be intelligently character converted to standard
+    Response bodies will be intelligently character converted to standard
     JavaScript strings using the
     [iconv-lite](https://www.npmjs.com/package/iconv-lite) module. The character
     encoding is interpreted from the Content-Type header firstly, and secondly

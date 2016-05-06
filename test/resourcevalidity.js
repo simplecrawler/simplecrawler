@@ -3,15 +3,24 @@
 
 /* eslint-env mocha */
 
-var chai = require("chai");
+var chai = require("chai"),
+    zlib = require("zlib");
 
 chai.should();
+
+var Crawler = require("../");
+
+var makeCrawler = function (host, path, port) {
+    var crawler = new Crawler(host, path, port);
+    crawler.interval = 5;
+    return crawler;
+};
 
 describe("Resource validity checker", function() {
 
     it("should be able to determine whether a domain is in crawl scope", function() {
 
-        var crawler = new (require("../"))("example.com", 3000);
+        var crawler = makeCrawler("example.com", 3000);
 
         // The domain itself should be allowed.
         crawler.domainValid("example.com").should.equal(true);
@@ -25,7 +34,7 @@ describe("Resource validity checker", function() {
 
     it("should be able to determine whether a domain is a subdomain of another", function() {
 
-        var crawler = new (require("../"))("example.com", 3000);
+        var crawler = makeCrawler("example.com", 3000);
 
         // Enable scanning subdomains, important for this test
         crawler.scanSubdomains = true;
@@ -51,7 +60,7 @@ describe("Resource validity checker", function() {
 
     it("should consider WWW domains and non-WWW domains alike by default", function() {
 
-        var crawler = new (require("../"))("example.com", 3000);
+        var crawler = makeCrawler("example.com", 3000);
 
         // Explicitly disallow crawling subdomains, important for this test
         crawler.scanSubdomains = false;
@@ -66,7 +75,7 @@ describe("Resource validity checker", function() {
 
     it("should consider WWW domains and non-WWW domains as separate if requested", function() {
 
-        var crawler = new (require("../"))("example.com", 3000);
+        var crawler = makeCrawler("example.com", 3000);
 
         // Explicitly disallow crawling subdomains, important for this test
         crawler.scanSubdomains = false;
@@ -84,7 +93,7 @@ describe("Resource validity checker", function() {
 
     it("should permit a specified set of domains based on the internal whitelist", function() {
 
-        var crawler = new (require("../"))("example.com", 3000);
+        var crawler = makeCrawler("example.com", 3000);
 
         // Add a few specific subdomains
         crawler.domainWhitelist.push("foo.com");
@@ -107,7 +116,7 @@ describe("Resource validity checker", function() {
 
     it("should strip WWW from processed URL's altogether", function () {
 
-        var crawler = new (require("../"))("example.com", 3000);
+        var crawler = makeCrawler("example.com", 3000);
 
         crawler.stripWWWDomain = true;
 
@@ -121,7 +130,7 @@ describe("Resource validity checker", function() {
 
     it("should permit fetching of specified protocols based on internal whitelist", function() {
 
-        var crawler = new (require("../"))("example.com", 3000);
+        var crawler = makeCrawler("example.com", 3000);
 
         // Protocols supported by default
         crawler.protocolSupported("http://google.com").should.equal(true);
@@ -145,7 +154,7 @@ describe("Resource validity checker", function() {
             /^xml/i
         ];
 
-        var crawler = new (require("../"))("example.com", 3000);
+        var crawler = makeCrawler("example.com", 3000);
 
         // Protocols supported by default
         crawler.mimeTypeSupported("text/plain").should.equal(true);
@@ -174,11 +183,13 @@ describe("Resource validity checker", function() {
     });
 
     var decodingTest = function (url, callback) {
-        var localCrawler = new (require("../"))("127.0.0.1", url, 3000);
-        localCrawler.decodeResponses = true;
+        var crawler = makeCrawler("127.0.0.1", url, 3000);
+        crawler.decodeResponses = true;
 
-        localCrawler.on("fetchcomplete", callback);
-        localCrawler.start();
+        crawler.on("fetchcomplete", callback);
+        crawler.start();
+
+        return crawler;
     };
 
     it("should decode responses based on Content-Type headers", function (done) {
@@ -210,9 +221,56 @@ describe("Resource validity checker", function() {
         });
     });
 
+    it("should decompress gzipped responses by default", function(done) {
+        var crawler = makeCrawler("127.0.0.1", "/compressed/gzip", 3000);
+
+        crawler.on("fetchcomplete", function(queueItem, responseBody) {
+            responseBody.toString().should.equal("Yay, you know how to deal with gzip compression!");
+            done();
+        });
+        crawler.start();
+    });
+
+    it("should decompress deflated responses by default", function(done) {
+        var crawler = makeCrawler("127.0.0.1", "/compressed/deflate", 3000);
+
+        crawler.on("fetchcomplete", function(queueItem, responseBody) {
+            responseBody.toString().should.equal("Yay, you know how to deal with deflate compression!");
+            done();
+        });
+        crawler.start();
+    });
+
+    it("should be able to not decompress responses (but still find inline resources)", function(done) {
+        var crawler = makeCrawler("127.0.0.1", "/compressed/link", 3000),
+            fetchedPagesCount = 0;
+
+        crawler.interval = 50;
+        crawler.decompressResponses = false;
+
+        crawler.on("fetchcomplete", function(queueItem, responseBody) {
+            fetchedPagesCount++;
+
+            var body = queueItem.path === "/compressed/link" ?
+                "<a href='/compressed/gzip'>Go to gzip</a>" :
+                "Yay, you know how to deal with gzip compression!";
+
+            zlib.gzip(body, function(error, result) {
+                result.toString().should.equal(responseBody.toString());
+            });
+        });
+
+        crawler.on("complete", function() {
+            fetchedPagesCount.should.equal(2);
+            done();
+        });
+
+        crawler.start();
+    });
+
     describe("Link parser", function() {
 
-        var crawler = new (require("../"))("127.0.0.1", 3000);
+        var crawler = makeCrawler("127.0.0.1", 3000);
 
         it("should throw out junky or invalid URLs without dying", function() {
 
