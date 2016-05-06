@@ -729,12 +729,14 @@ list below before submitting an issue.
 - **Q: What does it mean that events are asynchronous?**
 
     A: One of the core concepts of node.js is its asynchronous nature. I/O
-    operations (like network requests) take place outside of the main thread (which
-    is where your code is executed). This is what makes node fast, the fact that it
-    can continue executing code while there are multiple HTTP requests in flight,
-    for example. But to be able to get back the result of the HTTP request, we need
-    to register a function that will be called when the result is ready. This is the
-    same concept as with AJAX requests in the browser.
+    operations (like network requests) take place outside of the main thread
+    (which is where your code is executed). This is what makes node fast, the
+    fact that it can continue executing code while there are multiple HTTP
+    requests in flight, for example. But to be able to get back the result of
+    the HTTP request, we need to register a function that will be called when
+    the result is ready. This is what *asynchronous* means in node - the fact
+    that code can continue executing while I/O operations are in progress - and
+    it's the same concept as with AJAX requests in the browser.
 
 - **Q: Promises are nice, can I use them with simplecrawler?**
 
