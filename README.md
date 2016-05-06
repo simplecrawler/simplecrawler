@@ -691,6 +691,41 @@ list below before submitting an issue.
     A: When this happens, it is usually because the initial request was redirected
     to a different domain that wasn't in the `domainWhitelist`.
 
+- **Q: How do I crawl a site that requires a login?**
+
+    A: Logging in to a site is usually fairly simple and only requires an
+    exhange of credentials over HTTP as well as the storing of a cookie that
+    allows the client's session can be maintained between requests to the
+    server. Simplecrawler doesn't have a built-in method for this entire
+    procedure, but it does have an internal cookie jar that can be used to
+    store the cookie that's returned from a manual HTTP request.
+
+    Here's an example of how to perform a manual login HTTP request with the
+    [request](https://npmjs.com/package/request) module and then store the
+    returned cookie in simplecrawler's cookie jar.
+
+    ```js
+    var Crawler = require("simplecrawler"),
+        request = require("request");
+
+    var crawler = new Crawler("example.com", "/");
+    crawler.initialProtocol = "https";
+
+    request.post("https://example.com/login", {
+        form: {
+            username: "iamauser",
+            password: "supersecurepw"
+        }
+    }, function (error, response, body) {
+        crawler.cookies.addFromHeaders(response.headers["set-cookie"]);
+        crawler.start();
+    });
+
+    crawler.on("fetchcomplete", function (queueItem, responseBuffer, response) {
+        console.log("Fetched", queueItem.url);
+    });
+    ```
+
 - **Q: What does it mean that events are asynchronous?**
 
     A: One of the core concepts of node.js is its asynchronous nature. I/O
@@ -709,7 +744,7 @@ list below before submitting an issue.
     need to react more than once to what happens in simplecrawler.
 
 - **Q: Something's happening and I don't see the output I'm expecting!**
-    
+
     Before filing an issue, check to see that you're not just missing something by
     logging *all* crawler events with the code below:
 
@@ -738,7 +773,7 @@ list below before submitting an issue.
         originalEmit.apply(crawler, arguments);
     };
     ```
-    
+
     If you don't see what you need after inserting that code block, and you still need help,
     please attach the output of all the events fired with your email/issue.
 
