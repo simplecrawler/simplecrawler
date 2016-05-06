@@ -17,7 +17,6 @@ pages and written tens of gigabytes to disk without issue.
 * Extremely configurable base for writing your own crawler
 * Provides some simple logic for auto-detecting linked resources - which you can
   replace or augment
-* Automatically respects any robots.txt rules
 * Has a flexible queue system which can be frozen to disk and defrosted
 * Provides basic statistics on network performance
 * Uses buffers for fetching and managing data, preserving binary data (except
@@ -152,71 +151,60 @@ can't find any more.
 crawler.start();
 ```
 
-## Events
+Of course, once you've got that down pat, there's a fair bit more you can listen for...
 
-simplecrawler's API is event driven, and there are plenty of events emitted
-during the different stages of the crawl. Arguments passed to events are written
-in parentheses.
+### Events
 
-* `crawlstart` -
-    Fired when the crawl begins or is restarted.
-* `queueadd` (queueItem) -
-    Fired when a new item is automatically added to the queue (not when you
-    manually queue an item yourself).
-* `queueduplicate` (URLData) -
-    Fired when an item cannot be added to the queue because it is already
-    present in the queue. Frequent firing of this event is normal and expected.
-* `queueerror` (errorData, URLData) -
-    Fired when an item cannot be added to the queue due to error.
-* `robotstxterror` (error) -
-    Fired when robots.txt couldn't be fetched. `error.message` has details on
-    why.
-* `fetchstart` (queueItem, requestOptions) -
-    Fired when an item is spooled for fetching. If your event handler is
-    synchronous, you can modify the crawler request options (including headers
-    and request method.)
-* `fetchheaders` (queueItem, responseObject) -
-    Fired when the headers for a resource are received from the server. The node
-    http response object is returned for your perusal.
-* `cookieerror` (queueItem, error, setCookieHeader) -
-    Fired when an error was caught trying to add a cookie to the cookie jar.
-* `fetchcomplete` (queueItem, responseBody, responseObject) -
-    Fired when the resource is completely downloaded. The response body is
-    provided as a Buffer per default, unless `decodeResponses` is truthy, in
-    which case it's a decoded string representation of the body.
-* `fetchdisallowed` (parsedURL) -
-    Fired when a resource isn't fetched due to robots.txt rules. See
-    `respectRobotsTxt` option. See [Adding a fetch
-    condition](#adding-a-fetch-condition) for details on the `parsedURL` object.
-* `fetchdataerror` (queueItem, response) -
-    Fired when a resource can't be downloaded, because it exceeds the maximum
-    size we're prepared to receive (16MB by default.)
-* `fetchredirect` (queueItem, parsedURL, response) -
-    Fired when a redirect header is encountered. The new URL is validated and
-    returned as a complete canonical link to the new resource.
-* `fetch404` (queueItem, response) -
-    Fired when a 404 HTTP status code is returned for a request.
-* `fetch410` (queueItem, response) -
-    Fired when a 410 HTTP status code is returned for a request.
-* `fetcherror` (queueItem, response) -
-    Fired when an alternate 400 or 500 series HTTP status code is returned for a
-    request.
-* `gziperror` (queueItem, error, resourceData) -
-    Fired when a gzipped resource cannot be unzipped.
-* `fetchtimeout` (queueItem, crawlerTimeoutValue) -
-    Fired when a request time exceeds the internal crawler threshold.
-* `fetchclienterror` (queueItem, errorData) -
-    Fired when a request dies locally for some reason. The error data is
-    returned as the second parameter.
-* `discoverycomplete` (queueItem, resources) -
-    Fired when linked resources have been discovered. Passes an array of
-    resources (as URL's) as the second parameter.
-* `complete` -
-    Fired when the crawler completes processing all the items in its queue, and
-    does not find any more to add. This event returns no arguments.
+* `crawlstart`
+Fired when the crawl begins or is restarted.
+* `queueadd` (queueItem)
+Fired when a new item is automatically added to the queue (not when you manually
+queue an item yourself.)
+* `queueduplicate` (URLData)
+Fired when an item cannot be added to the queue because it is already present in
+the queue. Frequent firing of this event is normal and expected.
+* `queueerror` (errorData, URLData)
+Fired when an item cannot be added to the queue due to error.
+* `fetchstart` (queueItem, requestOptions)
+Fired when an item is spooled for fetching. If your event handler is synchronous,
+you can modify the crawler request options (including headers and request method.)
+* `fetchheaders` (queueItem, responseObject)
+Fired when the headers for a resource are received from the server. The node http
+response object is returned for your perusal.
+* `cookieerror` (queueItem, error, setCookieHeader)
+Fired when an error was caught trying to add a cookie to the cookie jar.
+* `fetchcomplete` (queueItem, responseBody, responseObject)
+Fired when the resource is completely downloaded. The response body is provided as
+a Buffer per default, unless `decodeResponses` is truthy, in which case it's a
+decoded string representation of the body.
+* `fetchdataerror` (queueItem, response)
+Fired when a resource can't be downloaded, because it exceeds the maximum size
+we're prepared to receive (16MB by default.)
+* `fetchredirect` (queueItem, parsedURL, response)
+Fired when a redirect header is encountered. The new URL is validated and returned
+as a complete canonical link to the new resource.
+* `fetch404` (queueItem, response)
+Fired when a 404 HTTP status code is returned for a request.
+* `fetch410` (queueItem, response)
+Fired when a 410 HTTP status code is returned for a request.
+* `fetcherror` (queueItem, response)
+Fired when an alternate 400 or 500 series HTTP status code is returned for a
+request.
+* `gziperror` (queueItem, error, resourceData)
+Fired when a gzipped resource cannot be unzipped.
+* `fetchtimeout` (queueItem, crawlerTimeoutValue)
+Fired when a request time exceeds the internal crawler threshold.
+* `fetchclienterror` (queueItem, errorData)
+Fired when a request dies locally for some reason. The error data is returned as
+the second parameter.
+* `discoverycomplete` (queueItem, resources)
+Fired when linked resources have been discovered. Passes an array of resources
+(as URLs) as the second parameter.
+* `complete`
+Fired when the crawler completes processing all the items in its queue, and does
+not find any more to add. This event returns no arguments.
 
-### A note about HTTP error conditions
-
+#### A note about HTTP error conditions
 By default, simplecrawler does not download the response body when it encounters
 an HTTP error status in the response. If you need this information, you can listen
 to simplecrawler's error events, and through node's native `data` event
@@ -290,11 +278,6 @@ change to adapt it to your specific needs.
     [iconv-lite](https://www.npmjs.com/package/iconv-lite) module. The character
     encoding is interpreted from the Content-Type header firstly, and secondly
     from any `<meta charset="xxx" />` tags.
-* `crawler.respectRobotsTxt=true` -
-    Controls whether the crawler should respect rules in robots.txt (if such a
-    file is present). The
-    [robots-parser](https://www.npmjs.com/package/robots-parser) module is used
-    to do the actual parsing.
 * `crawler.queue` -
     The queue in use by the crawler (Must implement the `FetchQueue` interface)
 * `crawler.allowInitialDomainChange=false` -

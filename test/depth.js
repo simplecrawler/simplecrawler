@@ -5,11 +5,7 @@
 var chai = require("chai"),
     Crawler = require("../");
 
-var routes = require("./lib/routes.js"),
-    Server = require("./lib/testserver.js");
-
-var server = new Server(routes);
-server.listen(3000);
+require("./lib/testserver.js");
 
 chai.should();
 

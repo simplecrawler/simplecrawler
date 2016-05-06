@@ -4,9 +4,6 @@
 /* eslint-env mocha */
 
 var chai = require("chai"),
-    uri = require("urijs");
-
-var Server = require("./lib/testserver.js"),
     Crawler = require("../");
 
 chai.should();
@@ -26,7 +23,6 @@ describe("Test Crawl", function() {
     it("should be able to be started", function(done) {
 
         localCrawler.on("crawlstart", function() {
-            localCrawler.running.should.equal(true);
             done();
         });
         localCrawler.on("discoverycomplete", function() {
@@ -34,6 +30,7 @@ describe("Test Crawl", function() {
         });
 
         localCrawler.start();
+        localCrawler.running.should.equal(true);
     });
 
     it("should emit an error when it gets a faulty cookie", function(done) {
@@ -70,82 +67,6 @@ describe("Test Crawl", function() {
 
         localCrawler.on("complete", function() {
             linksDiscovered.should.equal(5);
-            done();
-        });
-    });
-
-    it("should obey rules in robots.txt", function(done) {
-
-        var crawler = makeCrawler("127.0.0.1", "/", 3000);
-        crawler.start();
-
-        crawler.on("fetchdisallowed", function(parsedURL) {
-            parsedURL.path.should.equal("/forbidden");
-            done();
-        });
-    });
-
-    it("should be able to disregard rules in robots.txt", function(done) {
-
-        var crawler = makeCrawler("127.0.0.1", "/", 3000);
-        crawler.respectRobotsTxt = false;
-        crawler.start();
-
-        crawler.on("fetchcomplete", function(queueItem) {
-            if (queueItem.url === "http://127.0.0.1:3000/forbidden") {
-                crawler.stop();
-                done();
-            }
-        });
-        crawler.on("complete", function() {
-            done(new Error("Didn't visit forbidden URL (even though it should have)"));
-        });
-    });
-
-    it("should obey robots.txt on different hosts", function(done) {
-
-        var server = new Server({
-            "/robots.txt": function(write) {
-                write(200, "User-agent: *\nDisallow: /disallowed\n");
-            },
-
-            "/disallowed": function(write) {
-                write(200, "This is forbidden crawler fruit");
-            }
-        });
-        server.listen(3001);
-
-        var crawler = makeCrawler("127.0.0.1", "/to/other/port", 3000);
-        crawler.start();
-
-        crawler.on("fetchdisallowed", function(parsedURL) {
-            uri({
-                protocol: parsedURL.protocol,
-                hostname: parsedURL.host,
-                port: parsedURL.port,
-                path: parsedURL.path
-            }).href().should.equal("http://127.0.0.1:3001/disallowed");
-
-            server.close();
-            done();
-        });
-    });
-
-    it("should emit an error when robots.txt redirects to a disallowed domain", function(done) {
-
-        var server = new Server({
-            "/robots.txt": function(write, redir) {
-                redir("http://example.com/robots.txt");
-            }
-        });
-        server.listen(3002);
-
-        var crawler = makeCrawler("127.0.0.1", "/", 3002);
-        crawler.start();
-
-        crawler.on("robotstxterror", function(error) {
-            error.message.should.contain("redirected to a disallowed domain");
-            server.close();
             done();
         });
     });

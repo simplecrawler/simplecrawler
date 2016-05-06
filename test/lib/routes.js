@@ -10,16 +10,7 @@ var getFixtureFile = function (filename) {
 
 module.exports = {
     "/": function(write) {
-        write(200, "Home. <a href='stage2'>stage2</a> <a href='forbidden'>bad robot!</a>");
-    },
-
-    "/robots.txt": function(write) {
-        write(200, getFixtureFile("robots.txt"));
-    },
-
-    // This is only forbidden in robots.txt, not by enforcing server rules
-    "/forbidden": function(write) {
-        write(200, "You shouldn't be poking around in here");
+        write(200, "Home. <a href='stage2'>stage2</a>");
     },
 
     "/stage2": function(write) {
@@ -140,10 +131,6 @@ module.exports = {
 
     "/script": function(write) {
         write(200, "<script src='/not/existent/file.js'></script><script>var foo = 'bar';</script><a href='/stage2'>stage2</a><script>var bar = 'foo';</script>");
-    },
-
-    "/to/other/port": function(write) {
-        write(200, "<a href='//127.0.0.1:3001/disallowed'>Don't go there!</a>");
     },
 
     "/encoded/header": function(write) {

@@ -4,66 +4,70 @@
 // Include HTTP
 var http = require("http");
 
-var Server = function(routes) {
-    http.Server.call(this);
+// Create server for crawling
+var httpServer = http.createServer();
 
-    // Listen to events
-    this.on("request", function(req, res) {
+var testRoutes = require("./routes");
 
-        function write(status, data, customHeaders) {
-            var headers = {
-                "Content-Type": "text/html",
-                "Content-Length": data instanceof Buffer ? data.length : Buffer.byteLength(data)
-            };
+// Listen to events
+httpServer.on("request", function(req, res) {
 
-            if (typeof customHeaders === "object") {
-                for (var header in customHeaders) {
-                    if (customHeaders.hasOwnProperty(header)) {
-                        headers[header] = customHeaders[header];
-                    }
+    function write(status, data, customHeaders) {
+        var headers = {
+            "Content-Type": "text/html",
+            "Content-Length": data instanceof Buffer ? data.length : Buffer.byteLength(data)
+        };
+
+        if (typeof customHeaders === "object") {
+            for (var header in customHeaders) {
+                if (customHeaders.hasOwnProperty(header)) {
+                    headers[header] = customHeaders[header];
                 }
             }
-
-            res.writeHead(status, http.STATUS_CODES[status], headers);
-            res.write(data);
-            res.end();
         }
 
-        function redir(to) {
-            var data = "Redirecting you to " + to;
+        res.writeHead(status, http.STATUS_CODES[status], headers);
+        res.write(data);
+        res.end();
+    }
 
-            res.writeHead(
-                301,
-                http.STATUS_CODES[301], {
-                    "Content-Type": "text/plain",
-                    "Content-Length": Buffer.byteLength(data),
-                    "Location": to
-                });
+    function redir(to) {
+        var data = "Redirecting you to " + to;
 
-            res.write(data);
-            res.end();
-        }
+        res.writeHead(
+            301,
+            http.STATUS_CODES[301], {
+                "Content-Type": "text/plain",
+                "Content-Length": Buffer.byteLength(data),
+                "Location": to
+            });
 
-        if (routes[req.url] && typeof routes[req.url] === "function") {
+        res.write(data);
+        res.end();
+    }
 
-            // Pass in a function that takes a status and some data to write back
-            // out to the client
-            routes[req.url](write, redir);
-        } else {
+    if (testRoutes[req.url] &&
+        testRoutes[req.url] instanceof Function) {
 
-            // Otherwise, a 404
-            res.writeHead(404, "Page Not Found");
-            res.write("Page not found.");
-            res.end();
-        }
-    });
+        // Pass in a function that takes a status and some data to write back
+        // out to the client
+        testRoutes[req.url](write, redir);
 
-    this.on("error", function (error) {
-        console.log(error);
-        process.exit(1);
-    });
-};
+    } else {
 
-Server.prototype = Object.create(http.Server.prototype);
+        // Otherwise, a 404
+        res.writeHead(404, "Page Not Found");
+        res.write("Page not found.");
+        res.end();
+    }
+});
 
-module.exports = Server;
+httpServer.on("error", function (error) {
+    console.log(error);
+    process.exit(1);
+});
+
+httpServer.listen(3000);
+
+module.exports = httpServer;
+module.exports.routes = testRoutes;
