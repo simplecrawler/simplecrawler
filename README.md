@@ -386,9 +386,15 @@ change to adapt it to your specific needs.
     be downloaded. Asset files are excluded from this distance condition if
     `crawler.fetchWhitelistedMimeTypesBelowMaxDepth` is `true`. Defaults to `0` —
     no max depth.
+* `crawler.whitelistedMimeTypes` -
+    An array of RegEx objects used to determine whitelisted MIME types (types of
+    data simplecrawler will fetch on disregardig the `maxDepth` checks).
+    Defaults to common resource types like styles, fonts, scripts and images.
 * `crawler.fetchWhitelistedMimeTypesBelowMaxDepth=false` -
-    If `true`, then resources (fonts, images, CSS) will be excluded from
-    `maxDepth` checks. (And therefore downloaded regardless of their depth.)
+    Defines the depth for fetching resources in addition to maxDepth. If `true`,
+    then resources (see `whitelistedMimeTypes`) will always be loaded, while
+    `false` limits them to the same level. Furthermore a numeric value can be
+    specified for a concrete offset (e.g. 1 for the next depth layer).
 * `crawler.ignoreInvalidSSL=false` -
     Treat self-signed SSL certificates as valid. SSL certificates will not be
     validated against known CAs. Only applies to https requests. You may also
