@@ -65,13 +65,6 @@ describe("Queue methods", function() {
         });
     });
 
-    it("should get the last item from the queue", function(done) {
-        crawler.queue.last(function(error, item) {
-            item.url.should.equal("http://127.0.0.1:3000/stage/3");
-            done(error);
-        });
-    });
-
     it("should get the oldest unfetched item", function(done) {
         crawler.queue.oldestUnfetchedItem(function(error, item) {
             item.url.should.equal("http://127.0.0.1:3000/stage/3");
