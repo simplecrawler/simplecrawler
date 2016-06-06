@@ -204,8 +204,10 @@ describe("Test Crawl", function() {
         crawler.start();
 
         crawler.on("complete", function() {
-            crawler.queue.length.should.equal(2);
-            done();
+            crawler.queue.getLength(function (error, length) {
+                length.should.equal(2);
+                done();
+            });
         });
     });
 
