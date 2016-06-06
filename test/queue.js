@@ -137,4 +137,40 @@ describe("Queue methods", function() {
             done();
         });
     });
+
+    it("should add existing queueItems if forced to", function(done) {
+        var queueItems = [],
+            finished = 0;
+
+        for (var i = 0; i < 3; i++) {
+            queueItems.push(crawler.processURL("http://127.0.0.1/example"));
+        }
+
+        function checkDone() {
+            if (++finished === queueItems.length + 1) {
+                done();
+            }
+        }
+
+        crawler.queue.add(queueItems[0], function (error, newQueueItem) {
+            newQueueItem.should.equal(queueItems[0]);
+            checkDone();
+        });
+        crawler.queue.add(queueItems[1], function (error, newQueueItem) {
+            error.should.be.an("error");
+            should.not.exist(newQueueItem);
+            checkDone();
+        });
+        crawler.queue.add(queueItems[2], true, function (error, newQueueItem) {
+            should.not.exist(error);
+            newQueueItem.should.equal(queueItems[2]);
+            checkDone();
+        });
+        crawler.queue.add(queueItems[2], true, function (error, newQueueItem) {
+            error.should.be.an("error");
+            error.message.should.match(/twice/i);
+            should.not.exist(newQueueItem);
+            checkDone();
+        });
+    });
 });
