@@ -273,6 +273,42 @@ describe("Test Crawl", function() {
         crawler.start();
     });
 
+    it("should not increase depth on multiple redirects on the initial request", function(done) {
+        var crawler = makeCrawler("localhost", "/domain-redirect2", 3000),
+            depth = 1;
+
+        crawler.on("fetchredirect", function(queueItem) {
+            if (queueItem.depth > 1) {
+                depth = queueItem.depth;
+            }
+        });
+
+        crawler.on("complete", function() {
+            depth.should.equal(1);
+            done();
+        });
+
+        crawler.start();
+    });
+
+    it("should disallow initial redirect to different domain after a 2xx", function(done) {
+        var crawler = makeCrawler("127.0.0.1", "/to-domain-redirect", 3000),
+            discoComplete = 0;
+
+        crawler.allowInitialDomainChange = true;
+
+        crawler.on("discoverycomplete", function() {
+            discoComplete++;
+        });
+
+        crawler.on("complete", function() {
+            discoComplete.should.equal(1);
+            done();
+        });
+
+        crawler.start();
+    });
+
     // TODO
 
     // Test how simple error conditions are handled

@@ -19,6 +19,11 @@ environment:
 
 install:
     - ps: Install-Product node $env:nodejs_version $env:platform
+    - ps: >-
+          if ($env:nodejs_version -eq "0.10") {
+              npm -g install npm@2
+              $env:PATH="$env:APPDATA\npm;$env:PATH"
+          }
     - npm install
 
 test_script:

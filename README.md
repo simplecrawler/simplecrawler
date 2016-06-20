@@ -11,19 +11,20 @@ crawling websites. I wrote simplecrawler to archive, analyse, and search some
 very large websites. It has happily chewed through hundreds of thousands of
 pages and written tens of gigabytes to disk without issue.
 
-### What does simplecrawler do?
+## What does simplecrawler do?
 
 * Provides a very simple event driven API using `EventEmitter`
 * Extremely configurable base for writing your own crawler
 * Provides some simple logic for auto-detecting linked resources - which you can
-replace or augment
+  replace or augment
 * Automatically respects any robots.txt rules
 * Has a flexible queue system which can be frozen to disk and defrosted
 * Provides basic statistics on network performance
 * Uses buffers for fetching and managing data, preserving binary data (except
-when discovering links)
+  when discovering links)
 
 ## Documentation
+
 - [Getting started](#getting-started)
     - [Simplified mode](#simplified-mode)
     - [Regular mode](#regular-mode)
@@ -109,7 +110,6 @@ crawler.initialProtocol = "https";
 
 // Or:
 var crawler = new Crawler("www.example.com", "/archive", 8080);
-
 ```
 
 And of course, you're probably wanting to ensure you don't take down your web
@@ -216,6 +216,7 @@ in parentheses.
     does not find any more to add. This event returns no arguments.
 
 ### A note about HTTP error conditions
+
 By default, simplecrawler does not download the response body when it encounters
 an HTTP error status in the response. If you need this information, you can listen
 to simplecrawler's error events, and through node's native `data` event
@@ -278,12 +279,17 @@ change to adapt it to your specific needs.
     The maximum time in milliseconds the crawler will wait for async listeners.
 * `crawler.userAgent="Node/simplecrawler <version> (https://github.com/cgiffard/node-simplecrawler)"` -
     The user agent the crawler will report.
+* `crawler.decompressResponses=true` -
+    Response bodies that are compressed will be automatically decompressed
+    before they're emitted in the `fetchcomplete` event. Even if this is falsy,
+    compressed responses will be decompressed before they're passed to the
+    `discoverResources` method.
 * `crawler.decodeResponses=false` -
-    The response bodies will be intelligently character converted to standard
+    Response bodies will be intelligently character converted to standard
     JavaScript strings using the
     [iconv-lite](https://www.npmjs.com/package/iconv-lite) module. The character
     encoding is interpreted from the Content-Type header firstly, and secondly
-    from any `&lt;meta charset="xxx" /&gt;` tags.
+    from any `<meta charset="xxx" />` tags.
 * `crawler.respectRobotsTxt=true` -
     Controls whether the crawler should respect rules in robots.txt (if such a
     file is present). The
@@ -291,7 +297,7 @@ change to adapt it to your specific needs.
     to do the actual parsing.
 * `crawler.queue` -
     The queue in use by the crawler (Must implement the `FetchQueue` interface)
-*   `crawler.allowInitialDomainChange=false` -
+* `crawler.allowInitialDomainChange=false` -
     If the response for the initial URL is a redirect to another domain (e.g.
     from github.net to github.com), update `crawler.host` to continue the
     crawling on that domain.
@@ -380,9 +386,15 @@ change to adapt it to your specific needs.
     be downloaded. Asset files are excluded from this distance condition if
     `crawler.fetchWhitelistedMimeTypesBelowMaxDepth` is `true`. Defaults to `0` —
     no max depth.
+* `crawler.whitelistedMimeTypes` -
+    An array of RegEx objects used to determine whitelisted MIME types (types of
+    data simplecrawler will fetch on disregardig the `maxDepth` checks).
+    Defaults to common resource types like styles, fonts, scripts and images.
 * `crawler.fetchWhitelistedMimeTypesBelowMaxDepth=false` -
-    If `true`, then resources (fonts, images, CSS) will be excluded from
-    `maxDepth` checks. (And therefore downloaded regardless of their depth.)
+    Defines the depth for fetching resources in addition to maxDepth. If `true`,
+    then resources (see `whitelistedMimeTypes`) will always be loaded, while
+    `false` limits them to the same level. Furthermore a numeric value can be
+    specified for a concrete offset (e.g. 1 for the next depth layer).
 * `crawler.ignoreInvalidSSL=false` -
     Treat self-signed SSL certificates as valid. SSL certificates will not be
     validated against known CAs. Only applies to https requests. You may also
@@ -586,10 +598,10 @@ crawler.queue.getWithStatus("failed", function(error, failedItems) {
 
 Then there's some even simpler convenience functions:
 
-* `crawler.queue.getCompletedCount` - provides the number of queue items which have been
-  completed (marked as fetched).
+* `crawler.queue.getCompletedCount` - provides the number of queue items which
+  have been completed (marked as fetched).
 * `crawler.queue.errors` - provides the number of requests which have failed
-(404s and other 400/500 errors, as well as client errors).
+  (404s and other 400/500 errors, as well as client errors).
 
 ### Saving and reloading the queue (freeze/defrost)
 
@@ -625,10 +637,8 @@ automatically and by default. If you want to turn this off, set the
 
 ### Cookie events
 
-* `addcookie` (cookie)
-Fired when a new cookie is added to the jar.
-* `removecookie` (cookie array)
-Fired when one or more cookies are removed from the jar.
+* `addcookie` (cookie) - Fired when a new cookie is added to the jar.
+* `removecookie` (cookie array) - Fired when one or more cookies are removed from the jar.
 
 ## Link Discovery
 
@@ -650,9 +660,9 @@ discovery of only link tags using cheerio.
 crawler.discoverResources = function(buffer, queueItem) {
     var $ = cheerio.load(buffer.toString("utf8"));
 
-    return $("a[href]").map(function (element) {
-        return $(element).attr("href");
-    });
+    return $("a[href]").map(function () {
+        return $(this).attr("href");
+    }).get();
 };
 ```
 
@@ -664,7 +674,7 @@ list below before submitting an issue.
 
 - **Q: Why does simplecrawler discover so many invalid URLs?**
 
-    A: simplecrawler's built-in discovery method is purposefully naïve - it's a
+    A: simplecrawler's built-in discovery method is purposefully naive - it's a
     brute force approach intended to find everything: URLs in comments, binary files,
     scripts, image EXIF data, inside CSS documents, and more — useful for archiving
     and use cases where it's better to have false positives than fail to discover a
@@ -690,15 +700,52 @@ list below before submitting an issue.
     A: When this happens, it is usually because the initial request was redirected
     to a different domain that wasn't in the `domainWhitelist`.
 
+- **Q: How do I crawl a site that requires a login?**
+
+    A: Logging in to a site is usually fairly simple and only requires an
+    exhange of credentials over HTTP as well as the storing of a cookie that
+    allows the client's session can be maintained between requests to the
+    server. Simplecrawler doesn't have a built-in method for this entire
+    procedure, but it does have an internal cookie jar that can be used to
+    store the cookie that's returned from a manual HTTP request.
+
+    Here's an example of how to perform a manual login HTTP request with the
+    [request](https://npmjs.com/package/request) module and then store the
+    returned cookie in simplecrawler's cookie jar.
+
+    ```js
+    var Crawler = require("simplecrawler"),
+        request = require("request");
+
+    var crawler = new Crawler("example.com", "/");
+    crawler.initialProtocol = "https";
+
+    request.post("https://example.com/login", {
+        form: {
+            username: "iamauser",
+            password: "supersecurepw"
+        }
+    }, function (error, response, body) {
+        crawler.cookies.addFromHeaders(response.headers["set-cookie"]);
+        crawler.start();
+    });
+
+    crawler.on("fetchcomplete", function (queueItem, responseBuffer, response) {
+        console.log("Fetched", queueItem.url);
+    });
+    ```
+
 - **Q: What does it mean that events are asynchronous?**
 
     A: One of the core concepts of node.js is its asynchronous nature. I/O
-    operations (like network requests) take place outside of the main thread (which
-    is where your code is executed). This is what makes node fast, the fact that it
-    can continue executing code while there are multiple HTTP requests in flight,
-    for example. But to be able to get back the result of the HTTP request, we need
-    to register a function that will be called when the result is ready. This is the
-    same concept as with AJAX requests in the browser.
+    operations (like network requests) take place outside of the main thread
+    (which is where your code is executed). This is what makes node fast, the
+    fact that it can continue executing code while there are multiple HTTP
+    requests in flight, for example. But to be able to get back the result of
+    the HTTP request, we need to register a function that will be called when
+    the result is ready. This is what *asynchronous* means in node - the fact
+    that code can continue executing while I/O operations are in progress - and
+    it's the same concept as with AJAX requests in the browser.
 
 - **Q: Promises are nice, can I use them with simplecrawler?**
 
@@ -706,6 +753,40 @@ list below before submitting an issue.
     simplecrawler is event driven, not callback driven. Using callbacks to any
     greater extent in simplecrawler wouldn't make much sense, since you normally
     need to react more than once to what happens in simplecrawler.
+
+- **Q: Something's happening and I don't see the output I'm expecting!**
+
+    Before filing an issue, check to see that you're not just missing something by
+    logging *all* crawler events with the code below:
+
+    ```js
+    var originalEmit = crawler.emit;
+    crawler.emit = function(evtName, queueItem) {
+        crawler.queue.complete(function(err, completeCount) {
+            if (err) {
+                throw err;
+            }
+
+            crawler.queue.getLength(function(err, length) {
+                if (err) {
+                    throw err;
+                }
+
+                console.log("fetched %d of %d — %d open requests, %d open listeners",
+                    completeCount,
+                    length,
+                    crawler._openRequests,
+                    crawler._openListeners);
+            });
+        });
+
+        console.log(evtName, queueItem ? queueItem.url ? queueItem.url : queueItem : null);
+        originalEmit.apply(crawler, arguments);
+    };
+    ```
+
+    If you don't see what you need after inserting that code block, and you still need help,
+    please attach the output of all the events fired with your email/issue.
 
 ## Current Maintainers
 
@@ -717,7 +798,7 @@ list below before submitting an issue.
 
 simplecrawler has benefited from the kind efforts of dozens of contributors, to
 whom we are incredibly grateful. We originally listed their individual
-contributions but it became pretty unweildy - the
+contributions but it became pretty unwieldy - the
 [full list can be found here.](https://github.com/cgiffard/node-simplecrawler/graphs/contributors)
 
 ## License
