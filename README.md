@@ -600,8 +600,8 @@ Then there's some even simpler convenience functions:
 
 * `crawler.queue.getCompletedCount` - provides the number of queue items which
   have been completed (marked as fetched).
-* `crawler.queue.errors` - provides the number of requests which have failed
-  (404s and other 400/500 errors, as well as client errors).
+* `crawler.queue.getErrorCount` - provides the number of requests which have
+  failed (404s and other 400/500 errors, as well as client errors).
 
 ### Saving and reloading the queue (freeze/defrost)
 
