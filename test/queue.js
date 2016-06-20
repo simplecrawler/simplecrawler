@@ -97,7 +97,7 @@ describe("Queue methods", function() {
     });
 
     it("should get the number of completed queue items", function(done) {
-        crawler.queue.complete(function(error, complete) {
+        crawler.queue.getCompletedCount(function(error, complete) {
             complete.should.be.a("number");
             complete.should.equal(3);
             done(error);
