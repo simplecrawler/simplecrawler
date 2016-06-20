@@ -123,7 +123,7 @@ describe("Queue methods", function() {
     });
 
     it("should get items that have failed", function(done) {
-        crawler.queue.errors(function(error, items) {
+        crawler.queue.getErrorCount(function(error, items) {
             items.should.be.a("number");
             items.should.equal(1);
             done(error);
