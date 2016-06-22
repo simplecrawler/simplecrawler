@@ -28,7 +28,7 @@ var depthTest = function(depth, linksToDiscover, behaviour) {
             // Speed up tests. No point waiting for every request
             // when we're running our own server.
             crawler.interval = 1;
-            crawler.fetchWhitelistedMimeTypesBelowMaxDepth = !!behaviour;
+            crawler.fetchWhitelistedMimeTypesBelowMaxDepth = Boolean(behaviour);
 
             // Define max depth for this crawl
             crawler.maxDepth = depth;

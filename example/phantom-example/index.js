@@ -89,7 +89,7 @@ function findPageLinks() {
                     return link.href || link.onclick || link.href || link.src;
                 })
                 .filter(function(src) {
-                    return !!src;
+                    return Boolean(src);
                 });
 }
 
