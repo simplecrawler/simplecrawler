@@ -184,16 +184,15 @@ in parentheses.
     Fired when the resource is completely downloaded. The response body is
     provided as a Buffer per default, unless `decodeResponses` is truthy, in
     which case it's a decoded string representation of the body.
-* `fetchdisallowed` (parsedURL) -
+* `fetchdisallowed` (queueItem) -
     Fired when a resource isn't fetched due to robots.txt rules. See
-    `respectRobotsTxt` option. See [Adding a fetch
-    condition](#adding-a-fetch-condition) for details on the `parsedURL` object.
+    `respectRobotsTxt` option.
 * `fetchdataerror` (queueItem, response) -
     Fired when a resource can't be downloaded, because it exceeds the maximum
     size we're prepared to receive (16MB by default.)
-* `fetchredirect` (queueItem, parsedURL, response) -
-    Fired when a redirect header is encountered. The new URL is validated and
-    returned as a complete canonical link to the new resource.
+* `fetchredirect` (oldQueueItem, newQueueItem, response) -
+    Fired when a redirect header is encountered. The new URL is processed and
+    passed as `newQueueItem`.
 * `fetch404` (queueItem, response) -
     Fired when a 404 HTTP status code is returned for a request.
 * `fetch410` (queueItem, response) -
@@ -421,28 +420,14 @@ downloaded. Adding a fetch condition assigns it an ID, which the
 condition later.
 
 ```js
-var conditionID = myCrawler.addFetchCondition(function(parsedURL, queueItem) {
-    return !parsedURL.path.match(/\.pdf$/i);
+var conditionID = myCrawler.addFetchCondition(function(newQueueItem, oldQueueItem) {
+    return !newQueueItem.path.match(/\.pdf$/i);
 });
 ```
 
-Fetch conditions are called with two arguments: `parsedURL` and `queueItem`.
-`parsedURL` represents the resource to be fetched (or not) and has the following
-structure:
-
-```js
-{
-    protocol: "http",
-    host: "example.com",
-    port: 80,
-    path: "/search?q=hello",
-    uriPath: "/search",
-    depth: 2
-}
-```
-
-`queueItem` is a representation of the page where this resource was found. See
-the [queue item documentation](#queue-items) for details on its structure.
+Fetch conditions are called with two arguments: `newQueueItem` and
+`oldQueueItem`. See the [queue item documentation](#queue-items) for details on
+their structure.
 
 With this information, you can write sophisticated logic for determining which
 pages to fetch and which to avoid. For example, you could write a link checker
