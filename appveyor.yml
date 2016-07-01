@@ -6,24 +6,21 @@ version: "{build}"
 
 environment:
     matrix:
-        - nodejs_version: "5"
+        - nodejs_version: "0.10"
+          platform: x86
+        - nodejs_version: "0.12"
           platform: x86
         - nodejs_version: "4"
           platform: x64
         - nodejs_version: "4"
           platform: x86
-        - nodejs_version: "0.12"
+        - nodejs_version: "5"
           platform: x86
-        - nodejs_version: "0.10"
+        - nodejs_version: "6"
           platform: x86
 
 install:
     - ps: Install-Product node $env:nodejs_version $env:platform
-    - ps: >-
-          if ($env:nodejs_version -eq "0.10") {
-              npm -g install npm@2
-              $env:PATH="$env:APPDATA\npm;$env:PATH"
-          }
     - npm install
 
 test_script:

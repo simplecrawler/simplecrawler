@@ -4,6 +4,10 @@
   "version": "0.7.0",
   "homepage": "https://github.com/cgiffard/node-simplecrawler",
   "author": "Christopher Giffard <christopher.giffard@cgiffard.com>",
+  "maintainers": [
+    "Christopher Giffard <christopher.giffard@cgiffard.com>",
+    "Fredrik Ekelund <fredrik@fredrik.computer>"
+  ],
   "license": "BSD-2-Clause",
   "repository": {
     "type": "git",
