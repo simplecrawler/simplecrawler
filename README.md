@@ -320,6 +320,13 @@ change to adapt it to your specific needs.
 * `crawler.discoverRegex` -
     Array of regular expressions and functions that simplecrawler uses to
     discover resources. Functions in this array are expected to return an array.
+    *Only applicable if the default `discoverResources` function is used.*
+* `crawler.parseHTMLComments=true` -
+    Whether to scan for URL's inside HTML comments. *Only applicable if the
+    default `discoverResources` function is used.*
+* `crawler.parseScriptTags=true` -
+    Whether to scan for URL's inside script tags. *Only applicable if the
+    default `discoverResources` function is used.*
 * `crawler.cache` -
     Specify a cache architecture to use when crawling. Must implement
     `SimpleCache` interface. You can save the site to disk using the built in
@@ -377,10 +384,6 @@ change to adapt it to your specific needs.
     Set this to `iso8859` to trigger
     [URI.js](https://medialize.github.io/URI.js/)' re-encoding of iso8859 URL's
     to unicode.
-* `crawler.parseHTMLComments=true` -
-    Whether to scan for URL's inside HTML comments.
-* `crawler.parseScriptTags=true` -
-    Whether to scan for URL's inside script tags.
 * `crawler.maxDepth=0` -
     Defines a maximum distance from the original request at which resources will
     be downloaded. Asset files are excluded from this distance condition if
