@@ -480,9 +480,11 @@ by a database.*
 
 ### Manually adding to the queue
 
-The simplest way of manually adding to the queue is to use the crawler's method
-`crawler.queueURL`. This method takes a complete URL, validates and deconstructs
-it, and adds it to the queue.
+To add items to the queue, use `crawler.queueURL`. This method takes a complete
+URL, validates and deconstructs it, and adds it to the queue. It also accepts a
+referrer queue item. However, the only properties used in the queue item are
+`url` and `depth`, so you can also easily use a custom object. Here's an
+example:
 
 ```js
 var customQueueItem = {
@@ -492,10 +494,6 @@ var customQueueItem = {
 
 crawler.queueURL("/example.html", customQueueItem);
 ```
-
-If you instead want to add a resource by its components, you may call the
-`queue.add` method directly with the signature `protocol`, `hostname`, `port`,
-`path`.
 
 ### Queue items
 
@@ -523,7 +521,8 @@ of:
     * `"downloaded"` - The item has been entirely downloaded.
     * `"redirected"` - The resource request returned a 300 series response, with
     a Location header and a new URL.
-    * `"notfound"` - The resource could not be found. (404)
+    * `"notfound"` - The resource could not be found, ie. returned a 404 or 410
+    HTTP status.
     * `"failed"` - An error occurred when attempting to fetch the resource.
 * `stateData` - An object containing state data and other information about the
 request:
@@ -576,32 +575,30 @@ crawler.queue.avg("actualDataSize", function(error, avg) {
 });
 ```
 
-You'll probably often need to determine how many queue items have a given status
-and/or retrieve them. That's easily done with the methods
-`crawler.queue.countWithStatus` and `crawler.queue.getWithStatus`.
-
-`crawler.queue.countWithStatus` provides the number of queued items with a given
-status, while `crawler.queue.getWithStatus` provides an array of the queue items
-themselves.
+For general filtering or counting of queue items, there are two methods:
+`crawler.queue.filterItems` and `crawler.queue.countItems`. Both take an object
+comparator and a callback.
 
 ```js
-crawler.queue.countWithStatus("redirected", function(error, redirectCount) {
-    console.log("The redirect count is %d", redirectCount);
+crawler.queue.countItems({ fetched: true }, function(error, count) {
+    console.log("The number of completed items is %d", count);
 });
 
-crawler.queue.getWithStatus("failed", function(error, failedItems) {
-    failedItems.forEach(function(queueItem) {
-        console.log("Whoah, the request for %s failed!", queueItem.url);
-    });
+crawler.queue.filterItems({ status: "notfound" }, function(error, items) {
+    console.log("These items returned 404 or 410 HTTP statuses", items);
 });
 ```
 
-Then there's some even simpler convenience functions:
+The object comparator can also contain other objects, so you may filter queue
+items based on properties in their `stateData` object as well.
 
-* `crawler.queue.getCompletedCount` - provides the number of queue items which
-  have been completed (marked as fetched).
-* `crawler.queue.getErrorCount` - provides the number of requests which have
-  failed (404s and other 400/500 errors, as well as client errors).
+```js
+crawler.queue.filterItems({
+    stateData: { code: 301 }
+}, function(error, items) {
+    console.log("These items returned a 301 HTTP status", items);
+});
+```
 
 ### Saving and reloading the queue (freeze/defrost)
 

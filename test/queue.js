@@ -97,7 +97,7 @@ describe("Queue methods", function() {
     });
 
     it("should get the number of completed queue items", function(done) {
-        crawler.queue.getCompletedCount(function(error, complete) {
+        crawler.queue.countItems({ fetched: true }, function (error, complete) {
             complete.should.be.a("number");
             complete.should.equal(3);
             done(error);
@@ -105,7 +105,7 @@ describe("Queue methods", function() {
     });
 
     it("should get queue items with a specific status", function(done) {
-        crawler.queue.getWithStatus("downloaded", function(error, items) {
+        crawler.queue.filterItems({ status: "downloaded" }, function(error, items) {
             items.should.be.an("array");
             items.map(function(item) {
                 return item.url;
@@ -115,18 +115,33 @@ describe("Queue methods", function() {
     });
 
     it("should count items with a specific status", function(done) {
-        crawler.queue.countWithStatus("queued", function(error, count) {
+        crawler.queue.countItems({ status: "queued" }, function(error, count) {
             count.should.be.a("number");
             count.should.equal(1);
             done(error);
         });
     });
 
-    it("should get items that have failed", function(done) {
-        crawler.queue.getErrorCount(function(error, items) {
-            items.should.be.a("number");
-            items.should.equal(1);
+    it("should count items with a 200 HTTP status", function(done) {
+        crawler.queue.countItems({
+            stateData: { code: 200 }
+        }, function(error, count) {
+            count.should.be.a("number");
+            count.should.equal(2);
             done(error);
+        });
+    });
+
+    it("should get items that have failed", function(done) {
+        crawler.queue.countItems({ status: "failed" }, function(error, count) {
+            count.should.be.a("number");
+            count.should.equal(0);
+
+            crawler.queue.countItems({ status: "notfound" }, function(error, count) {
+                count.should.be.a("number");
+                count.should.equal(1);
+                done(error);
+            });
         });
     });
 
