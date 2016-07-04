@@ -538,7 +538,9 @@ request:
     * `contentLength` - The length (in bytes) of the returned content.
     Calculated based on the `content-length` header.
     * `contentType` - The MIME type of the content.
-    * `code` - The HTTP status code returned for the request.
+    * `code` - The HTTP status code returned for the request. Note that this
+      code is `600` if an error occurred in the client and a fetch operation
+      could not take place successfully.
     * `headers` - An object containing the header information returned by the
     server. This is the object node returns as part of the `response` object.
     * `actualDataSize` - The length (in bytes) of the returned content.
