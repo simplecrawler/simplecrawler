@@ -167,11 +167,11 @@ describe("Queue methods", function() {
             }
         }
 
-        crawler.queue.add(queueItems[0], function (error, newQueueItem) {
+        crawler.queue.add(queueItems[0], false, function (error, newQueueItem) {
             newQueueItem.should.equal(queueItems[0]);
             checkDone();
         });
-        crawler.queue.add(queueItems[1], function (error, newQueueItem) {
+        crawler.queue.add(queueItems[1], false, function (error, newQueueItem) {
             error.should.be.an("error");
             should.not.exist(newQueueItem);
             checkDone();
