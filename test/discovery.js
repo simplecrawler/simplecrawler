@@ -14,7 +14,7 @@ describe("Crawler link discovery", function() {
 
     beforeEach(function() {
         Crawler = require("../");
-        crawler = new Crawler();
+        crawler = new Crawler("http://example.com");
         discover = crawler.discoverResources.bind(crawler);
     });
 

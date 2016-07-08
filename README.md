@@ -98,18 +98,24 @@ The standard way of creating a crawler is to call the `simplecrawler`
 constructor yourself and initiate the crawl manually.
 
 ```js
-var crawler = new Crawler("www.example.com");
+var crawler = new Crawler("http://www.example.com/");
 ```
 
-Non-standard port? HTTPS? Want to start crawling at a specific path? No problem:
+The protocol and host that's used throughout the entire crawl are infered from
+the start URL that you pass to the constructor. These properties, along with
+the initial path and port can also be set directly, however. So these two
+examples do the same thing:
 
 ```js
+var crawler = new Crawler("http://www.example.com:8080/archive");
+```
+
+```js
+var crawler = new Crawler("http://www.example.com/");
+
 crawler.initialPath = "/archive";
 crawler.initialPort = 8080;
 crawler.initialProtocol = "https";
-
-// Or:
-var crawler = new Crawler("www.example.com", "/archive", 8080);
 ```
 
 And of course, you're probably wanting to ensure you don't take down your web
@@ -705,8 +711,7 @@ list below before submitting an issue.
     var Crawler = require("simplecrawler"),
         request = require("request");
 
-    var crawler = new Crawler("example.com", "/");
-    crawler.initialProtocol = "https";
+    var crawler = new Crawler("https://example.com/");
 
     request.post("https://example.com/login", {
         form: {

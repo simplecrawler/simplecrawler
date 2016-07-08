@@ -52,7 +52,7 @@ describe("Crawler reliability", function() {
 
     it("should decrement _openRequests in the event of a non-supported mimetype", function(done) {
 
-        var localCrawler = new Crawler("127.0.0.1", "/", 3000);
+        var localCrawler = new Crawler("http://127.0.0.1:3000/");
         localCrawler.downloadUnsupported = false;
 
         localCrawler.queueURL("http://127.0.0.1:3000/img/1");
@@ -95,8 +95,8 @@ describe("Crawler reliability", function() {
 
     it("should be able to freeze and defrost the queue", function(done) {
 
-        var localCrawler = new Crawler("127.0.0.1", "/", 3000),
-            newCrawler = new Crawler("127.0.0.1", "/", 3000),
+        var localCrawler = new Crawler("http://127.0.0.1:3000/"),
+            newCrawler = new Crawler("http://127.0.0.1:3000/"),
             tmp = os.tmpdir() ? path.join(os.tmpdir(), "queue.json") : path.join(__dirname, "queue.json");
 
         localCrawler.start();

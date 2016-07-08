@@ -9,7 +9,7 @@ var socksSettings = {
     auths: [ socksAuthNone() ]
 };
 
-var crawler = new Crawler("icanhazip.com", "/", 80, null);
+var crawler = new Crawler("http://icanhazip.com/");
 
 crawler.httpAgent = new socks.HttpAgent(socksSettings);
 crawler.httpsAgent = new socks.HttpsAgent(socksSettings);

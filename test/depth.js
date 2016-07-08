@@ -23,7 +23,7 @@ var depthTest = function(depth, linksToDiscover, behaviour) {
     describe("depth " + depth, function() {
         before(function() {
             // Create a new crawler to crawl our local test server
-            crawler = new Crawler("127.0.0.1", "/depth/1", 3000);
+            crawler = new Crawler("http://127.0.0.1:3000/depth/1");
 
             // Speed up tests. No point waiting for every request when we're
             // running our own server.
