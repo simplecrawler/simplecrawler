@@ -190,9 +190,9 @@ in parentheses.
 * `fetchdataerror` (queueItem, response) -
     Fired when a resource can't be downloaded, because it exceeds the maximum
     size we're prepared to receive (16MB by default.)
-* `fetchredirect` (oldQueueItem, newQueueItem, response) -
+* `fetchredirect` (oldQueueItem, referrerQueueItem, response) -
     Fired when a redirect header is encountered. The new URL is processed and
-    passed as `newQueueItem`.
+    passed as `referrerQueueItem`.
 * `fetch404` (queueItem, response) -
     Fired when a 404 HTTP status code is returned for a request.
 * `fetch410` (queueItem, response) -
@@ -420,14 +420,15 @@ downloaded. Adding a fetch condition assigns it an ID, which the
 condition later.
 
 ```js
-var conditionID = myCrawler.addFetchCondition(function(newQueueItem, oldQueueItem) {
-    return !newQueueItem.path.match(/\.pdf$/i);
+var conditionID = myCrawler.addFetchCondition(function(queueItem, referrerQueueItem) {
+    return !queueItem.path.match(/\.pdf$/i);
 });
 ```
 
-Fetch conditions are called with two arguments: `newQueueItem` and
-`oldQueueItem`. See the [queue item documentation](#queue-items) for details on
-their structure.
+Fetch conditions are called with two arguments: `queueItem` and
+`referrerQueueItem`. The former represents the resource to be fetched (or not),
+and the latter represents the resource where the new `queueItem` was discovered.
+See the [queue item documentation](#queue-items) for details on their structure.
 
 With this information, you can write sophisticated logic for determining which
 pages to fetch and which to avoid. For example, you could write a link checker
