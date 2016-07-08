@@ -184,16 +184,15 @@ in parentheses.
     Fired when the resource is completely downloaded. The response body is
     provided as a Buffer per default, unless `decodeResponses` is truthy, in
     which case it's a decoded string representation of the body.
-* `fetchdisallowed` (parsedURL) -
+* `fetchdisallowed` (queueItem) -
     Fired when a resource isn't fetched due to robots.txt rules. See
-    `respectRobotsTxt` option. See [Adding a fetch
-    condition](#adding-a-fetch-condition) for details on the `parsedURL` object.
+    `respectRobotsTxt` option.
 * `fetchdataerror` (queueItem, response) -
     Fired when a resource can't be downloaded, because it exceeds the maximum
     size we're prepared to receive (16MB by default.)
-* `fetchredirect` (queueItem, parsedURL, response) -
-    Fired when a redirect header is encountered. The new URL is validated and
-    returned as a complete canonical link to the new resource.
+* `fetchredirect` (oldQueueItem, referrerQueueItem, response) -
+    Fired when a redirect header is encountered. The new URL is processed and
+    passed as `referrerQueueItem`.
 * `fetch404` (queueItem, response) -
     Fired when a 404 HTTP status code is returned for a request.
 * `fetch410` (queueItem, response) -
@@ -424,28 +423,15 @@ downloaded. Adding a fetch condition assigns it an ID, which the
 condition later.
 
 ```js
-var conditionID = myCrawler.addFetchCondition(function(parsedURL, queueItem) {
-    return !parsedURL.path.match(/\.pdf$/i);
+var conditionID = myCrawler.addFetchCondition(function(queueItem, referrerQueueItem) {
+    return !queueItem.path.match(/\.pdf$/i);
 });
 ```
 
-Fetch conditions are called with two arguments: `parsedURL` and `queueItem`.
-`parsedURL` represents the resource to be fetched (or not) and has the following
-structure:
-
-```js
-{
-    protocol: "http",
-    host: "example.com",
-    port: 80,
-    path: "/search?q=hello",
-    uriPath: "/search",
-    depth: 2
-}
-```
-
-`queueItem` is a representation of the page where this resource was found. See
-the [queue item documentation](#queue-items) for details on its structure.
+Fetch conditions are called with two arguments: `queueItem` and
+`referrerQueueItem`. The former represents the resource to be fetched (or not),
+and the latter represents the resource where the new `queueItem` was discovered.
+See the [queue item documentation](#queue-items) for details on their structure.
 
 With this information, you can write sophisticated logic for determining which
 pages to fetch and which to avoid. For example, you could write a link checker
@@ -465,11 +451,10 @@ myCrawler.removeFetchCondition(conditionID);
 ## The queue
 
 Like any other web crawler, simplecrawler has a queue. It can be directly
-accessed through `crawler.queue` and is by default only backed by an array,
-which means items in the queue can be accessed through array notation. However,
-since simplecrawler also supports different backing stores for the queue, the
-recommended way of accessing items is through the (pseudo) asynchronous
-`crawler.queue.get` method.
+accessed through `crawler.queue` and implements an asynchronous interface for
+accessing queue items and statistics. There are several methods for interacting
+with the queue, the simplest being `crawler.queue.get`, which lets you get a
+queue item at a specific index in the queue.
 
 ```js
 crawler.queue.get(5, function (queueItem) {
@@ -477,15 +462,18 @@ crawler.queue.get(5, function (queueItem) {
 });
 ```
 
-Even though this operation is actually synchronous when the default backing
-store is used, this method helps maintain compatibility with asynchronous
-backing stores that would let you eg. store the queue in a database.
+*All queue method are in reality synchronous by default, but simplecrawler is
+built to be able to use different queues that implement the same interface, and
+those implementations can be asynchronous - which means they could eg. be backed
+by a database.*
 
 ### Manually adding to the queue
 
-The simplest way of manually adding to the queue is to use the crawler's method
-`crawler.queueURL`. This method takes a complete URL, validates and deconstructs
-it, and adds it to the queue.
+To add items to the queue, use `crawler.queueURL`. This method takes a complete
+URL, validates and deconstructs it, and adds it to the queue. It also accepts a
+referrer queue item. However, the only properties used in the queue item are
+`url` and `depth`, so you can also easily use a custom object. Here's an
+example:
 
 ```js
 var customQueueItem = {
@@ -495,10 +483,6 @@ var customQueueItem = {
 
 crawler.queueURL("/example.html", customQueueItem);
 ```
-
-If you instead want to add a resource by its components, you may call the
-`queue.add` method directly with the signature `protocol`, `hostname`, `port`,
-`path`.
 
 ### Queue items
 
@@ -526,7 +510,8 @@ of:
     * `"downloaded"` - The item has been entirely downloaded.
     * `"redirected"` - The resource request returned a 300 series response, with
     a Location header and a new URL.
-    * `"notfound"` - The resource could not be found. (404)
+    * `"notfound"` - The resource could not be found, ie. returned a 404 or 410
+    HTTP status.
     * `"failed"` - An error occurred when attempting to fetch the resource.
 * `stateData` - An object containing state data and other information about the
 request:
@@ -567,48 +552,44 @@ a second. You can test the following properties:
 
 You can get the maximum, minimum, and average values for each with the
 `crawler.queue.max`, `crawler.queue.min`, and `crawler.queue.avg` functions
-respectively. Like the `crawler.queue.get` method, these methods are pseudo
-asynchronous to support different backing stores for the queue. That means they
-will provide both a return value and a callback.
+respectively.
 
 ```js
-crawler.queue.max("requestLatency", function (max) {
+crawler.queue.max("requestLatency", function(error, max) {
     console.log("The maximum request latency was %dms.", max);
 });
-crawler.queue.min("downloadTime", function (min) {
+crawler.queue.min("downloadTime", function(error, min) {
     console.log("The minimum download time was %dms.", min);
 });
-crawler.queue.avg("actualDataSize", function (avg) {
+crawler.queue.avg("actualDataSize", function(error, avg) {
     console.log("The average resource size received is %d bytes.", avg);
 });
 ```
 
-You'll probably often need to determine how many queue items have a given status
-and/or retrieve them. That's easily done with the methods
-`crawler.queue.countWithStatus` and `crawler.queue.getWithStatus`.
-
-`crawler.queue.countWithStatus` provides the number of queued items with a given
-status, while `crawler.queue.getWithStatus` returns an array of the queue items
-themselves. Again, by default, these methods both return and accept callbacks.
+For general filtering or counting of queue items, there are two methods:
+`crawler.queue.filterItems` and `crawler.queue.countItems`. Both take an object
+comparator and a callback.
 
 ```js
-crawler.queue.countWithStatus("redirected", function (redirectCount) {
-    console.log("The redirect count is %d", redirectCount);
+crawler.queue.countItems({ fetched: true }, function(error, count) {
+    console.log("The number of completed items is %d", count);
 });
 
-crawler.queue.getWithStatus("failed", function (failedItems) {
-    failedItems.forEach(function(queueItem) {
-        console.log("Whoah, the request for %s failed!", queueItem.url);
-    });
+crawler.queue.filterItems({ status: "notfound" }, function(error, items) {
+    console.log("These items returned 404 or 410 HTTP statuses", items);
 });
 ```
 
-Then there's some even simpler convenience functions:
+The object comparator can also contain other objects, so you may filter queue
+items based on properties in their `stateData` object as well.
 
-* `crawler.queue.complete` - provides the number of queue items which have been
-  completed (marked as fetched).
-* `crawler.queue.errors` - provides the number of requests which have failed
-  (404s and other 400/500 errors, as well as client errors).
+```js
+crawler.queue.filterItems({
+    stateData: { code: 301 }
+}, function(error, items) {
+    console.log("These items returned a 301 HTTP status", items);
+});
+```
 
 ### Saving and reloading the queue (freeze/defrost)
 

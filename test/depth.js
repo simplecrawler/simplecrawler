@@ -25,13 +25,10 @@ var depthTest = function(depth, linksToDiscover, behaviour) {
             // Create a new crawler to crawl our local test server
             crawler = new Crawler("127.0.0.1", "/depth/1", 3000);
 
-            // Speed up tests. No point waiting for every request
-            // when we're running our own server.
+            // Speed up tests. No point waiting for every request when we're
+            // running our own server.
             crawler.interval = 1;
             crawler.fetchWhitelistedMimeTypesBelowMaxDepth = Boolean(behaviour);
-
-            // Define max depth for this crawl
-            crawler.maxDepth = depth;
             crawler.maxDepth = depth;
 
             linksDiscovered = 0;
