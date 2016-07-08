@@ -19,33 +19,29 @@ var makeCrawler = function (host, path, port) {
 
 describe("Test Crawl", function() {
 
-    // Create a new crawler to crawl this server
-    var localCrawler = makeCrawler("127.0.0.1", "/", 3000),
-        linksDiscovered = 0;
-
     it("should be able to be started", function(done) {
+        var crawler = makeCrawler("127.0.0.1", "/", 3000);
 
-        localCrawler.on("crawlstart", function() {
-            localCrawler.running.should.equal(true);
+        crawler.on("crawlstart", function() {
+            crawler.running.should.equal(true);
             done();
         });
-        localCrawler.on("discoverycomplete", function() {
-            linksDiscovered++;
-        });
 
-        localCrawler.start();
+        crawler.start();
     });
 
     it("should emit an error when it gets a faulty cookie", function(done) {
+        var crawler = makeCrawler("127.0.0.1", "/", 3000);
 
-        localCrawler.on("cookieerror", function(queueItem) {
+        crawler.on("cookieerror", function(queueItem) {
             queueItem.url.should.equal("http://127.0.0.1:3000/stage2");
             done();
         });
+
+        crawler.start();
     });
 
     it("should parse, store and send cookies properly", function(done) {
-
         var crawler = makeCrawler("localhost", "/cookie", 3000),
             i = 0;
 
@@ -61,21 +57,33 @@ describe("Test Crawl", function() {
         crawler.start();
     });
 
-    it("should have added the initial item to the queue", function() {
+    it("should have added the initial item to the queue", function(done) {
+        var crawler = makeCrawler("127.0.0.1", "/", 3000);
+        crawler.start();
 
-        localCrawler.queue.length.should.be.greaterThan(0);
-    });
-
-    it("should discover all available linked resources", function(done) {
-
-        localCrawler.on("complete", function() {
-            linksDiscovered.should.equal(5);
+        crawler.queue.getLength(function(error, length) {
+            length.should.be.greaterThan(0);
             done();
         });
     });
 
-    it("should obey rules in robots.txt", function(done) {
+    it("should discover all available linked resources", function(done) {
+        var crawler = makeCrawler("127.0.0.1", "/", 3000),
+            linksDiscovered = 0;
 
+        crawler.on("discoverycomplete", function() {
+            linksDiscovered++;
+        });
+
+        crawler.on("complete", function() {
+            linksDiscovered.should.equal(5);
+            done();
+        });
+
+        crawler.start();
+    });
+
+    it("should obey rules in robots.txt", function(done) {
         var crawler = makeCrawler("127.0.0.1", "/", 3000);
         crawler.start();
 
@@ -86,7 +94,6 @@ describe("Test Crawl", function() {
     });
 
     it("should be able to disregard rules in robots.txt", function(done) {
-
         var crawler = makeCrawler("127.0.0.1", "/", 3000);
         crawler.respectRobotsTxt = false;
         crawler.start();
@@ -103,7 +110,6 @@ describe("Test Crawl", function() {
     });
 
     it("should obey robots.txt on different hosts", function(done) {
-
         var server = new Server({
             "/robots.txt": function(write) {
                 write(200, "User-agent: *\nDisallow: /disallowed\n");
@@ -132,7 +138,6 @@ describe("Test Crawl", function() {
     });
 
     it("should emit an error when robots.txt redirects to a disallowed domain", function(done) {
-
         var server = new Server({
             "/robots.txt": function(write, redir) {
                 redir("http://example.com/robots.txt");
@@ -151,8 +156,8 @@ describe("Test Crawl", function() {
     });
 
     it("should support async event listeners for manual discovery", function(done) {
-
-        var crawler = makeCrawler("127.0.0.1", "/", 3000);
+        var crawler = makeCrawler("127.0.0.1", "/", 3000),
+            linksDiscovered = 0;
 
         // Use a different crawler this time
         crawler.discoverResources = false;
@@ -178,13 +183,12 @@ describe("Test Crawl", function() {
         });
 
         crawler.on("complete", function() {
-            linksDiscovered.should.equal(8);
+            linksDiscovered.should.equal(3);
             done();
         });
     });
 
     it("should not throw an error if header Referer is undefined", function(done) {
-
         var crawler = makeCrawler("127.0.0.1", "/depth/1", 3000);
         crawler.maxDepth = 1;
 
@@ -196,7 +200,6 @@ describe("Test Crawl", function() {
     });
 
     it("it should remove script tags if parseScriptTags is disabled", function(done) {
-
         var crawler = makeCrawler("127.0.0.1", "/script", 3000);
         crawler.maxDepth = 1;
         crawler.parseScriptTags = false;
@@ -212,7 +215,6 @@ describe("Test Crawl", function() {
     });
 
     it("it should emit an error when resource is too big", function(done) {
-
         var crawler = makeCrawler("127.0.0.1", "/big", 3000);
         var visitedUrl = false;
 
