@@ -743,7 +743,7 @@ list below before submitting an issue.
                 console.log("fetched %d of %d — %d open requests, %d open listeners",
                     completeCount,
                     length,
-                    crawler._openRequests,
+                    crawler._openRequests.length,
                     crawler._openListeners);
             });
         });
