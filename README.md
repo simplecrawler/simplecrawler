@@ -413,9 +413,9 @@ function that, when given a parsed URL object, returns a value that indicates
 whether a given resource should be downloaded.
 
 You may add as many fetch conditions as you like, and remove them at runtime.
-simplecrawler will evaluate will evaluate every fetch condition until one is
-encountered that returns a falsy value. If that happens,  the resource in
-question will not be fetched.
+simplecrawler will evaluate every fetch condition until one is encountered that
+returns a falsy value. If that happens, the resource in question will not be
+fetched.
 
 ### Adding a fetch condition
 
@@ -436,10 +436,13 @@ and the latter represents the resource where the new `queueItem` was discovered.
 See the [queue item documentation](#queue-items) for details on their structure.
 
 With this information, you can write sophisticated logic for determining which
-pages to fetch and which to avoid. For example, you could write a link checker
-that checks both internal and external links, yet doesn't continue crawling
-other domains by setting `filterByDomain` to false and checking that
-`queueItem.host` is the same as `crawler.host`.
+pages to fetch and which to avoid. For example, you could write a program that
+ensures all links on a website - both internal and external - return good HTTP
+statuses. One way to achieve this would be to set `filterByDomain` to false and
+add a fetch condition that returns false if  `queueItem.host` is the same as
+`referrerQueueItem.host`, unless they both equal `crawler.host`. That would make
+the crawler go just one resource beyond the original host - ie. not follow any
+links it discovers on the new site.
 
 ### Removing a fetch condition
 
