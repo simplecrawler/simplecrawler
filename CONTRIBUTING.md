@@ -38,7 +38,7 @@ clearly answers the following questions:
 * **What are the clear steps for reproducing the problem?** *If you're unsure
   about how you reproduced the problem, we can help — but please post your code
   and the event output you received from the crawler. Guidelines for retrieving
-  event output from the crawler can be found in the [FAQ](https://github.com/cgiffard/node-simplecrawler#faqtroubleshooting).
+  event output from the crawler can be found in the [FAQ](https://github.com/cgiffard/node-simplecrawler#faqtroubleshooting).*
 
 Answering these questions will make your issue much easier to understand, and to
 reproduce. Or, if you're having trouble understanding how to use the crawler —
@@ -66,7 +66,7 @@ roughly follow the following format:
 [Any issues this change fixes, with the issue number referenced.]
 
 First paragraph explaining the original problem or reason for this feature or
-change. Max 80-characters wide, 
+change. Max 80-characters wide.
 
 Subsequent lines explaining the changes that have been made to the code.
 ```
