@@ -162,7 +162,7 @@ describe("Crawler reliability", function() {
     describe("when stopping the crawler", function() {
 
         it("should not terminate open connections unless asked", function(done) {
-            var localCrawler = Crawler.crawl("http://127.0.0.1:3000/");
+            var localCrawler = new Crawler("http://127.0.0.1:3000/");
             var fetchStartCallCount = 0;
 
             // Speed things up
@@ -189,10 +189,12 @@ describe("Crawler reliability", function() {
                 localCrawler.stop();
                 done();
             });
+
+            localCrawler.start();
         });
 
         it("should terminate open connections when requested", function(done) {
-            var localCrawler = Crawler.crawl("http://127.0.0.1:3000/");
+            var localCrawler = new Crawler("http://127.0.0.1:3000/");
             var fetchStartCallCount = 0,
                 abortCallCount = 0;
 
@@ -225,6 +227,8 @@ describe("Crawler reliability", function() {
                     "The number of calls to req.abort() should equal 2");
                 done();
             });
+
+            localCrawler.start();
         });
     });
 });
