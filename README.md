@@ -782,6 +782,12 @@ list below before submitting an issue.
 * [Fredrik Ekelund](https://github.com/fredrikekelund)
 * [XhmikosR](https://github.com/XhmikosR)
 
+## Contributing
+
+Please see the [contributor guidelines](https://github.com/cgiffard/node-simplecrawler/blob/master/CONTRIBUTING.md)
+before submitting a pull request to ensure that your contribution is able to be
+accepted quickly and easily!
+
 ## Contributors
 
 simplecrawler has benefited from the kind efforts of dozens of contributors, to
