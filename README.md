@@ -101,9 +101,9 @@ constructor yourself and initiate the crawl manually.
 var crawler = new Crawler("http://www.example.com/");
 ```
 
-The protocol and host that's used throughout the entire crawl are infered from
-the start URL that you pass to the constructor. These properties, along with
-the initial path and port can also be set directly, however. So these two
+The protocol and host that are used throughout the entire crawl are inferred
+from the start URL that's passed to the constructor. These properties, along
+with the initial path and port can also be set directly, however. So these two
 examples do the same thing:
 
 ```js
