@@ -42,7 +42,9 @@ pages and written tens of gigabytes to disk without issue.
     - [Cookie events](#cookie-events)
 - [Link Discovery](#link-discovery)
 - [FAQ/Troubleshooting](#faqtroubleshooting)
+- [Node Support Policy](#node-support-policy)
 - [Current Maintainers](#current-maintainers)
+- [Contributing](#contributing)
 - [Contributors](#contributors)
 - [License](#license)
 
@@ -775,6 +777,21 @@ list below before submitting an issue.
 
     If you don't see what you need after inserting that code block, and you still need help,
     please attach the output of all the events fired with your email/issue.
+
+## Node Support Policy
+
+Simplecrawler will officially support stable and LTS versions of Node which are
+currently supported by the Node Foundation. We will endeavour to continue to
+support Node 0.10.x — but after it falls out of LTS it is likely we will adopt
+newer JS syntax and APIs which 0.10.x does not support.
+
+Currently supported versions:
+
+- 0.10.x
+- 0.12.x
+- 4.x
+- 5.x
+- 6.x
 
 ## Current Maintainers
 
