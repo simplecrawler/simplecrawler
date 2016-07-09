@@ -41,7 +41,7 @@ describe("Crawler reliability", function() {
 
         localCrawler.on("fetchtimeout", function() {
             timesCalled++;
-            localCrawler._openRequests.should.equal(0);
+            localCrawler._openRequests.should.eql([]);
 
             if (timesCalled === 2) {
                 done();
@@ -59,7 +59,7 @@ describe("Crawler reliability", function() {
         localCrawler.queueURL("http://127.0.0.1:3000/img/2");
 
         localCrawler.on("complete", function() {
-            localCrawler._openRequests.should.equal(0);
+            localCrawler._openRequests.should.eql([]);
             done();
         });
 
@@ -157,5 +157,78 @@ describe("Crawler reliability", function() {
         }, 10);
 
         localCrawler.start();
+    });
+
+    describe("when stopping the crawler", function() {
+
+        it("should not terminate open connections unless asked", function(done) {
+            var localCrawler = new Crawler("http://127.0.0.1:3000/");
+            var fetchStartCallCount = 0;
+
+            // Speed things up
+            localCrawler.interval = 0;
+
+            // Adding routes which will time out, so we don't ever end up
+            // completing the crawl before we can instrument the requests
+            localCrawler.queueURL("/timeout");
+            localCrawler.queueURL("/timeout2");
+
+            localCrawler.on("fetchstart", function() {
+
+                // If we haven't been called previously
+                if (!fetchStartCallCount) {
+                    return fetchStartCallCount++;
+                }
+
+                localCrawler._openRequests.forEach(function(req) {
+                    req.abort = function() {
+                        throw new Error("Should not abort requests!");
+                    };
+                });
+
+                localCrawler.stop();
+                done();
+            });
+
+            localCrawler.start();
+        });
+
+        it("should terminate open connections when requested", function(done) {
+            var localCrawler = new Crawler("http://127.0.0.1:3000/");
+            var fetchStartCallCount = 0,
+                abortCallCount = 0;
+
+            // Speed things up
+            localCrawler.interval = 0;
+
+            // Adding routes which will time out, so we don't ever end up
+            // completing the crawl before we can instrument the requests
+            localCrawler.queueURL("/timeout");
+            localCrawler.queueURL("/timeout2");
+
+            localCrawler.on("fetchstart", function() {
+
+                // If we haven't been called previously
+                if (!fetchStartCallCount) {
+                    return fetchStartCallCount++;
+                }
+
+                localCrawler._openRequests.length.should.equal(2,
+                    "The number of open requests should equal 2");
+
+                localCrawler._openRequests.forEach(function(req) {
+                    req.abort = function() {
+                        abortCallCount++;
+                    };
+                });
+
+                localCrawler.stop(true);
+                abortCallCount.should.equal(2,
+                    "The number of calls to req.abort() should equal 2");
+                done();
+            });
+
+            localCrawler.start();
+        });
     });
 });

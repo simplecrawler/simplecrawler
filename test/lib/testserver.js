@@ -59,6 +59,14 @@ var Server = function(routes) {
     });
 
     this.on("error", function (error) {
+        // If we've already started a server, don't worry that we couldn't
+        // start another one.
+        // This will happen, for instance, with mocha-watch.
+
+        if (error.code === "EADDRINUSE") {
+            return;
+        }
+
         console.log(error);
         process.exit(1);
     });
