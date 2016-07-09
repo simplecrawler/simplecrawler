@@ -8,7 +8,7 @@ var chai = require("chai"),
 var should = chai.should();
 
 describe("Queue methods", function() {
-    var crawler = new Crawler("127.0.0.1", "/", 3000);
+    var crawler = new Crawler("http://127.0.0.1:3000/");
 
     var addToQueue = function(done) {
         Object.keys(queue).forEach(function(key) {

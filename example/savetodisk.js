@@ -4,13 +4,15 @@
  * @param String. Domain to download.
  * @Param Function. Callback when crawl is complete.
  */
-var downloadSite = function(domain, callback) {
+var downloadSite = function(initialURL, callback) {
     var fs = require("node-fs"),
         url = require("url"),
         path = require("path"),
         Crawler = require("simplecrawler").Crawler;
 
-    var myCrawler = new Crawler(domain);
+    var myCrawler = new Crawler(initialURL),
+        domain = url.parse(initialURL).hostname;
+
     myCrawler.interval = 250;
     myCrawler.maxConcurrency = 5;
 

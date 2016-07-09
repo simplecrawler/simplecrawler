@@ -7,11 +7,12 @@ var phantomAPI  = require("phantom"),
     colors      = require("colors/safe"),
     phantomjs   = require("phantomjs");
 
-var crawler = new Crawler("www.example.com", "/", 80, 0),
+var crawler = new Crawler("http://www.example.com/"),
     phantomBin = phantomjs.path,
     phantomBannedExtensions = /\.(png|jpg|jpeg|gif|ico|css|js|csv|doc|docx|pdf)$/i,
     phantomQueue = [];
 
+crawler.interval = 0;
 phantomAPI.create({ binary: phantomBin }, runCrawler);
 
 

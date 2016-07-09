@@ -26,8 +26,6 @@ pages and written tens of gigabytes to disk without issue.
 ## Documentation
 
 - [Getting started](#getting-started)
-    - [Simplified mode](#simplified-mode)
-    - [Regular mode](#regular-mode)
 - [Events](#events)
     - [A note about HTTP error conditions](#a-note-about-http-error-conditions)
     - [Waiting for asynchronous event listeners](#waiting-for-asynchronous-event-listeners)
@@ -50,71 +48,49 @@ pages and written tens of gigabytes to disk without issue.
 
 ## Getting Started
 
-There are two ways of instantiating a new crawler - a simplified but less
-flexible method inspired by [anemone](http://anemone.rubyforge.org), and the
-traditional method which provides a little more room to configure crawl
-parameters.
+Initializing simplecrawler is a simple process. First, you require the module
+and instantiate it with a single argument. You then configure the properties you
+like (eg. the request interval), register a few event listeners, and call the
+start method. Let's walk through the process!
 
-Regardless of whether you use the simplified or regular method of instantiation,
-you'll need to require simplecrawler first:
+After requiring the crawler, we create a new instance of it. We supply the
+constructor with a URL that indicates which domain to crawl and which resource
+to fetch first.
 
 ```js
 var Crawler = require("simplecrawler");
+
+var crawler = new Crawler("http://www.example.com/");
 ```
 
-### Simplified Mode
-
-If all you need is a quick crawl of a small website, the simplified mode of
-initiating the crawler provides a slightly quicker way of getting started. It
-generates a new crawler for you, preconfigures it based on a URL you provide,
-starts the crawl and returns the crawler instance for further configuration and
-so that you can attach event handlers.
-
-Simply call `Crawler.crawl` with a URL as the first parameter, and two optional
-functions that will be added as event listeners for `fetchcomplete` and
-`fetcherror` respectively.
+You can initialise the crawler with or without the `new` operator. Being able to
+skip it comes in handy when you want to chain API calls.
 
 ```js
-Crawler.crawl("http://example.com/", function(queueItem) {
-    console.log("Completed fetching resource:", queueItem.url);
-});
+var crawler = Crawler("http://www.example.com/")
+    .on("fetchcomplete", function () {
+        console.log("Fetched a resource!")
+    });
 ```
 
-Alternately, if you decide to omit these functions, you can use the returned
-crawler object to add the event listeners yourself, and tweak configuration
-options:
+The protocol and host that are used throughout the entire crawl are inferred
+from the start URL that's passed to the constructor. These properties, along
+with the initial path and port can also be set directly, however. So these two
+examples do the same thing:
 
 ```js
-var crawler = Crawler.crawl("http://example.com/");
-
-crawler.interval = 500;
-
-crawler.on("fetchcomplete", function(queueItem) {
-    console.log("Completed fetching resource:", queueItem.url);
-});
+var crawler = new Crawler("https://www.example.com:8080/archive");
 ```
 
-### Regular Mode
-
-The standard way of creating a crawler is to call the `simplecrawler`
-constructor yourself and initiate the crawl manually.
-
 ```js
-var crawler = new Crawler("www.example.com");
-```
+var crawler = new Crawler("http://www.example.com");
 
-Non-standard port? HTTPS? Want to start crawling at a specific path? No problem:
-
-```js
 crawler.initialPath = "/archive";
 crawler.initialPort = 8080;
 crawler.initialProtocol = "https";
-
-// Or:
-var crawler = new Crawler("www.example.com", "/archive", 8080);
 ```
 
-And of course, you're probably wanting to ensure you don't take down your web
+Of course, you're probably wanting to ensure you don't take down your web
 server. Decrease the concurrency from five simultaneous requests - and increase
 the request interval from the default 250 ms like this:
 
@@ -710,8 +686,7 @@ list below before submitting an issue.
     var Crawler = require("simplecrawler"),
         request = require("request");
 
-    var crawler = new Crawler("example.com", "/");
-    crawler.initialProtocol = "https";
+    var crawler = new Crawler("https://example.com/");
 
     request.post("https://example.com/login", {
         form: {

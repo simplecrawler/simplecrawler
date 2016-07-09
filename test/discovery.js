@@ -13,7 +13,7 @@ describe("Crawler link discovery", function() {
         crawler;
 
     beforeEach(function() {
-        crawler = new Crawler();
+        crawler = new Crawler("http://example.com");
 
         discover = function (resourceText, queueItem) {
             queueItem = queueItem || {};
