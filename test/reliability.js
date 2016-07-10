@@ -4,17 +4,22 @@ var path = require("path"),
     os = require("os"),
     chai = require("chai");
 
+var Crawler = require("../");
+
 var should = chai.should();
+
+var makeCrawler = function (url) {
+    var crawler = new Crawler(url);
+    crawler.interval = 5;
+    return crawler;
+};
 
 // Runs a very simple crawl on an HTTP server
 describe("Crawler reliability", function() {
-
-    var Crawler = require("../");
-
     it("should be able to handle a timeout", function(done) {
         this.slow("1s");
 
-        var localCrawler = new Crawler("http://127.0.0.1:3000/timeout");
+        var localCrawler = makeCrawler("http://127.0.0.1:3000/timeout");
         localCrawler.timeout = 200;
 
         localCrawler.on("fetchtimeout", function(queueItem) {
@@ -52,7 +57,7 @@ describe("Crawler reliability", function() {
     });
 
     it("should decrement _openRequests in the event of a non-supported mimetype", function(done) {
-        var localCrawler = new Crawler("http://127.0.0.1:3000/");
+        var localCrawler = makeCrawler("http://127.0.0.1:3000/");
         localCrawler.downloadUnsupported = false;
 
         localCrawler.queueURL("http://127.0.0.1:3000/img/1");
@@ -67,7 +72,7 @@ describe("Crawler reliability", function() {
     });
 
     it("should emit a fetch404 when given a 404 status code", function(done) {
-        var localCrawler = new Crawler("http://127.0.0.1:3000/404");
+        var localCrawler = makeCrawler("http://127.0.0.1:3000/404");
 
         localCrawler.on("fetch404", function() {
             done();
@@ -78,7 +83,7 @@ describe("Crawler reliability", function() {
 
 
     it("should emit a fetch410 when given a 410 status code", function(done) {
-        var localCrawler = new Crawler("http://127.0.0.1:3000/410");
+        var localCrawler = makeCrawler("http://127.0.0.1:3000/410");
 
         localCrawler.on("fetch410", function() {
             done();
@@ -88,8 +93,8 @@ describe("Crawler reliability", function() {
     });
 
     it("should be able to freeze and defrost the queue", function(done) {
-        var localCrawler = new Crawler("http://127.0.0.1:3000/"),
-            newCrawler = new Crawler("http://127.0.0.1:3000/"),
+        var localCrawler = makeCrawler("http://127.0.0.1:3000/"),
+            newCrawler = makeCrawler("http://127.0.0.1:3000/"),
             tmp = os.tmpdir() ? path.join(os.tmpdir(), "queue.json") : path.join(__dirname, "queue.json");
 
         localCrawler.start();
@@ -143,7 +148,7 @@ describe("Crawler reliability", function() {
     });
 
     it("should only be able to start once per run", function(done) {
-        var localCrawler = new Crawler("http://127.0.0.1:3000/");
+        var localCrawler = makeCrawler("http://127.0.0.1:3000/");
 
         setTimeout(function() {
             var crawlIntervalID = localCrawler.crawlIntervalID;
@@ -162,7 +167,7 @@ describe("Crawler reliability", function() {
     describe("when stopping the crawler", function() {
 
         it("should not terminate open connections unless asked", function(done) {
-            var localCrawler = new Crawler("http://127.0.0.1:3000/");
+            var localCrawler = makeCrawler("http://127.0.0.1:3000/");
             var fetchStartCallCount = 0;
 
             // Speed things up
@@ -194,7 +199,7 @@ describe("Crawler reliability", function() {
         });
 
         it("should terminate open connections when requested", function(done) {
-            var localCrawler = new Crawler("http://127.0.0.1:3000/");
+            var localCrawler = makeCrawler("http://127.0.0.1:3000/");
             var fetchStartCallCount = 0,
                 abortCallCount = 0;
 

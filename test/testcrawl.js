@@ -201,15 +201,14 @@ describe("Test Crawl", function() {
 
     it("it should remove script tags if parseScriptTags is disabled", function(done) {
         var crawler = makeCrawler("http://127.0.0.1:3000/script");
-        crawler.maxDepth = 1;
         crawler.parseScriptTags = false;
 
         crawler.start();
 
         crawler.on("complete", function() {
-            crawler.queue.getLength(function (error, length) {
-                length.should.equal(2);
-                done();
+            crawler.queue.exists("http://127.0.0.1:3000/not/existent/file.js", function(error, exists) {
+                exists.should.equal(0);
+                done(error);
             });
         });
     });
