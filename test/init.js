@@ -1,22 +1,18 @@
-// Ensures that the crawler object is requireable,
-// and doesn't die horribly right off the bat
-
 /* eslint-env mocha */
+/* eslint new-cap: [0] */
 
 var chai = require("chai");
 
 chai.should();
 
+// Ensures that the crawler object is requireable, and doesn't die horribly
+// right off the bat
 describe("Crawler object", function() {
 
-    var Crawler = null;
-    beforeEach(function() {
-        Crawler = require("../");
-    });
+    var Crawler = require("../");
 
     it("should be able to be required", function() {
         Crawler.should.be.a("function");
-        Crawler.Crawler.should.be.a("function");
     });
 
     it("should import the queue", function() {
@@ -28,8 +24,18 @@ describe("Crawler object", function() {
     });
 
     it("should be able to be initialised", function() {
-        var myCrawler = new Crawler("127.0.0.1", "/", 3000);
-        myCrawler.should.be.an.instanceof(Crawler);
+        var crawler = new Crawler("http://127.0.0.1:3000/");
+        crawler.should.be.an.instanceof(Crawler);
+    });
+
+    it("should be able to be initialised without the `new` operator", function() {
+        function listener () {}
+
+        var crawler = Crawler("http://127.0.0.1:3000/").on("fetchcomplete", listener),
+            listeners = crawler.listeners("fetchcomplete");
+
+        crawler.should.be.an.instanceof(Crawler);
+        listeners[0].should.equal(listener);
     });
 
 });

@@ -2,20 +2,25 @@
 
 /* eslint-env mocha */
 
-var chai = require("chai");
+var chai = require("chai"),
+    Crawler = require("../");
 
 chai.should();
 
 describe("Crawler link discovery", function() {
 
-    var Crawler = null,
-        crawler = null,
-        discover = null;
+    var discover,
+        crawler;
 
     beforeEach(function() {
-        Crawler = require("../");
-        crawler = new Crawler();
-        discover = crawler.discoverResources.bind(crawler);
+        crawler = new Crawler("http://example.com");
+
+        discover = function (resourceText, queueItem) {
+            queueItem = queueItem || {};
+
+            var resources = crawler.discoverResources(resourceText, queueItem);
+            return crawler.cleanExpandResources(resources, queueItem);
+        };
     });
 
     it("should discover http/s prefixed URLs in the document", function() {

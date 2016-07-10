@@ -11,42 +11,38 @@ var Server = require("./lib/testserver.js"),
 
 chai.should();
 
-var makeCrawler = function (host, path, port) {
-    var crawler = new Crawler(host, path, port);
+var makeCrawler = function (url) {
+    var crawler = new Crawler(url);
     crawler.interval = 5;
     return crawler;
 };
 
 describe("Test Crawl", function() {
 
-    // Create a new crawler to crawl this server
-    var localCrawler = makeCrawler("127.0.0.1", "/", 3000),
-        linksDiscovered = 0;
-
     it("should be able to be started", function(done) {
+        var crawler = makeCrawler("http://127.0.0.1:3000/");
 
-        localCrawler.on("crawlstart", function() {
-            localCrawler.running.should.equal(true);
+        crawler.on("crawlstart", function() {
+            crawler.running.should.equal(true);
             done();
         });
-        localCrawler.on("discoverycomplete", function() {
-            linksDiscovered++;
-        });
 
-        localCrawler.start();
+        crawler.start();
     });
 
     it("should emit an error when it gets a faulty cookie", function(done) {
+        var crawler = makeCrawler("http://127.0.0.1:3000/");
 
-        localCrawler.on("cookieerror", function(queueItem) {
+        crawler.on("cookieerror", function(queueItem) {
             queueItem.url.should.equal("http://127.0.0.1:3000/stage2");
             done();
         });
+
+        crawler.start();
     });
 
     it("should parse, store and send cookies properly", function(done) {
-
-        var crawler = makeCrawler("localhost", "/cookie", 3000),
+        var crawler = makeCrawler("http://localhost:3000/cookie"),
             i = 0;
 
         crawler.on("fetchstart", function(queueItem, requestOptions) {
@@ -61,22 +57,34 @@ describe("Test Crawl", function() {
         crawler.start();
     });
 
-    it("should have a queue with at least the initial crawl path", function() {
+    it("should have added the initial item to the queue", function(done) {
+        var crawler = makeCrawler("http://127.0.0.1:3000/");
+        crawler.start();
 
-        localCrawler.queue.length.should.be.greaterThan(0);
-    });
-
-    it("should discover all linked resources in the queue", function(done) {
-
-        localCrawler.on("complete", function() {
-            linksDiscovered.should.equal(5);
+        crawler.queue.getLength(function(error, length) {
+            length.should.be.greaterThan(0);
             done();
         });
     });
 
-    it("should obey rules in robots.txt", function(done) {
+    it("should discover all available linked resources", function(done) {
+        var crawler = makeCrawler("http://127.0.0.1:3000/"),
+            linksDiscovered = 0;
 
-        var crawler = makeCrawler("127.0.0.1", "/", 3000);
+        crawler.on("discoverycomplete", function() {
+            linksDiscovered++;
+        });
+
+        crawler.on("complete", function() {
+            linksDiscovered.should.equal(5);
+            done();
+        });
+
+        crawler.start();
+    });
+
+    it("should obey rules in robots.txt", function(done) {
+        var crawler = makeCrawler("http://127.0.0.1:3000/");
         crawler.start();
 
         crawler.on("fetchdisallowed", function(parsedURL) {
@@ -86,8 +94,7 @@ describe("Test Crawl", function() {
     });
 
     it("should be able to disregard rules in robots.txt", function(done) {
-
-        var crawler = makeCrawler("127.0.0.1", "/", 3000);
+        var crawler = makeCrawler("http://127.0.0.1:3000/");
         crawler.respectRobotsTxt = false;
         crawler.start();
 
@@ -103,7 +110,6 @@ describe("Test Crawl", function() {
     });
 
     it("should obey robots.txt on different hosts", function(done) {
-
         var server = new Server({
             "/robots.txt": function(write) {
                 write(200, "User-agent: *\nDisallow: /disallowed\n");
@@ -115,7 +121,7 @@ describe("Test Crawl", function() {
         });
         server.listen(3001);
 
-        var crawler = makeCrawler("127.0.0.1", "/to/other/port", 3000);
+        var crawler = makeCrawler("http://127.0.0.1:3000/to/other/port");
         crawler.start();
 
         crawler.on("fetchdisallowed", function(parsedURL) {
@@ -132,7 +138,6 @@ describe("Test Crawl", function() {
     });
 
     it("should emit an error when robots.txt redirects to a disallowed domain", function(done) {
-
         var server = new Server({
             "/robots.txt": function(write, redir) {
                 redir("http://example.com/robots.txt");
@@ -140,7 +145,7 @@ describe("Test Crawl", function() {
         });
         server.listen(3002);
 
-        var crawler = makeCrawler("127.0.0.1", "/", 3002);
+        var crawler = makeCrawler("http://127.0.0.1:3002/");
         crawler.start();
 
         crawler.on("robotstxterror", function(error) {
@@ -151,8 +156,8 @@ describe("Test Crawl", function() {
     });
 
     it("should support async event listeners for manual discovery", function(done) {
-
-        var crawler = makeCrawler("127.0.0.1", "/", 3000);
+        var crawler = makeCrawler("http://127.0.0.1:3000/"),
+            linksDiscovered = 0;
 
         // Use a different crawler this time
         crawler.discoverResources = false;
@@ -178,14 +183,13 @@ describe("Test Crawl", function() {
         });
 
         crawler.on("complete", function() {
-            linksDiscovered.should.equal(8);
+            linksDiscovered.should.equal(3);
             done();
         });
     });
 
     it("should not throw an error if header Referer is undefined", function(done) {
-
-        var crawler = makeCrawler("127.0.0.1", "/depth/1", 3000);
+        var crawler = makeCrawler("http://127.0.0.1:3000/depth/1");
         crawler.maxDepth = 1;
 
         crawler.start();
@@ -196,23 +200,23 @@ describe("Test Crawl", function() {
     });
 
     it("it should remove script tags if parseScriptTags is disabled", function(done) {
-
-        var crawler = makeCrawler("127.0.0.1", "/script", 3000);
+        var crawler = makeCrawler("http://127.0.0.1:3000/script");
         crawler.maxDepth = 1;
         crawler.parseScriptTags = false;
 
         crawler.start();
 
         crawler.on("complete", function() {
-            crawler.queue.length.should.equal(2);
-            done();
+            crawler.queue.getLength(function (error, length) {
+                length.should.equal(2);
+                done();
+            });
         });
     });
 
     it("it should emit an error when resource is too big", function(done) {
-
-        var crawler = makeCrawler("127.0.0.1", "/big", 3000);
-        var visitedUrl = false;
+        var crawler = makeCrawler("http://127.0.0.1:3000/big"),
+            visitedUrl = false;
 
         crawler.start();
 
@@ -226,7 +230,7 @@ describe("Test Crawl", function() {
     });
 
     it("should allow initial redirect to different domain if configured", function(done) {
-        var crawler = makeCrawler("127.0.0.1", "/domain-redirect", 3000);
+        var crawler = makeCrawler("http://127.0.0.1:3000/domain-redirect");
 
         crawler.allowInitialDomainChange = true;
 
@@ -240,7 +244,7 @@ describe("Test Crawl", function() {
     });
 
     it("should only allow redirect to different domain for initial request", function(done) {
-        var crawler = makeCrawler("127.0.0.1", "/to-domain-redirect", 3000),
+        var crawler = makeCrawler("http://127.0.0.1:3000/to-domain-redirect"),
             linksDiscovered = 0;
 
         crawler.on("discoverycomplete", function() {
@@ -256,7 +260,7 @@ describe("Test Crawl", function() {
     });
 
     it("should disallow initial redirect to different domain by default", function(done) {
-        var crawler = makeCrawler("127.0.0.1", "/domain-redirect", 3000),
+        var crawler = makeCrawler("http://127.0.0.1:3000/domain-redirect"),
             linksDiscovered = 0;
 
         crawler.on("discoverycomplete", function() {
@@ -272,7 +276,7 @@ describe("Test Crawl", function() {
     });
 
     it("should not increase depth on multiple redirects on the initial request", function(done) {
-        var crawler = makeCrawler("localhost", "/domain-redirect2", 3000),
+        var crawler = makeCrawler("http://localhost:3000/domain-redirect2"),
             depth = 1;
 
         crawler.on("fetchredirect", function(queueItem) {
@@ -290,7 +294,7 @@ describe("Test Crawl", function() {
     });
 
     it("should disallow initial redirect to different domain after a 2xx", function(done) {
-        var crawler = makeCrawler("127.0.0.1", "/to-domain-redirect", 3000),
+        var crawler = makeCrawler("http://127.0.0.1:3000/to-domain-redirect"),
             discoComplete = 0;
 
         crawler.allowInitialDomainChange = true;

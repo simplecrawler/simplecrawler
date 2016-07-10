@@ -26,8 +26,6 @@ pages and written tens of gigabytes to disk without issue.
 ## Documentation
 
 - [Getting started](#getting-started)
-    - [Simplified mode](#simplified-mode)
-    - [Regular mode](#regular-mode)
 - [Events](#events)
     - [A note about HTTP error conditions](#a-note-about-http-error-conditions)
     - [Waiting for asynchronous event listeners](#waiting-for-asynchronous-event-listeners)
@@ -42,77 +40,57 @@ pages and written tens of gigabytes to disk without issue.
     - [Cookie events](#cookie-events)
 - [Link Discovery](#link-discovery)
 - [FAQ/Troubleshooting](#faqtroubleshooting)
+- [Node Support Policy](#node-support-policy)
 - [Current Maintainers](#current-maintainers)
+- [Contributing](#contributing)
 - [Contributors](#contributors)
 - [License](#license)
 
 ## Getting Started
 
-There are two ways of instantiating a new crawler - a simplified but less
-flexible method inspired by [anemone](http://anemone.rubyforge.org), and the
-traditional method which provides a little more room to configure crawl
-parameters.
+Initializing simplecrawler is a simple process. First, you require the module
+and instantiate it with a single argument. You then configure the properties you
+like (eg. the request interval), register a few event listeners, and call the
+start method. Let's walk through the process!
 
-Regardless of whether you use the simplified or regular method of instantiation,
-you'll need to require simplecrawler first:
+After requiring the crawler, we create a new instance of it. We supply the
+constructor with a URL that indicates which domain to crawl and which resource
+to fetch first.
 
 ```js
 var Crawler = require("simplecrawler");
+
+var crawler = new Crawler("http://www.example.com/");
 ```
 
-### Simplified Mode
-
-If all you need is a quick crawl of a small website, the simplified mode of
-initiating the crawler provides a slightly quicker way of getting started. It
-generates a new crawler for you, preconfigures it based on a URL you provide,
-starts the crawl and returns the crawler instance for further configuration and
-so that you can attach event handlers.
-
-Simply call `Crawler.crawl` with a URL as the first parameter, and two optional
-functions that will be added as event listeners for `fetchcomplete` and
-`fetcherror` respectively.
+You can initialise the crawler with or without the `new` operator. Being able to
+skip it comes in handy when you want to chain API calls.
 
 ```js
-Crawler.crawl("http://example.com/", function(queueItem) {
-    console.log("Completed fetching resource:", queueItem.url);
-});
+var crawler = Crawler("http://www.example.com/")
+    .on("fetchcomplete", function () {
+        console.log("Fetched a resource!")
+    });
 ```
 
-Alternately, if you decide to omit these functions, you can use the returned
-crawler object to add the event listeners yourself, and tweak configuration
-options:
+The protocol and host that are used throughout the entire crawl are inferred
+from the start URL that's passed to the constructor. These properties, along
+with the initial path and port can also be set directly, however. So these two
+examples do the same thing:
 
 ```js
-var crawler = Crawler.crawl("http://example.com/");
-
-crawler.interval = 500;
-
-crawler.on("fetchcomplete", function(queueItem) {
-    console.log("Completed fetching resource:", queueItem.url);
-});
+var crawler = new Crawler("https://www.example.com:8080/archive");
 ```
 
-### Regular Mode
-
-The standard way of creating a crawler is to call the `simplecrawler`
-constructor yourself and initiate the crawl manually.
-
 ```js
-var crawler = new Crawler("www.example.com");
-```
+var crawler = new Crawler("http://www.example.com");
 
-Non-standard port? HTTPS? Want to start crawling at a specific path? No problem:
-
-```js
 crawler.initialPath = "/archive";
 crawler.initialPort = 8080;
 crawler.initialProtocol = "https";
-
-// Or:
-var crawler = new Crawler("www.example.com", "/archive", 8080);
 ```
 
-And of course, you're probably wanting to ensure you don't take down your web
+Of course, you're probably wanting to ensure you don't take down your web
 server. Decrease the concurrency from five simultaneous requests - and increase
 the request interval from the default 250 ms like this:
 
@@ -184,16 +162,15 @@ in parentheses.
     Fired when the resource is completely downloaded. The response body is
     provided as a Buffer per default, unless `decodeResponses` is truthy, in
     which case it's a decoded string representation of the body.
-* `fetchdisallowed` (parsedURL) -
+* `fetchdisallowed` (queueItem) -
     Fired when a resource isn't fetched due to robots.txt rules. See
-    `respectRobotsTxt` option. See [Adding a fetch
-    condition](#adding-a-fetch-condition) for details on the `parsedURL` object.
+    `respectRobotsTxt` option.
 * `fetchdataerror` (queueItem, response) -
     Fired when a resource can't be downloaded, because it exceeds the maximum
     size we're prepared to receive (16MB by default.)
-* `fetchredirect` (queueItem, parsedURL, response) -
-    Fired when a redirect header is encountered. The new URL is validated and
-    returned as a complete canonical link to the new resource.
+* `fetchredirect` (oldQueueItem, referrerQueueItem, response) -
+    Fired when a redirect header is encountered. The new URL is processed and
+    passed as `referrerQueueItem`.
 * `fetch404` (queueItem, response) -
     Fired when a 404 HTTP status code is returned for a request.
 * `fetch410` (queueItem, response) -
@@ -412,9 +389,9 @@ function that, when given a parsed URL object, returns a value that indicates
 whether a given resource should be downloaded.
 
 You may add as many fetch conditions as you like, and remove them at runtime.
-simplecrawler will evaluate will evaluate every fetch condition until one is
-encountered that returns a falsy value. If that happens,  the resource in
-question will not be fetched.
+simplecrawler will evaluate every fetch condition until one is encountered that
+returns a falsy value. If that happens, the resource in question will not be
+fetched.
 
 ### Adding a fetch condition
 
@@ -424,34 +401,24 @@ downloaded. Adding a fetch condition assigns it an ID, which the
 condition later.
 
 ```js
-var conditionID = myCrawler.addFetchCondition(function(parsedURL, queueItem) {
-    return !parsedURL.path.match(/\.pdf$/i);
+var conditionID = myCrawler.addFetchCondition(function(queueItem, referrerQueueItem) {
+    return !queueItem.path.match(/\.pdf$/i);
 });
 ```
 
-Fetch conditions are called with two arguments: `parsedURL` and `queueItem`.
-`parsedURL` represents the resource to be fetched (or not) and has the following
-structure:
-
-```js
-{
-    protocol: "http",
-    host: "example.com",
-    port: 80,
-    path: "/search?q=hello",
-    uriPath: "/search",
-    depth: 2
-}
-```
-
-`queueItem` is a representation of the page where this resource was found. See
-the [queue item documentation](#queue-items) for details on its structure.
+Fetch conditions are called with two arguments: `queueItem` and
+`referrerQueueItem`. The former represents the resource to be fetched (or not),
+and the latter represents the resource where the new `queueItem` was discovered.
+See the [queue item documentation](#queue-items) for details on their structure.
 
 With this information, you can write sophisticated logic for determining which
-pages to fetch and which to avoid. For example, you could write a link checker
-that checks both internal and external links, yet doesn't continue crawling
-other domains by setting `filterByDomain` to false and checking that
-`queueItem.host` is the same as `crawler.host`.
+pages to fetch and which to avoid. For example, you could write a program that
+ensures all links on a website - both internal and external - return good HTTP
+statuses. One way to achieve this would be to set `filterByDomain` to false and
+add a fetch condition that returns false if  `queueItem.host` is the same as
+`referrerQueueItem.host`, unless they both equal `crawler.host`. That would make
+the crawler go just one resource beyond the original host - ie. not follow any
+links it discovers on the new site.
 
 ### Removing a fetch condition
 
@@ -465,11 +432,10 @@ myCrawler.removeFetchCondition(conditionID);
 ## The queue
 
 Like any other web crawler, simplecrawler has a queue. It can be directly
-accessed through `crawler.queue` and is by default only backed by an array,
-which means items in the queue can be accessed through array notation. However,
-since simplecrawler also supports different backing stores for the queue, the
-recommended way of accessing items is through the (pseudo) asynchronous
-`crawler.queue.get` method.
+accessed through `crawler.queue` and implements an asynchronous interface for
+accessing queue items and statistics. There are several methods for interacting
+with the queue, the simplest being `crawler.queue.get`, which lets you get a
+queue item at a specific index in the queue.
 
 ```js
 crawler.queue.get(5, function (queueItem) {
@@ -477,15 +443,18 @@ crawler.queue.get(5, function (queueItem) {
 });
 ```
 
-Even though this operation is actually synchronous when the default backing
-store is used, this method helps maintain compatibility with asynchronous
-backing stores that would let you eg. store the queue in a database.
+*All queue method are in reality synchronous by default, but simplecrawler is
+built to be able to use different queues that implement the same interface, and
+those implementations can be asynchronous - which means they could eg. be backed
+by a database.*
 
 ### Manually adding to the queue
 
-The simplest way of manually adding to the queue is to use the crawler's method
-`crawler.queueURL`. This method takes a complete URL, validates and deconstructs
-it, and adds it to the queue.
+To add items to the queue, use `crawler.queueURL`. This method takes a complete
+URL, validates and deconstructs it, and adds it to the queue. It also accepts a
+referrer queue item. However, the only properties used in the queue item are
+`url` and `depth`, so you can also easily use a custom object. Here's an
+example:
 
 ```js
 var customQueueItem = {
@@ -495,10 +464,6 @@ var customQueueItem = {
 
 crawler.queueURL("/example.html", customQueueItem);
 ```
-
-If you instead want to add a resource by its components, you may call the
-`queue.add` method directly with the signature `protocol`, `hostname`, `port`,
-`path`.
 
 ### Queue items
 
@@ -526,7 +491,8 @@ of:
     * `"downloaded"` - The item has been entirely downloaded.
     * `"redirected"` - The resource request returned a 300 series response, with
     a Location header and a new URL.
-    * `"notfound"` - The resource could not be found. (404)
+    * `"notfound"` - The resource could not be found, ie. returned a 404 or 410
+    HTTP status.
     * `"failed"` - An error occurred when attempting to fetch the resource.
 * `stateData` - An object containing state data and other information about the
 request:
@@ -538,7 +504,9 @@ request:
     * `contentLength` - The length (in bytes) of the returned content.
     Calculated based on the `content-length` header.
     * `contentType` - The MIME type of the content.
-    * `code` - The HTTP status code returned for the request.
+    * `code` - The HTTP status code returned for the request. Note that this
+      code is `600` if an error occurred in the client and a fetch operation
+      could not take place successfully.
     * `headers` - An object containing the header information returned by the
     server. This is the object node returns as part of the `response` object.
     * `actualDataSize` - The length (in bytes) of the returned content.
@@ -565,48 +533,44 @@ a second. You can test the following properties:
 
 You can get the maximum, minimum, and average values for each with the
 `crawler.queue.max`, `crawler.queue.min`, and `crawler.queue.avg` functions
-respectively. Like the `crawler.queue.get` method, these methods are pseudo
-asynchronous to support different backing stores for the queue. That means they
-will provide both a return value and a callback.
+respectively.
 
 ```js
-crawler.queue.max("requestLatency", function (max) {
+crawler.queue.max("requestLatency", function(error, max) {
     console.log("The maximum request latency was %dms.", max);
 });
-crawler.queue.min("downloadTime", function (min) {
+crawler.queue.min("downloadTime", function(error, min) {
     console.log("The minimum download time was %dms.", min);
 });
-crawler.queue.avg("actualDataSize", function (avg) {
+crawler.queue.avg("actualDataSize", function(error, avg) {
     console.log("The average resource size received is %d bytes.", avg);
 });
 ```
 
-You'll probably often need to determine how many queue items have a given status
-and/or retrieve them. That's easily done with the methods
-`crawler.queue.countWithStatus` and `crawler.queue.getWithStatus`.
-
-`crawler.queue.countWithStatus` provides the number of queued items with a given
-status, while `crawler.queue.getWithStatus` returns an array of the queue items
-themselves. Again, by default, these methods both return and accept callbacks.
+For general filtering or counting of queue items, there are two methods:
+`crawler.queue.filterItems` and `crawler.queue.countItems`. Both take an object
+comparator and a callback.
 
 ```js
-crawler.queue.countWithStatus("redirected", function (redirectCount) {
-    console.log("The redirect count is %d", redirectCount);
+crawler.queue.countItems({ fetched: true }, function(error, count) {
+    console.log("The number of completed items is %d", count);
 });
 
-crawler.queue.getWithStatus("failed", function (failedItems) {
-    failedItems.forEach(function(queueItem) {
-        console.log("Whoah, the request for %s failed!", queueItem.url);
-    });
+crawler.queue.filterItems({ status: "notfound" }, function(error, items) {
+    console.log("These items returned 404 or 410 HTTP statuses", items);
 });
 ```
 
-Then there's some even simpler convenience functions:
+The object comparator can also contain other objects, so you may filter queue
+items based on properties in their `stateData` object as well.
 
-* `crawler.queue.complete` - provides the number of queue items which have been
-  completed (marked as fetched).
-* `crawler.queue.errors` - provides the number of requests which have failed
-  (404s and other 400/500 errors, as well as client errors).
+```js
+crawler.queue.filterItems({
+    stateData: { code: 301 }
+}, function(error, items) {
+    console.log("These items returned a 301 HTTP status", items);
+});
+```
 
 ### Saving and reloading the queue (freeze/defrost)
 
@@ -722,8 +686,7 @@ list below before submitting an issue.
     var Crawler = require("simplecrawler"),
         request = require("request");
 
-    var crawler = new Crawler("example.com", "/");
-    crawler.initialProtocol = "https";
+    var crawler = new Crawler("https://example.com/");
 
     request.post("https://example.com/login", {
         form: {
@@ -780,7 +743,7 @@ list below before submitting an issue.
                 console.log("fetched %d of %d — %d open requests, %d open listeners",
                     completeCount,
                     length,
-                    crawler._openRequests,
+                    crawler._openRequests.length,
                     crawler._openListeners);
             });
         });
@@ -793,11 +756,32 @@ list below before submitting an issue.
     If you don't see what you need after inserting that code block, and you still need help,
     please attach the output of all the events fired with your email/issue.
 
+## Node Support Policy
+
+Simplecrawler will officially support stable and LTS versions of Node which are
+currently supported by the Node Foundation. We will endeavour to continue to
+support Node 0.10.x — but after it falls out of LTS it is likely we will adopt
+newer JS syntax and APIs which 0.10.x does not support.
+
+Currently supported versions:
+
+- 0.10.x
+- 0.12.x
+- 4.x
+- 5.x
+- 6.x
+
 ## Current Maintainers
 
 * [Christopher Giffard](https://github.com/cgiffard)
 * [Fredrik Ekelund](https://github.com/fredrikekelund)
 * [XhmikosR](https://github.com/XhmikosR)
+
+## Contributing
+
+Please see the [contributor guidelines](https://github.com/cgiffard/node-simplecrawler/blob/master/CONTRIBUTING.md)
+before submitting a pull request to ensure that your contribution is able to be
+accepted quickly and easily!
 
 ## Contributors
 
