@@ -248,9 +248,8 @@ describe("Queue methods", function() {
         }
 
         crawler.queue.add = function (queueItem) {
-            var storedQueueItem = Object.assign({}, queueItem, {
-                status: "queued"
-            });
+            var storedQueueItem = deepAssign({}, queueItem);
+            storedQueueItem.status = "queued";
             queueItems.push(storedQueueItem);
 
             originalQueueAdd.apply(crawler.queue, arguments);
