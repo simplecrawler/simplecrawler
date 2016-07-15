@@ -322,6 +322,7 @@ describe("Queue methods", function() {
             queueItem.should.have.a.property("url");
             queueItem.should.have.a.property("fetched");
             queueItem.should.have.a.property("status");
+            crawler.stop(true);
             done();
         });
 
