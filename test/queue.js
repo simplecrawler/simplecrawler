@@ -248,21 +248,29 @@ describe("Queue methods", function() {
         }
 
         crawler.queue.add = function (queueItem) {
-            var storedQueueItem = deepAssign({}, queueItem);
-            storedQueueItem.status = "queued";
-            queueItems.push(storedQueueItem);
+            var args = arguments;
 
-            originalQueueAdd.apply(crawler.queue, arguments);
+            process.nextTick(function() {
+                var storedQueueItem = deepAssign({}, queueItem);
+                storedQueueItem.status = "queued";
+                queueItems.push(storedQueueItem);
+
+                originalQueueAdd.apply(crawler.queue, args);
+            });
         };
 
         crawler.queue.update = function(url, updates) {
-            var storedQueueItem = findByUrl(queueItems, url),
-                queueQueueItem = findByUrl(crawler.queue, url);
+            var args = arguments;
 
-            queueQueueItem.should.eql(storedQueueItem);
-            deepAssign(storedQueueItem, updates);
+            process.nextTick(function() {
+                var storedQueueItem = findByUrl(queueItems, url),
+                    queueQueueItem = findByUrl(crawler.queue, url);
 
-            originalQueueUpdate.apply(crawler.queue, arguments);
+                queueQueueItem.should.eql(storedQueueItem);
+                deepAssign(storedQueueItem, updates);
+
+                originalQueueUpdate.apply(crawler.queue, args);
+            });
         };
 
         crawler.on("complete", function() {
