@@ -298,4 +298,33 @@ describe("Queue methods", function() {
 
         crawler.start();
     });
+
+    it("emits a queueerror event when update method errors", function(done) {
+        var crawler = new Crawler("http://127.0.0.1:3000"),
+            originalQueueUpdate = crawler.queue.update;
+
+        crawler.interval = 5;
+
+        crawler.queue.update = function(url, updates, callback) {
+            originalQueueUpdate.call(crawler.queue, url, updates, function(error, queueItem) {
+                if (!error) {
+                    error = new Error("Not updating this queueItem");
+                }
+
+                callback(error, queueItem);
+            });
+        };
+
+        crawler.on("queueerror", function(error, queueItem) {
+            error.should.be.an.instanceof(Error);
+            error.message.should.equal("Not updating this queueItem");
+            queueItem.should.be.an("object");
+            queueItem.should.have.a.property("url");
+            queueItem.should.have.a.property("fetched");
+            queueItem.should.have.a.property("status");
+            done();
+        });
+
+        crawler.start();
+    });
 });
