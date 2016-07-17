@@ -64,7 +64,7 @@ var Crawler = require("simplecrawler");
 var crawler = new Crawler("http://www.example.com/");
 ```
 
-You can initialise the crawler with or without the `new` operator. Being able to
+You can initialize the crawler with or without the `new` operator. Being able to
 skip it comes in handy when you want to chain API calls.
 
 ```js
@@ -74,26 +74,14 @@ var crawler = Crawler("http://www.example.com/")
     });
 ```
 
-The protocol and host that are used throughout the entire crawl are inferred
-from the start URL that's passed to the constructor. These properties, along
-with the initial path and port can also be set directly, however. So these two
-examples do the same thing:
+By default, the crawler will only fetch resources on the same domain as that in
+the URL passed to the constructor. But this can be changed through the
+`crawler.domainWhitelist` property.
 
-```js
-var crawler = new Crawler("https://www.example.com:8080/archive");
-```
-
-```js
-var crawler = new Crawler("http://www.example.com");
-
-crawler.initialPath = "/archive";
-crawler.initialPort = 8080;
-crawler.initialProtocol = "https";
-```
-
-Of course, you're probably wanting to ensure you don't take down your web
-server. Decrease the concurrency from five simultaneous requests - and increase
-the request interval from the default 250 ms like this:
+Now, let's configure some more things before we start crawling. Of course,
+you're probably wanting to ensure you don't take down your web server. Decrease
+the concurrency from five simultaneous requests - and increase the request
+interval from the default 250 ms like this:
 
 ```js
 crawler.interval = 10000; // Ten seconds
@@ -235,15 +223,6 @@ change to adapt it to your specific needs.
 * `crawler.host` -
     The domain to scan. By default, simplecrawler will restrict all requests to
     this domain.
-* `crawler.initialPath="/"` -
-    The initial path with which the crawler will formulate its first request.
-    Does not restrict subsequent requests.
-* `crawler.initialPort=80` -
-    The initial port with which the crawler will formulate its first request.
-    Does not restrict subsequent requests.
-* `crawler.initialProtocol="http"` -
-    The initial protocol with which the crawler will formulate its first
-    request. Does not restrict subsequent requests.
 * `crawler.interval=250` -
     The interval with which the crawler will spool up new requests (one per
     tick).
@@ -785,7 +764,7 @@ list below before submitting an issue.
     ```js
     var originalEmit = crawler.emit;
     crawler.emit = function(evtName, queueItem) {
-        crawler.queue.complete(function(err, completeCount) {
+        crawler.queue.countItems({ fetched: true }, function(error, completeCount) {
             if (err) {
                 throw err;
             }

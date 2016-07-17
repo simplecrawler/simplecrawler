@@ -17,16 +17,17 @@ var makeCrawler = function (url) {
 // Runs a very simple crawl on an HTTP server
 describe("Crawler reliability", function() {
     it("should be able to handle a timeout", function(done) {
-        this.slow("1s");
-
-        var localCrawler = makeCrawler("http://127.0.0.1:3000/timeout");
+        var localCrawler = new Crawler("http://127.0.0.1:3000/timeout");
         localCrawler.timeout = 200;
 
         localCrawler.on("fetchtimeout", function(queueItem) {
             queueItem.should.be.an("object");
-            queueItem.fetched.should.equal(true);
-            queueItem.status.should.equal("timeout");
-            queueItem.url.should.equal("http://127.0.0.1:3000/timeout");
+            queueItem.should.include({
+                url: "http://127.0.0.1:3000/timeout",
+                fetched: true,
+                status: "timeout"
+            });
+
             done();
         });
 
@@ -34,23 +35,18 @@ describe("Crawler reliability", function() {
     });
 
     it("should not decrement _openRequests below zero in the event of a timeout", function(done) {
-        this.slow("1s");
-
-        var localCrawler = new Crawler("http://127.0.0.1:3000/timeout"),
-            timesCalled = 0;
-
+        var localCrawler = new Crawler("http://127.0.0.1:3000/timeout");
         localCrawler.timeout = 200;
+        localCrawler.maxConcurrency = 1;
 
-        localCrawler.queueURL("http://127.0.0.1:3000/timeout");
         localCrawler.queueURL("http://127.0.0.1:3000/timeout2");
 
         localCrawler.on("fetchtimeout", function() {
-            timesCalled++;
-            localCrawler._openRequests.should.eql([]);
+            localCrawler._openRequests.should.have.lengthOf(0);
+        });
 
-            if (timesCalled === 2) {
-                done();
-            }
+        localCrawler.on("complete", function() {
+            done();
         });
 
         localCrawler.start();
@@ -59,12 +55,13 @@ describe("Crawler reliability", function() {
     it("should decrement _openRequests in the event of a non-supported mimetype", function(done) {
         var localCrawler = makeCrawler("http://127.0.0.1:3000/");
         localCrawler.downloadUnsupported = false;
+        localCrawler.maxConcurrency = 1;
 
         localCrawler.queueURL("http://127.0.0.1:3000/img/1");
         localCrawler.queueURL("http://127.0.0.1:3000/img/2");
 
         localCrawler.on("complete", function() {
-            localCrawler._openRequests.should.eql([]);
+            localCrawler._openRequests.should.have.lengthOf(0);
             done();
         });
 
