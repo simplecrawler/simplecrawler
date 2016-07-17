@@ -13,7 +13,7 @@ chai.should();
 
 var makeCrawler = function (url) {
     var crawler = new Crawler(url);
-    crawler.interval = 5;
+    crawler.interval = 1;
     return crawler;
 };
 
