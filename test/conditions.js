@@ -13,6 +13,8 @@ var makeCrawler = function (url) {
 };
 
 describe("Fetch conditions", function() {
+    this.slow("150ms");
+
     it("should be able to add a fetch condition", function() {
         var crawler = makeCrawler("http://example.com"),
             conditionID = crawler.addFetchCondition(function() {});
