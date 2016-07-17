@@ -35,6 +35,8 @@ function depthTest(maxDepth, linksToDiscover) {
 }
 
 describe("Crawler max depth", function() {
+    this.slow("300ms");
+
     var maxDepthToResourceCount = {
         0: 11, // maxDepth=0 (no max depth) should return 11 resources
         1: 1,  // maxDepth=1

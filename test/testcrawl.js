@@ -18,6 +18,7 @@ var makeCrawler = function (url) {
 };
 
 describe("Test Crawl", function() {
+    this.slow("200ms");
 
     it("should be able to be started", function(done) {
         var crawler = makeCrawler("http://127.0.0.1:3000/");
