@@ -57,6 +57,7 @@ var depthTest = function(depth, linksToDiscover, behaviour) {
 };
 
 describe("Crawler max depth with resource override (old default behaviour)", function() {
+    this.slow("300ms");
 
     // depth: linksToDiscover
     var linksToDiscover = {
@@ -75,6 +76,8 @@ describe("Crawler max depth with resource override (old default behaviour)", fun
 });
 
 describe("Crawler max depth without fetching resources (new default behaviour)", function() {
+    this.slow("300ms");
+
     // depth: linksToDiscover
     var linksToDiscover = {
         0: 11, // links for depth 0

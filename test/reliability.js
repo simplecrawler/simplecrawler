@@ -8,6 +8,7 @@ var should = chai.should();
 
 // Runs a very simple crawl on an HTTP server
 describe("Crawler reliability", function() {
+    this.slow("600ms");
 
     var Crawler = require("../");
 
@@ -51,6 +52,7 @@ describe("Crawler reliability", function() {
         var localCrawler = new Crawler("http://127.0.0.1:3000/");
         localCrawler.downloadUnsupported = false;
         localCrawler.maxConcurrency = 1;
+        localCrawler.discoverResources = false;
 
         localCrawler.queueURL("http://127.0.0.1:3000/img/1");
         localCrawler.queueURL("http://127.0.0.1:3000/img/2");
