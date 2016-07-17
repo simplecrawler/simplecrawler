@@ -24,9 +24,11 @@ var Server = function(routes) {
                 }
             }
 
-            res.writeHead(status, http.STATUS_CODES[status], headers);
-            res.write(data);
-            res.end();
+            setTimeout(function() {
+                res.writeHead(status, http.STATUS_CODES[status], headers);
+                res.write(data);
+                res.end();
+            }, 20);
         }
 
         function redir(to) {
