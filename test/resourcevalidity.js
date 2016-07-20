@@ -128,6 +128,45 @@ describe("Resource validity checker", function() {
         crawler.processURL("http://www.example.com").host.should.equal("www.example.com");
     });
 
+    it("should throw out junky or invalid URLs without dying", function() {
+
+        var crawler = makeCrawler("http://127.0.0.1:3000");
+
+        var urlContext = {
+            url: "http://www.example.com"
+        };
+
+        crawler.processURL("", urlContext).should.equal(false);
+        crawler.processURL("\n\n", urlContext).should.equal(false);
+        crawler.processURL("ur34nfie4985:s////dsf/", urlContext).should.equal(false);
+
+    });
+
+    it("should process URL's without a referer", function() {
+
+        var crawler = makeCrawler("http://127.0.0.1:3000");
+
+        crawler.processURL("/stage2").should.include({
+            url: "http://127.0.0.1:3000/stage2",
+            depth: 1
+        });
+
+        crawler.processURL("http://example.com/blurp").should.include({
+            url: "http://example.com/blurp",
+            depth: 1
+        });
+
+        // Test processing of a URL with referer as well for comparison
+        crawler.processURL("/test", {
+            url: "http://example.com",
+            depth: 2
+        }).should.include({
+            url: "http://example.com/test",
+            depth: 3
+        });
+
+    });
+
     it("should permit fetching of specified protocols based on internal whitelist", function() {
 
         var crawler = makeCrawler("http://example.com:3000");
@@ -266,23 +305,5 @@ describe("Resource validity checker", function() {
         });
 
         crawler.start();
-    });
-
-    describe("Link parser", function() {
-
-        var crawler = makeCrawler("http://127.0.0.1:3000");
-
-        it("should throw out junky or invalid URLs without dying", function() {
-
-            var urlContext = {
-                url: "http://www.example.com"
-            };
-
-            crawler.processURL("", urlContext).should.equal(false);
-            crawler.processURL("\n\n", urlContext).should.equal(false);
-            crawler.processURL("ur34nfie4985:s////dsf/", urlContext).should.equal(false);
-
-        });
-
     });
 });

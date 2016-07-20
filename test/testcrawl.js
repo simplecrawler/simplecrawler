@@ -13,11 +13,12 @@ chai.should();
 
 var makeCrawler = function (url) {
     var crawler = new Crawler(url);
-    crawler.interval = 5;
+    crawler.interval = 1;
     return crawler;
 };
 
 describe("Test Crawl", function() {
+    this.slow("200ms");
 
     it("should be able to be started", function(done) {
         var crawler = makeCrawler("http://127.0.0.1:3000/");
@@ -157,18 +158,16 @@ describe("Test Crawl", function() {
 
     it("should support async event listeners for manual discovery", function(done) {
         var crawler = makeCrawler("http://127.0.0.1:3000/"),
-            linksDiscovered = 0;
+            fetchedResources = [];
 
-        // Use a different crawler this time
         crawler.discoverResources = false;
         crawler.queueURL("http://127.0.0.1:3000/async-stage1");
-        crawler.start();
 
         crawler.on("fetchcomplete", function(queueItem, data) {
             var evtDone = this.wait();
 
             setTimeout(function() {
-                linksDiscovered++;
+                fetchedResources.push(queueItem.url);
 
                 if (String(data).match(/complete/i)) {
                     return evtDone();
@@ -183,9 +182,17 @@ describe("Test Crawl", function() {
         });
 
         crawler.on("complete", function() {
-            linksDiscovered.should.equal(3);
+            fetchedResources.should.contain(
+                "http://127.0.0.1:3000/",
+                "http://127.0.0.1:3000/async-stage1",
+                "http://127.0.0.1:3000/async-stage2",
+                "http://127.0.0.1:3000/async-stage3"
+            );
+
             done();
         });
+
+        crawler.start();
     });
 
     it("should not throw an error if header Referer is undefined", function(done) {
