@@ -91,13 +91,5 @@
     "stateData": {},
     "referrer": "http://127.0.0.1:3000/stage2"
   },
-  "oldestUnfetchedIndex": 2,
-  "completeCache": 0,
-  "scanIndex": {
-    "http://127.0.0.1:3000/": true,
-    "http://127.0.0.1:3000/404": true,
-    "http://127.0.0.1:3000/stage2": true,
-    "http://127.0.0.1:3000/stage/3": true
-  },
   "length": 4
 }

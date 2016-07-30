@@ -99,10 +99,10 @@ describe("Crawler reliability", function() {
             // Lets the queue be populated
             process.nextTick(function() {
                 localCrawler.queue.length.should.equal(3);
-                localCrawler.queue.oldestUnfetchedIndex.should.equal(1);
-                localCrawler.queue.scanIndex["http://127.0.0.1:3000/"].should.equal(true);
-                localCrawler.queue.scanIndex["http://127.0.0.1:3000/stage2"].should.equal(true);
-                localCrawler.queue.scanIndex["http://127.0.0.1:3000/stage/3"].should.equal(true);
+                localCrawler.queue._oldestUnfetchedIndex.should.equal(1);
+                localCrawler.queue._scanIndex["http://127.0.0.1:3000/"].should.equal(true);
+                localCrawler.queue._scanIndex["http://127.0.0.1:3000/stage2"].should.equal(true);
+                localCrawler.queue._scanIndex["http://127.0.0.1:3000/stage/3"].should.equal(true);
 
                 localCrawler.queue[0].status.should.equal("downloaded");
                 localCrawler.queue[1].status.should.equal("downloaded");
@@ -118,10 +118,10 @@ describe("Crawler reliability", function() {
 
         function checkDefrost() {
             newCrawler.queue.length.should.equal(3);
-            newCrawler.queue.oldestUnfetchedIndex.should.equal(2);
-            newCrawler.queue.scanIndex["http://127.0.0.1:3000/"].should.equal(true);
-            newCrawler.queue.scanIndex["http://127.0.0.1:3000/stage2"].should.equal(true);
-            newCrawler.queue.scanIndex["http://127.0.0.1:3000/stage/3"].should.equal(true);
+            newCrawler.queue._oldestUnfetchedIndex.should.equal(2);
+            newCrawler.queue._scanIndex["http://127.0.0.1:3000/"].should.equal(true);
+            newCrawler.queue._scanIndex["http://127.0.0.1:3000/stage2"].should.equal(true);
+            newCrawler.queue._scanIndex["http://127.0.0.1:3000/stage/3"].should.equal(true);
 
             newCrawler.queue[0].status.should.equal("downloaded");
             newCrawler.queue[1].status.should.equal("downloaded");
