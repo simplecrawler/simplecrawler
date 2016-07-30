@@ -180,7 +180,7 @@ describe("Download conditions", function() {
     it("should not download a resource when prevented by a download condition", function(done) {
         this.slow("1s");
 
-        var crawler = makeCrawler("http://example.com");
+        var crawler = makeCrawler("http://127.0.0.1:3000");
         crawler.maxDepth = 1;
 
         crawler.addDownloadCondition(function() {
@@ -196,6 +196,27 @@ describe("Download conditions", function() {
                     done();
                 });
             });
+        });
+
+        crawler.start();
+    });
+
+    it("should only apply download conditions when it would normally download the resource", function(done) {
+        var crawler = makeCrawler("http://127.0.0.1:3000/404");
+
+        crawler.addDownloadCondition(function() {
+            done(new Error("Shouldn't have evaluated the download condition"));
+        });
+
+        crawler.on("fetch404", function(queueItem, response) {
+            queueItem.should.be.an("object");
+            queueItem.status.should.equal("notfound");
+
+            response.should.be.an("object");
+            response.should.be.an.instanceof(http.IncomingMessage);
+
+            crawler.stop(true);
+            done();
         });
 
         crawler.start();
