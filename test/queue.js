@@ -1,5 +1,4 @@
 /* eslint-env mocha */
-/* eslint eqeqeq: [1] */
 
 var chai = require("chai"),
     Crawler = require("../"),
@@ -7,12 +6,34 @@ var chai = require("chai"),
 
 var should = chai.should();
 
+function find(array, callback) {
+    for (var i = 0; i < array.length; i++) {
+        if (callback(array[i], i, array)) {
+            return array[i];
+        }
+    }
+}
+
+function deepAssign(object, source) {
+    for (var key in source) {
+        if (source.hasOwnProperty(key)) {
+            if (typeof object[key] === "object" && typeof source[key] === "object") {
+                deepAssign(object[key], source[key]);
+            } else {
+                object[key] = source[key];
+            }
+        }
+    }
+
+    return object;
+}
+
 describe("Queue methods", function() {
     var crawler = new Crawler("http://127.0.0.1:3000/");
 
     var addToQueue = function(done) {
         Object.keys(queue).forEach(function(key) {
-            if (Number(key) == key) {
+            if (!isNaN(parseInt(key, 10))) {
                 crawler.queueURL(queue[key].url);
             }
         });
@@ -187,5 +208,124 @@ describe("Queue methods", function() {
             should.not.exist(newQueueItem);
             checkDone();
         });
+    });
+
+    it("should update items in the queue", function(done) {
+        crawler.queue.update("http://127.0.0.1:3000/stage2", {
+            status: "queued",
+            fetched: false
+        }, function(error, queueItem) {
+            queueItem.should.include({
+                url: "http://127.0.0.1:3000/stage2",
+                status: "queued",
+                fetched: false
+            });
+
+            done(error);
+        });
+    });
+
+    /**
+     * This test works by monkey patching the queue `add` and `update` methods
+     * and keeping a local copy of the queue, which contains cloned queueItems.
+     * Each time the `update` method is called, we deeply compare the copy in
+     * the queue with our local one. Same thing when the crawler completes.
+     */
+    it("should only update queue items asynchronously", function(done) {
+        var crawler = new Crawler("http://127.0.0.1:3000"),
+            originalQueueAdd = crawler.queue.add,
+            originalQueueUpdate = crawler.queue.update;
+
+        var queueItems = [];
+
+        crawler.interval = 5;
+        crawler.maxDepth = 2;
+
+        function findByUrl(array, url) {
+            return find(array, function(queueItem) {
+                return queueItem.url === url;
+            });
+        }
+
+        crawler.queue.add = function (queueItem) {
+            var args = arguments;
+
+            process.nextTick(function() {
+                var storedQueueItem = deepAssign({}, queueItem);
+                storedQueueItem.status = "queued";
+                queueItems.push(storedQueueItem);
+
+                originalQueueAdd.apply(crawler.queue, args);
+            });
+        };
+
+        crawler.queue.update = function(url, updates) {
+            var args = arguments;
+
+            process.nextTick(function() {
+                var storedQueueItem = findByUrl(queueItems, url),
+                    queueQueueItem = findByUrl(crawler.queue, url);
+
+                queueQueueItem.should.eql(storedQueueItem);
+                deepAssign(storedQueueItem, updates);
+
+                originalQueueUpdate.apply(crawler.queue, args);
+            });
+        };
+
+        crawler.on("complete", function() {
+            crawler.queue.getLength(function(error, length) {
+                // Recursively step through items in the real queue and compare
+                // them to our local clones
+                function getItem(index) {
+                    crawler.queue.get(index, function(error, queueQueueItem) {
+                        var storedQueueItem = findByUrl(queueItems, queueQueueItem.url),
+                            nextIndex = index + 1;
+
+                        queueQueueItem.should.eql(storedQueueItem);
+
+                        if (nextIndex < length) {
+                            getItem(nextIndex);
+                        } else {
+                            done();
+                        }
+                    });
+                }
+
+                getItem(0);
+            });
+        });
+
+        crawler.start();
+    });
+
+    it("emits a queueerror event when update method errors", function(done) {
+        var crawler = new Crawler("http://127.0.0.1:3000"),
+            originalQueueUpdate = crawler.queue.update;
+
+        crawler.interval = 5;
+
+        crawler.queue.update = function(url, updates, callback) {
+            originalQueueUpdate.call(crawler.queue, url, updates, function(error, queueItem) {
+                if (!error) {
+                    error = new Error("Not updating this queueItem");
+                }
+
+                callback(error, queueItem);
+            });
+        };
+
+        crawler.on("queueerror", function(error, queueItem) {
+            error.should.be.an.instanceof(Error);
+            error.message.should.equal("Not updating this queueItem");
+            queueItem.should.be.an("object");
+            queueItem.should.have.a.property("url");
+            queueItem.should.have.a.property("fetched");
+            queueItem.should.have.a.property("status");
+            crawler.stop(true);
+            done();
+        });
+
+        crawler.start();
     });
 });

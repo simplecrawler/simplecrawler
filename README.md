@@ -764,7 +764,7 @@ list below before submitting an issue.
     ```js
     var originalEmit = crawler.emit;
     crawler.emit = function(evtName, queueItem) {
-        crawler.queue.countItems({ fetched: true }, function(error, completeCount) {
+        crawler.queue.countItems({ fetched: true }, function(err, completeCount) {
             if (err) {
                 throw err;
             }
