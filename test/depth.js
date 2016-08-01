@@ -1,5 +1,3 @@
-// Runs a very simple crawl on an HTTP server with different depth
-
 /* eslint-env mocha */
 
 var chai = require("chai"),
@@ -13,82 +11,44 @@ server.listen(3000);
 
 chai.should();
 
-// Test the number of links discovered for the given "depth" and compare it to "linksToDiscover"
-var depthTest = function(depth, linksToDiscover, behaviour) {
+function depthTest(maxDepth, linksToDiscover) {
+    var testName = "should discover " + linksToDiscover + " resources with maxDepth " + maxDepth;
 
-    depth = parseInt(depth, 10); // Force depth to be a number
-    var crawler,
-        linksDiscovered;
-
-    describe("depth " + depth, function() {
-        before(function() {
-            // Create a new crawler to crawl our local test server
-            crawler = new Crawler("http://127.0.0.1:3000/depth/1");
-
-            // Speed up tests. No point waiting for every request when we're
-            // running our own server.
-            crawler.interval = 1;
-            crawler.fetchWhitelistedMimeTypesBelowMaxDepth = Boolean(behaviour);
-            crawler.maxDepth = depth;
-
+    it(testName, function(done) {
+        var crawler = new Crawler("http://127.0.0.1:3000/depth/1"),
             linksDiscovered = 0;
 
-            crawler.on("fetchcomplete", function() {
-                linksDiscovered++;
-            });
+        crawler.interval = 5;
+        crawler.maxDepth = maxDepth;
 
-            crawler.start();
+        crawler.on("fetchcomplete", function() {
+            linksDiscovered++;
         });
 
-        after(function() {
-            // Clean listeners and crawler
-            crawler.removeAllListeners("discoverycomplete");
-            crawler.removeAllListeners("complete");
-            crawler = null;
+        crawler.on("complete", function() {
+            linksDiscovered.should.equal(linksToDiscover);
+            done();
         });
 
-        it("should discover " + linksToDiscover + " linked resources", function(done) {
-            crawler.on("complete", function() {
-                linksDiscovered.should.equal(linksToDiscover);
-                done();
-            });
-        });
+        crawler.start();
     });
-};
+}
 
-describe("Crawler max depth with resource override (old default behaviour)", function() {
+describe("Crawler max depth", function() {
     this.slow("300ms");
 
-    // depth: linksToDiscover
-    var linksToDiscover = {
-        0: 11, // links for depth 0
-        1: 6,  // links for depth 1
-        2: 7,  // links for depth 2
-        3: 11  // links for depth 3
+    var maxDepthToResourceCount = {
+        0: 11, // maxDepth=0 (no max depth) should return 11 resources
+        1: 1,  // maxDepth=1
+        2: 3,  // maxDepth=2
+        3: 6   // maxDepth=3
     };
 
-    for (var depth in linksToDiscover) {
-        if (linksToDiscover.hasOwnProperty(depth)) {
-            depthTest(depth, linksToDiscover[depth], true);
-        }
-    }
-
-});
-
-describe("Crawler max depth without fetching resources (new default behaviour)", function() {
-    this.slow("300ms");
-
-    // depth: linksToDiscover
-    var linksToDiscover = {
-        0: 11, // links for depth 0
-        1: 1,  // links for depth 1
-        2: 3,  // links for depth 2
-        3: 6   // links for depth 3
-    };
-
-    for (var depth in linksToDiscover) {
-        if (linksToDiscover.hasOwnProperty(depth)) {
-            depthTest(depth, linksToDiscover[depth], false);
+    for (var maxDepth in maxDepthToResourceCount) {
+        if (maxDepthToResourceCount.hasOwnProperty(maxDepth)) {
+            // Since `maxDepth` is an object key here, it'll be a string, which
+            // is why we want to explicitly cast it to a number
+            depthTest(Number(maxDepth), maxDepthToResourceCount[maxDepth]);
         }
     }
 });
