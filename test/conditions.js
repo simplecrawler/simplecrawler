@@ -16,7 +16,7 @@ describe("Fetch conditions", function() {
     this.slow("150ms");
 
     it("should be able to add a fetch condition", function() {
-        var crawler = makeCrawler("http://example.com"),
+        var crawler = makeCrawler("http://127.0.0.1:3000"),
             conditionID = crawler.addFetchCondition(function() {});
 
         crawler._fetchConditions.length.should.equal(1);
@@ -24,7 +24,7 @@ describe("Fetch conditions", function() {
     });
 
     it("should be able to remove a fetch condition by ID", function() {
-        var crawler = makeCrawler("http://example.com"),
+        var crawler = makeCrawler("http://127.0.0.1:3000"),
             conditionID = crawler.addFetchCondition(function() {});
 
         crawler._fetchConditions.length.should.equal(1);
@@ -33,7 +33,7 @@ describe("Fetch conditions", function() {
     });
 
     it("should be able to remove a fetch condition by reference", function() {
-        var crawler = makeCrawler("http://example.com"),
+        var crawler = makeCrawler("http://127.0.0.1:3000"),
             condition = function() {};
 
         crawler.addFetchCondition(condition);
@@ -97,9 +97,7 @@ describe("Fetch conditions", function() {
     });
 
     it("should not fetch a resource when prevented by a fetch condition", function(done) {
-        this.slow("1s");
-
-        var crawler = makeCrawler("http://example.com");
+        var crawler = makeCrawler("http://127.0.0.1:3000");
 
         crawler.addFetchCondition(function() {
             return false;
@@ -118,7 +116,7 @@ describe("Fetch conditions", function() {
 
 describe("Download conditions", function() {
     it("should be able to add a download condition", function() {
-        var crawler = makeCrawler("http://example.com"),
+        var crawler = makeCrawler("http://127.0.0.1:3000"),
             conditionID = crawler.addDownloadCondition(function() {});
 
         crawler._downloadConditions.length.should.equal(1);
@@ -126,7 +124,7 @@ describe("Download conditions", function() {
     });
 
     it("should be able to remove a download condition by ID", function() {
-        var crawler = makeCrawler("http://example.com"),
+        var crawler = makeCrawler("http://127.0.0.1:3000"),
             conditionID = crawler.addDownloadCondition(function() {});
 
         crawler._downloadConditions.length.should.equal(1);
@@ -135,7 +133,7 @@ describe("Download conditions", function() {
     });
 
     it("should be able to remove a download condition by reference", function() {
-        var crawler = makeCrawler("http://example.com"),
+        var crawler = makeCrawler("http://127.0.0.1:3000"),
             condition = function() {};
 
         crawler.addDownloadCondition(condition);
@@ -223,7 +221,7 @@ describe("Download conditions", function() {
     });
 
     it("should emit a downloadprevented event when a download condition returns false", function(done) {
-        var crawler = makeCrawler("http://example.com");
+        var crawler = makeCrawler("http://127.0.0.1:3000");
 
         crawler.addDownloadCondition(function() {
             return false;
