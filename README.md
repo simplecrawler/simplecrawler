@@ -31,6 +31,7 @@ pages and written tens of gigabytes to disk without issue.
     - [Waiting for asynchronous event listeners](#waiting-for-asynchronous-event-listeners)
 - [Configuration](#configuration)
 - [Fetch conditions](#fetch-conditions)
+- [Download conditions](#download-conditions)
 - [The queue](#the-queue)
     - [Manually adding to the queue](#manually-adding-to-the-queue)
     - [Queue items](#queue-items)
@@ -342,18 +343,7 @@ change to adapt it to your specific needs.
     to unicode.
 * `crawler.maxDepth=0` -
     Defines a maximum distance from the original request at which resources will
-    be downloaded. Asset files are excluded from this distance condition if
-    `crawler.fetchWhitelistedMimeTypesBelowMaxDepth` is `true`. Defaults to `0` —
-    no max depth.
-* `crawler.whitelistedMimeTypes` -
-    An array of RegEx objects used to determine whitelisted MIME types (types of
-    data simplecrawler will fetch on disregardig the `maxDepth` checks).
-    Defaults to common resource types like styles, fonts, scripts and images.
-* `crawler.fetchWhitelistedMimeTypesBelowMaxDepth=false` -
-    Defines the depth for fetching resources in addition to maxDepth. If `true`,
-    then resources (see `whitelistedMimeTypes`) will always be loaded, while
-    `false` limits them to the same level. Furthermore a numeric value can be
-    specified for a concrete offset (e.g. 1 for the next depth layer).
+    be downloaded.
 * `crawler.ignoreInvalidSSL=false` -
     Treat self-signed SSL certificates as valid. SSL certificates will not be
     validated against known CAs. Only applies to https requests. You may also
@@ -362,10 +352,13 @@ change to adapt it to your specific needs.
 
 ## Fetch conditions
 
-simplecrawler has a mechanism you can use to prevent certain resources from
-being fetched, based on the URL, called fetch conditions. A fetch condition is a
-function that, when given a parsed URL object, returns a value that indicates
-whether a given resource should be downloaded.
+simplecrawler has an concept called fetch conditions that offers a flexible API
+for filtering discovered resources before they're put in the queue. A fetch
+condition is a function that's evaluated with a queue item object for every
+discovered resource and returns a value that indicates whether that item should
+be added to the queue. This API is complemented by [download
+conditions](#download-conditions) that determine whether a resource's body data
+should be downloaded.
 
 You may add as many fetch conditions as you like, and remove them at runtime.
 simplecrawler will evaluate every fetch condition until one is encountered that
@@ -401,11 +394,73 @@ links it discovers on the new site.
 
 ### Removing a fetch condition
 
-If you stored the ID of the fetch condition you added earlier, you can remove it
-from the crawler:
+With the ID of the fetch condition you added earlier, or with a reference to the
+calback function you registered, you can remove the fetch condition using the
+`crawler.removeFetchCondition` method:
 
 ```js
+function listener(queueItem, stateData) {
+    // Do something
+}
+
+var conditionID = myCrawler.addFetchCondition(listener);
+
+// By id...
 myCrawler.removeFetchCondition(conditionID);
+// or by reference
+myCrawler.removeFetchCondition(listener);
+```
+
+## Download conditions
+
+While fetch conditions let you determine which resources to put in the queue,
+download conditions offer the same kind of flexible API for determining which
+resources' data to download.
+
+Download conditions are evaluated for every resource after the headers for that
+resource have been downloaded. This lets you inspect the content-type and
+content-length headers, along with all other properties on the queue item,
+before deciding if you want this resource's data or not.
+
+### Adding a download condition
+
+Download conditions are added in much the same way as fetch conditions, with the
+`crawler.addDownloadCondition` method. This method returns an ID that can be
+used to remove the condition later.
+
+```js
+var conditionID = myCrawler.addDownloadCondition(function(queueItem, response) {
+    return (
+        queueItem.stateData.contentType === "image/png" &&
+        queueItem.stateData.contentLength < 5 * 1000 * 1000
+    );
+});
+```
+
+Download conditions are called with two arguments: `queueItem` and `response`.
+The former represents the resource that's being fetched ([queue item
+structure](#queue-items)), and the latter is an instance of
+`http.IncomingMessage`. Please see the [node
+documentation](https://nodejs.org/api/http.html#http_class_http_incomingmessage)
+for that class for more details on what it looks like.
+
+### Removing a download condition
+
+Just like with fetch conditions, download conditions can be removed with the ID
+returned from the `addDownloadCondition` method, or with a reference to the same
+callback function. `crawler.removeDownloadCondition` is the method you'll use:
+
+```js
+function listener(queueItem, stateData) {
+    // Do something
+}
+
+var conditionID = myCrawler.addDownloadCondition(listener);
+
+// By id...
+myCrawler.removeDownloadCondition(conditionID);
+// or by reference
+myCrawler.removeDownloadCondition(listener);
 ```
 
 ## The queue
