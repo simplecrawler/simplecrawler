@@ -1,0 +1,9 @@
+{
+  "source": {
+    "include": ["./lib"]
+  },
+  "opts": {
+    "destination": "docs"
+  },
+  "plugins": ["plugins/markdown"]
+}

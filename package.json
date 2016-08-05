@@ -28,7 +28,8 @@
   "scripts": {
     "lint": "eslint example/ lib/ test/",
     "mocha": "mocha -R spec -t 5000",
-    "test": "npm run lint && npm run mocha"
+    "test": "npm run lint && npm run mocha",
+    "docs": "jsdoc -c jsdoc.json"
   },
   "bin": {
     "crawl": "./lib/cli.js"
@@ -42,6 +43,7 @@
   "devDependencies": {
     "chai": "^3.2.0",
     "eslint": "^2.0.0",
+    "jsdoc": "^3.4.0",
     "mocha": "^2.3.2"
   },
   "engines": {
