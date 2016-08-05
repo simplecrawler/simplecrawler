@@ -211,7 +211,7 @@ describe("Queue methods", function() {
     });
 
     it("should update items in the queue", function(done) {
-        crawler.queue.update("http://127.0.0.1:3000/stage2", {
+        crawler.queue.update(2, {
             status: "queued",
             fetched: false
         }, function(error, queueItem) {
@@ -241,9 +241,9 @@ describe("Queue methods", function() {
         crawler.interval = 5;
         crawler.maxDepth = 2;
 
-        function findByUrl(array, url) {
+        function findById(array, id) {
             return find(array, function(queueItem) {
-                return queueItem.url === url;
+                return queueItem.id === id;
             });
         }
 
@@ -252,6 +252,7 @@ describe("Queue methods", function() {
 
             process.nextTick(function() {
                 var storedQueueItem = deepAssign({}, queueItem);
+                storedQueueItem.id = crawler.queue.length;
                 storedQueueItem.status = "queued";
                 queueItems.push(storedQueueItem);
 
@@ -259,12 +260,12 @@ describe("Queue methods", function() {
             });
         };
 
-        crawler.queue.update = function(url, updates) {
+        crawler.queue.update = function(id, updates) {
             var args = arguments;
 
             process.nextTick(function() {
-                var storedQueueItem = findByUrl(queueItems, url),
-                    queueQueueItem = findByUrl(crawler.queue, url);
+                var storedQueueItem = findById(queueItems, id),
+                    queueQueueItem = findById(crawler.queue, id);
 
                 queueQueueItem.should.eql(storedQueueItem);
                 deepAssign(storedQueueItem, updates);
@@ -279,7 +280,7 @@ describe("Queue methods", function() {
                 // them to our local clones
                 function getItem(index) {
                     crawler.queue.get(index, function(error, queueQueueItem) {
-                        var storedQueueItem = findByUrl(queueItems, queueQueueItem.url),
+                        var storedQueueItem = findById(queueItems, queueQueueItem.id),
                             nextIndex = index + 1;
 
                         queueQueueItem.should.eql(storedQueueItem);
