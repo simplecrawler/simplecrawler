@@ -199,4 +199,10 @@ describe("Crawler link discovery", function() {
         links[0].should.equal("https://example.com/pic-200.png");
         links[1].should.equal("https://example.com/pic-400.png");
     });
+
+    it("should respect nofollow values in robots meta tags", function() {
+
+        var links = discover("<meta name='robots' value='nofollow'><a href='/stage2'>Don't follow me!</a>");
+        links.should.eql([]);
+    });
 });

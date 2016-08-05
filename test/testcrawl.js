@@ -77,11 +77,24 @@ describe("Test Crawl", function() {
         });
 
         crawler.on("complete", function() {
-            linksDiscovered.should.equal(5);
+            linksDiscovered.should.equal(6);
             done();
         });
 
         crawler.start();
+    });
+
+    it("should obey robots meta tags", function(done) {
+        var crawler = makeCrawler("http://127.0.0.1:3000/");
+        crawler.start();
+
+        crawler.on("discoverycomplete", function(queueItem, resources) {
+            if (queueItem.path === "/nofollow") {
+                resources.should.eql([]);
+                crawler.stop(true);
+                done();
+            }
+        });
     });
 
     it("should obey rules in robots.txt", function(done) {
@@ -90,6 +103,7 @@ describe("Test Crawl", function() {
 
         crawler.on("fetchdisallowed", function(parsedURL) {
             parsedURL.path.should.equal("/forbidden");
+            crawler.stop(true);
             done();
         });
     });
