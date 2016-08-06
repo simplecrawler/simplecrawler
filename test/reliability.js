@@ -71,6 +71,28 @@ describe("Crawler reliability", function() {
         localCrawler.start();
     });
 
+    it("should add multiple items with the same URL to the queue if forced to", function(done) {
+        var localCrawler = makeCrawler("http://127.0.0.1:3000/"),
+            addCount = 0;
+
+        localCrawler.on("queueadd", function() {
+            addCount++;
+
+            if (addCount >= 2) {
+                localCrawler.queue.getLength(function(error, length) {
+                    length.should.equal(2);
+                    done(error);
+                });
+            }
+        });
+
+        localCrawler.queueURL("http://127.0.0.1:3000/stage2");
+        // First, try to add the same URL without a force argument...
+        localCrawler.queueURL("http://127.0.0.1:3000/stage2");
+        // Then try to add it with a force argument
+        localCrawler.queueURL("http://127.0.0.1:3000/stage2", undefined, true);
+    });
+
     it("should emit a fetch404 when given a 404 status code", function(done) {
         var localCrawler = makeCrawler("http://127.0.0.1:3000/404");
 
