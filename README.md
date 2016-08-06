@@ -484,19 +484,13 @@ by a database.*
 
 ### Manually adding to the queue
 
-To add items to the queue, use `crawler.queueURL`. This method takes a complete
-URL, validates and deconstructs it, and adds it to the queue. It also accepts a
-referrer queue item. However, the only properties used in the queue item are
-`url` and `depth`, so you can also easily use a custom object. Here's an
-example:
+To add items to the queue, use `crawler.queueURL`. This method takes 3
+arguments: a URL to queue, a referrer queue item and a boolean that indicates
+whether the URL should be queued regardless of whether it already exists in the
+queue or not.
 
 ```js
-var customQueueItem = {
-    url: "http://example.com",
-    depth: 2
-};
-
-crawler.queueURL("/example.html", customQueueItem);
+crawler.queueURL("/example.html", referrerQueueItem, false);
 ```
 
 ### Queue items
