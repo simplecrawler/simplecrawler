@@ -499,6 +499,7 @@ Because when working with simplecrawler, you'll constantly be handed queue items
 it helps to know what's inside them. These are the properties every queue item
 is expected to have:
 
+* `id` - A unique ID assigned by the queue when the queue item is added
 * `url` - The complete, canonical URL of the resource
 * `protocol` - The protocol of the resource (http, https)
 * `host` - The full domain/hostname of the resource
