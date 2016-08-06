@@ -157,9 +157,9 @@ in parentheses.
 * `fetchdataerror` (queueItem, response) -
     Fired when a resource can't be downloaded, because it exceeds the maximum
     size we're prepared to receive (16MB by default.)
-* `fetchredirect` (oldQueueItem, referrerQueueItem, response) -
+* `fetchredirect` (oldQueueItem, redirectQueueItem, response) -
     Fired when a redirect header is encountered. The new URL is processed and
-    passed as `referrerQueueItem`.
+    passed as `redirectQueueItem`.
 * `fetch404` (queueItem, response) -
     Fired when a 404 HTTP status code is returned for a request.
 * `fetch410` (queueItem, response) -
