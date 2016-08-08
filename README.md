@@ -85,7 +85,7 @@ interval from the default 250 ms like this:
 
 ```js
 crawler.interval = 10000; // Ten seconds
-crawler.maxConcurrency = 1;
+crawler.maxConcurrency = 3;
 ```
 
 You can also define a max depth for links to fetch:
@@ -311,10 +311,6 @@ change to adapt it to your specific needs.
 * `crawler.domainWhitelist` -
     An array of domains the crawler is permitted to crawl from. If other
     settings are more permissive, they will override this setting.
-* `crawler.supportedMimeTypes` -
-    An array of RegEx objects used to determine supported MIME types (types of
-    data simplecrawler will scan for links.) If you're  not using
-    simplecrawler's resource discovery function, this won't have any effect.
 * `crawler.allowedProtocols` -
     An array of RegExp objects used to determine whether a URL protocol is
     supported. This is to deal with nonstandard protocol handlers that regular
@@ -323,10 +319,15 @@ change to adapt it to your specific needs.
 * `crawler.maxResourceSize=16777216` -
     The maximum resource size that will be downloaded, in bytes. Defaults to
     16MB.
+* `crawler.supportedMimeTypes` -
+    An array of RegExp objects used to determine what MIME types simplecrawler
+    should look for resources in. If `crawler.downloadUnsupported` is false,
+    this also restricts what resources are downloaded.
 * `crawler.downloadUnsupported=true` -
-    simplecrawler will download files it can't parse. Defaults to true, but if
-    you'd rather save the RAM and GC lag, switch it off. When false, it closes
-    sockets for unsupported resources.
+    simplecrawler will download files it can't parse (determined by
+    `crawler.supportedMimeTypes`). Defaults to true, but if you'd rather save
+    the RAM and GC lag, switch it off. When false, it closes sockets for
+    unsupported resources.
 * `crawler.needsAuth=false` -
     Flag to specify if the domain you are hitting requires basic authentication.
 * `crawler.authUser=""` -
@@ -420,10 +421,11 @@ While fetch conditions let you determine which resources to put in the queue,
 download conditions offer the same kind of flexible API for determining which
 resources' data to download.
 
-Download conditions are evaluated for every resource after the headers for that
-resource have been downloaded. This lets you inspect the content-type and
-content-length headers, along with all other properties on the queue item,
-before deciding if you want this resource's data or not.
+Download conditions are evaluated after the headers of a resource have been
+downloaded, if that resource returned an HTTP status between 200 and 299. This
+lets you inspect the content-type and content-length headers, along with all
+other properties on the queue item, before deciding if you want this resource's
+data or not.
 
 ### Adding a download condition
 
