@@ -128,50 +128,48 @@ in parentheses.
 * `crawlstart` -
     Fired when the crawl begins or is restarted.
 * `queueadd` (queueItem) -
-    Fired when a new item is automatically added to the queue (not when you
-    manually queue an item yourself).
+    Fired when a new item is added to the queue.
 * `queueduplicate` (URLData) -
     Fired when an item cannot be added to the queue because it is already
     present in the queue. Frequent firing of this event is normal and expected.
-* `queueerror` (errorData, URLData) -
-    Fired when an item cannot be added to the queue due to error.
+* `queueerror` (error, URLData) -
+    Fired when an item cannot be added to the queue due to an error.
 * `robotstxterror` (error) -
-    Fired when robots.txt couldn't be fetched. `error.message` has details on
-    why.
+    Fired when robots.txt couldn't be fetched.
+* `fetchdisallowed` (queueItem) -
+    Fired when a resource isn't fetched due to robots.txt rules. See
+    `respectRobotsTxt` option.
 * `fetchstart` (queueItem, requestOptions) -
     Fired when an item is spooled for fetching. If your event handler is
     synchronous, you can modify the crawler request options (including headers
     and request method.)
 * `fetchheaders` (queueItem, responseObject) -
     Fired when the headers for a resource are received from the server. The node
-    http response object is returned for your perusal.
+    `http` response object is returned for your perusal.
 * `cookieerror` (queueItem, error, setCookieHeader) -
     Fired when an error was caught trying to add a cookie to the cookie jar.
+* `fetchredirect` (oldQueueItem, redirectQueueItem, responseObject) -
+    Fired when a redirect header is encountered. The new URL is processed and
+    passed as `redirectQueueItem`.
+* `fetch404` (queueItem, responseObject) -
+    Fired when a 404 HTTP status code is returned for a request.
+* `fetch410` (queueItem, responseObject) -
+    Fired when a 410 HTTP status code is returned for a request.
+* `fetchdataerror` (queueItem, responseObject) -
+    Fired when a resource can't be downloaded, because it exceeds the maximum
+    size we're prepared to receive (16MB by default.)
+* `fetchtimeout` (queueItem, crawlerTimeoutValue) -
+    Fired when a request time exceeds the internal crawler threshold.
 * `fetchcomplete` (queueItem, responseBody, responseObject) -
     Fired when the resource is completely downloaded. The response body is
     provided as a Buffer per default, unless `decodeResponses` is truthy, in
     which case it's a decoded string representation of the body.
-* `fetchdisallowed` (queueItem) -
-    Fired when a resource isn't fetched due to robots.txt rules. See
-    `respectRobotsTxt` option.
-* `fetchdataerror` (queueItem, response) -
-    Fired when a resource can't be downloaded, because it exceeds the maximum
-    size we're prepared to receive (16MB by default.)
-* `fetchredirect` (oldQueueItem, redirectQueueItem, response) -
-    Fired when a redirect header is encountered. The new URL is processed and
-    passed as `redirectQueueItem`.
-* `fetch404` (queueItem, response) -
-    Fired when a 404 HTTP status code is returned for a request.
-* `fetch410` (queueItem, response) -
-    Fired when a 410 HTTP status code is returned for a request.
-* `fetcherror` (queueItem, response) -
+* `fetcherror` (queueItem, responseObject) -
     Fired when an alternate 400 or 500 series HTTP status code is returned for a
     request.
-* `gziperror` (queueItem, error, resourceData) -
+* `gziperror` (queueItem, error, responseBuffer) -
     Fired when a gzipped resource cannot be unzipped.
-* `fetchtimeout` (queueItem, crawlerTimeoutValue) -
-    Fired when a request time exceeds the internal crawler threshold.
-* `fetchclienterror` (queueItem, errorData) -
+* `fetchclienterror` (queueItem, error) -
     Fired when a request dies locally for some reason. The error data is
     returned as the second parameter.
 * `discoverycomplete` (queueItem, resources) -
