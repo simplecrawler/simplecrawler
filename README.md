@@ -251,7 +251,10 @@ change to adapt it to your specific needs.
     Controls whether the crawler should respect rules in robots.txt (if such a
     file is present). The
     [robots-parser](https://www.npmjs.com/package/robots-parser) module is used
-    to do the actual parsing.
+    to do the actual parsing. This property will also make the default
+    `crawler.discoverResources` method respect
+    `<meta name="robots" value="nofollow">` tags - meaning that no resources
+    will be extracted from pages that include such a tag.
 * `crawler.queue` -
     The queue in use by the crawler (Must implement the `FetchQueue` interface)
 * `crawler.allowInitialDomainChange=false` -

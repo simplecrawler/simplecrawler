@@ -42,7 +42,15 @@ module.exports = {
     },
 
     "/stage6": function(write) {
+        write(200, "<a href='nofollow'>Go to me, but no further!</a>");
+    },
+
+    "/stage7": function(write) {
         write(200, "Crawl complete!");
+    },
+
+    "/nofollow": function(write) {
+        write(200, "<meta name='robots' value='nofollow'><a href='/stage7'>Don't go here!</a>");
     },
 
     "/cookie": function(write) {
@@ -50,7 +58,7 @@ module.exports = {
         expires.setHours(expires.getHours() + 10);
         var cookie = "thing=stuff; expires=" + expires + "; path=/; domain=.localhost";
 
-        write(200, "<a href='/stage6'>Link</a>", { "Set-Cookie": cookie });
+        write(200, "<a href='/stage7'>Link</a>", { "Set-Cookie": cookie });
     },
 
     "/async-stage1": function(write) {
