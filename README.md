@@ -703,35 +703,81 @@ list below before submitting an issue.
 
 - **Q: How do I crawl a site that requires a login?**
 
-    A: Logging in to a site is usually fairly simple and only requires an
-    exhange of credentials over HTTP as well as the storing of a cookie that
-    allows the client's session can be maintained between requests to the
-    server. Simplecrawler doesn't have a built-in method for this entire
-    procedure, but it does have an internal cookie jar that can be used to
-    store the cookie that's returned from a manual HTTP request.
+    A: Logging in to a site is usually fairly simple and most login procedures
+    look alike. We've included an example that covers a lot of situations, but
+    sadly, there isn't a one true solution for how to deal with logins, so
+    there's no guarantee that this code works right off the bat.
 
-    Here's an example of how to perform a manual login HTTP request with the
-    [request](https://npmjs.com/package/request) module and then store the
-    returned cookie in simplecrawler's cookie jar.
+    What we do here is:
+    1. fetch the login page,
+    2. store the session cookie assigned to us by the server,
+    3. extract any CSRF tokens or similar parameters required when logging in,
+    4. submit the login credentials.
 
     ```js
     var Crawler = require("simplecrawler"),
+        url = require("url"),
+        cheerio = require("cheerio"),
         request = require("request");
 
-    var crawler = new Crawler("https://example.com/");
+    var initialURL = "https://example.com/";
 
-    request.post("https://example.com/login", {
-        form: {
-            username: "iamauser",
-            password: "supersecurepw"
-        }
+    var crawler = new Crawler(initialURL);
+
+    request("https://example.com/login", {
+        // The jar option isn't necessary for simplecrawler integration, but it's
+        // the easiest way to have request remember the session cookie between this
+        // request and the next
+        jar: true
     }, function (error, response, body) {
+        // Start by saving the cookies. We'll likely be assigned a session cookie
+        // straight off the bat, and then the server will remember the fact that
+        // this session is logged in as user "iamauser" after we've successfully
+        // logged in
         crawler.cookies.addFromHeaders(response.headers["set-cookie"]);
-        crawler.start();
+
+        // We want to get the names and values of all relevant inputs on the page,
+        // so that any CSRF tokens or similar things are included in the POST
+        // request
+        var $ = cheerio.load(body),
+            formDefaults = {},
+            // You should adapt these selectors so that they target the
+            // appropriate form and inputs
+            formAction = $("#login").attr("action"),
+            loginInputs = $("input");
+
+        // We loop over the input elements and extract their names and values so
+        // that we can include them in the login POST request
+        loginInputs.each(function(i, input) {
+            var inputName = $(input).attr("name"),
+                inputValue = $(input).val();
+
+            formDefaults[inputName] = inputValue;
+        });
+
+        // Time for the login request!
+        request.post(url.resolve(initialURL, formAction), {
+            // We can't be sure that all of the input fields have a correct default
+            // value. Maybe the user has to tick a checkbox or something similar in
+            // order to log in. This is something you have to find this out manually
+            // by logging in to the site in your browser and inspecting in the
+            // network panel of your favorite dev tools what parameters are included
+            // in the request.
+            form: Object.assign(formDefaults, {
+                username: "iamauser",
+                password: "supersecretpw"
+            }),
+            // We want to include the saved cookies from the last request in this
+            // one as well
+            jar: true
+        }, function (error, response, body) {
+            // That should do it! We're now ready to start the crawler
+            crawler.start();
+        });
     });
 
     crawler.on("fetchcomplete", function (queueItem, responseBuffer, response) {
-        console.log("Fetched", queueItem.url);
+        console.log("Fetched", queueItem.url, responseBuffer.toString());
     });
     ```
 
