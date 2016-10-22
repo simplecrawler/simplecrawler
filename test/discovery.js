@@ -202,7 +202,10 @@ describe("Crawler link discovery", function() {
 
     it("should respect nofollow values in robots meta tags", function() {
 
-        var links = discover("<meta name='robots' value='nofollow'><a href='/stage2'>Don't follow me!</a>");
-        links.should.eql([]);
+        discover("<meta name='robots' value='nofollow'><a href='/stage2'>Don't follow me!</a>")
+            .should.eql([]);
+
+        discover("<meta name='robots' value='nofollow, noindex'><a href='/stage2'>Don't follow me!</a>")
+            .should.eql([]);
     });
 });
