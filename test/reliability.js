@@ -18,6 +18,22 @@ var makeCrawler = function (url) {
 describe("Crawler reliability", function() {
     this.slow("600ms");
 
+    it("should be able to be started, then stopped, then started again", function(done) {
+        var crawler = makeCrawler("http://127.0.0.1:3000/"),
+            startCount = 0;
+
+        crawler.on("crawlstart", function() {
+            if (++startCount === 2) {
+                done();
+            } else {
+                crawler.stop();
+                crawler.start();
+            }
+        });
+
+        crawler.start();
+    });
+
     it("should be able to handle a timeout", function(done) {
         var localCrawler = new Crawler("http://127.0.0.1:3000/timeout");
         localCrawler.timeout = 200;
