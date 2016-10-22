@@ -128,6 +128,19 @@ describe("Resource validity checker", function() {
         crawler.processURL("http://www.example.com").host.should.equal("www.example.com");
     });
 
+    it("should strip query strings from processed URL's", function() {
+
+        var crawler = makeCrawler("http://example.com");
+
+        crawler.stripQuerystring = true;
+        crawler.processURL("http://example.com/example?q=crawler").path.should.equal("/example");
+        crawler.processURL("http://example.com/test?q=crawler&foo=bar").path.should.equal("/test");
+
+        crawler.stripQuerystring = false;
+        crawler.processURL("http://example.com/example?q=crawler").path.should.equal("/example?q=crawler");
+        crawler.processURL("http://example.com/test?q=crawler&foo=bar").path.should.equal("/test?q=crawler&foo=bar");
+    });
+
     it("should throw out junky or invalid URLs without dying", function() {
 
         var crawler = makeCrawler("http://127.0.0.1:3000");
