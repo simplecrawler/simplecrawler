@@ -318,9 +318,9 @@ change to adapt it to your specific needs.
     The maximum resource size that will be downloaded, in bytes. Defaults to
     16MB.
 * `crawler.supportedMimeTypes` -
-    An array of RegExp objects used to determine what MIME types simplecrawler
-    should look for resources in. If `crawler.downloadUnsupported` is false,
-    this also restricts what resources are downloaded.
+    An array of RegExp objects and/or strings used to determine what MIME types
+    simplecrawler should look for resources in. If `crawler.downloadUnsupported`
+    is false, this also restricts what resources are downloaded.
 * `crawler.downloadUnsupported=true` -
     simplecrawler will download files it can't parse (determined by
     `crawler.supportedMimeTypes`). Defaults to true, but if you'd rather save

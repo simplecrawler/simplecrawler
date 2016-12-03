@@ -199,14 +199,9 @@ describe("Resource validity checker", function() {
 
     it("should permit parsing of specified resources based on mimetype checks", function() {
 
-        this.supportedMimeTypes = [
-            /^text\//i,
-            /^application\/(rss)?[\+\/\-]?xml/i,
-            /^application\/javascript/i,
-            /^xml/i
-        ];
-
         var crawler = makeCrawler("http://example.com:3000");
+
+        crawler.supportedMimeTypes.push("image/png");
 
         // Protocols supported by default
         crawler.mimeTypeSupported("text/plain").should.equal(true);
@@ -225,6 +220,9 @@ describe("Resource validity checker", function() {
 
         // Anything with XML...
         crawler.mimeTypeSupported("xml/manifest").should.equal(true);
+
+        // A mimetype specified as a string instead of as a RegExp
+        crawler.mimeTypeSupported("image/png").should.equal(true);
 
         // And these should fail
         crawler.mimeTypeSupported("application/octet-stream").should.equal(false);
