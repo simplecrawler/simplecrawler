@@ -25,6 +25,7 @@ pages and written tens of gigabytes to disk without issue.
 
 ## Documentation
 
+- [Installation](#installation)
 - [Getting started](#getting-started)
 - [Events](#events)
     - [A note about HTTP error conditions](#a-note-about-http-error-conditions)
@@ -46,6 +47,12 @@ pages and written tens of gigabytes to disk without issue.
 - [Contributing](#contributing)
 - [Contributors](#contributors)
 - [License](#license)
+
+## Installation
+
+```sh
+npm install --save simplecrawler
+```
 
 ## Getting Started
 
