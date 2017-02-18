@@ -96,7 +96,7 @@ describe("Fetch conditions", function() {
         crawler.start();
     });
 
-    it("should not fetch a resource when prevented by a fetch condition", function(done) {
+    it("should respect synchronous fetch conditions", function(done) {
         var crawler = makeCrawler("http://127.0.0.1:3000");
 
         crawler.addFetchCondition(function() {
@@ -108,6 +108,57 @@ describe("Fetch conditions", function() {
                 length.should.equal(1);
                 done();
             });
+        });
+
+        crawler.start();
+    });
+
+    it("should respect asynchronous fetch conditions", function(done) {
+        var crawler = makeCrawler("http://127.0.0.1:3000");
+
+        crawler.addFetchCondition(function(queueItem, referrerQueueItem, callback) {
+            callback(null, false);
+        });
+
+        crawler.on("complete", function() {
+            crawler.queue.getLength(function(error, length) {
+                length.should.equal(1);
+                done();
+            });
+        });
+
+        crawler.start();
+    });
+
+    it("should emit fetchprevented events", function(done) {
+        var crawler = makeCrawler("http://127.0.0.1:3000");
+
+        crawler.addFetchCondition(function(queueItem, referrerQueueItem, callback) {
+            callback(null, false);
+        });
+
+        crawler.on("fetchprevented", function(queueItem) {
+            queueItem.url.should.equal("http://127.0.0.1:3000/stage2");
+            crawler.stop(true);
+            done();
+        });
+
+        crawler.start();
+    });
+
+    it("should emit fetchconditionerror events", function(done) {
+        var crawler = makeCrawler("http://127.0.0.1:3000");
+
+        crawler.addFetchCondition(function(queueItem, referrerQueueItem, callback) {
+            callback("error");
+        });
+
+        crawler.on("fetchconditionerror", function(queueItem, error) {
+            queueItem.url.should.equal("http://127.0.0.1:3000/stage2");
+            error.should.equal("error");
+
+            crawler.stop(true);
+            done();
         });
 
         crawler.start();
