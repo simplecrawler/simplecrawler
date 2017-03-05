@@ -226,7 +226,20 @@ describe("Download conditions", function() {
         crawler.start();
     });
 
-    it("should not download a resource when prevented by a download condition", function(done) {
+    function downloadConditionCompleteListener(crawler, done) {
+        return function() {
+            crawler.queue.getLength(function(error, length) {
+                length.should.equal(1);
+
+                crawler.queue.get(0, function(error, queueItem) {
+                    queueItem.status.should.equal("downloadprevented");
+                    done();
+                });
+            });
+        };
+    }
+
+    it("should not download a resource when prevented by a synchronous download condition", function(done) {
         this.slow("1s");
 
         var crawler = makeCrawler("http://127.0.0.1:3000");
@@ -236,17 +249,23 @@ describe("Download conditions", function() {
             return false;
         });
 
-        crawler.on("complete", function() {
-            crawler.queue.getLength(function(error, length) {
-                length.should.equal(1);
+        crawler.on("complete", downloadConditionCompleteListener(crawler, done));
+        crawler.start();
+    });
 
-                crawler.queue.get(0, function(error, queueItem) {
-                    queueItem.status.should.equal("downloadprevented");
-                    done();
-                });
-            });
+    it("should not download a resource when prevented by an asynchronous download condition", function(done) {
+        this.slow("1s");
+
+        var crawler = makeCrawler("http://127.0.0.1:3000");
+        crawler.maxDepth = 1;
+
+        crawler.addDownloadCondition(function(queueItem, response, callback) {
+            setTimeout(function() {
+                callback(false);
+            }, 10);
         });
 
+        crawler.on("complete", downloadConditionCompleteListener(crawler, done));
         crawler.start();
     });
 
@@ -274,8 +293,8 @@ describe("Download conditions", function() {
     it("should emit a downloadprevented event when a download condition returns false", function(done) {
         var crawler = makeCrawler("http://127.0.0.1:3000");
 
-        crawler.addDownloadCondition(function() {
-            return false;
+        crawler.addDownloadCondition(function(queueItem, response, callback) {
+            callback(false);
         });
 
         crawler.on("downloadprevented", function(queueItem, response) {
@@ -289,6 +308,38 @@ describe("Download conditions", function() {
             done();
         });
 
+        crawler.start();
+    });
+
+    function downloadConditionErrorListener(crawler, done) {
+        return function(queueItem, error) {
+            queueItem.should.be.an("object");
+            error.should.be.an.instanceof(Error);
+
+            crawler.stop();
+            done();
+        };
+    }
+
+    it("should emit a downloadconditionerror event when a download condition throws an error", function(done) {
+        var crawler = makeCrawler("http://127.0.0.1:3000");
+
+        crawler.addDownloadCondition(function() {
+            throw new Error();
+        });
+
+        crawler.on("downloadconditionerror", downloadConditionErrorListener(crawler, done));
+        crawler.start();
+    });
+
+    it("should emit a downloadconditionerror event when a download condition returns an error", function(done) {
+        var crawler = makeCrawler("http://127.0.0.1:3000");
+
+        crawler.addDownloadCondition(function(queueItem, response, callback) {
+            callback(new Error());
+        });
+
+        crawler.on("downloadconditionerror", downloadConditionErrorListener(crawler, done));
         crawler.start();
     });
 });

@@ -155,9 +155,13 @@ in parentheses.
     Fired when a resource wasn't queued because of a [fetch
     condition](#fetch-conditions).
 * `fetchconditionerror` (queueItem, error) -
-    Fired when one of the fetch condition returns an error. Provides the queue
+    Fired when one of the fetch conditions returns an error. Provides the queue
     item that was processed when the error was encountered as well as the error
     itself.
+* `downloadconditionerror` (queueItem, error) -
+    Fired when one of the download conditions returns an error. Provides the
+    queue item that was processed when the error was encountered as well as the
+    error itself.
 * `fetchstart` (queueItem, requestOptions) -
     Fired when an item is spooled for fetching. If your event handler is
     synchronous, you can modify the crawler request options (including headers
@@ -451,7 +455,9 @@ myCrawler.removeFetchCondition(listener);
 
 While fetch conditions let you determine which resources to put in the queue,
 download conditions offer the same kind of flexible API for determining which
-resources' data to download.
+resources' data to download. Download conditions support both a synchronous and
+an asynchronous API, but *with the next major release, all download conditions
+will be asynchronous.*
 
 Download conditions are evaluated after the headers of a resource have been
 downloaded, if that resource returned an HTTP status between 200 and 299. This
@@ -466,17 +472,17 @@ Download conditions are added in much the same way as fetch conditions, with the
 used to remove the condition later.
 
 ```js
-var conditionID = myCrawler.addDownloadCondition(function(queueItem, response) {
-    return (
+var conditionID = myCrawler.addDownloadCondition(function(queueItem, response, callback) {
+    callback(
         queueItem.stateData.contentType === "image/png" &&
         queueItem.stateData.contentLength < 5 * 1000 * 1000
     );
 });
 ```
 
-Download conditions are called with two arguments: `queueItem` and `response`.
-The former represents the resource that's being fetched ([queue item
-structure](#queue-items)), and the latter is an instance of
+Download conditions are called with three arguments: `queueItem`, `response` and
+`callback`. `queueItem` represents the resource that's being fetched ([queue
+item structure](#queue-items)) and `response` is an instance of
 `http.IncomingMessage`. Please see the [node
 documentation](https://nodejs.org/api/http.html#http_class_http_incomingmessage)
 for that class for more details on what it looks like.
@@ -488,7 +494,7 @@ returned from the `addDownloadCondition` method, or with a reference to the same
 callback function. `crawler.removeDownloadCondition` is the method you'll use:
 
 ```js
-function listener(queueItem, stateData) {
+function listener(queueItem, response, callback) {
     // Do something
 }
 
