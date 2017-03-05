@@ -137,49 +137,55 @@ describe("Crawler reliability", function() {
 
         localCrawler.start();
 
-        function test() {
-            this.stop();
+        // The oldestUnfetchedIndex argument may seem puzzling, but the reason
+        // that it differs between localCrawler and newCrawler is that when we
+        // freeze the queue, localCrawler hasn't had time to ask for a new
+        // unfetched queue item, and it's only when those are asked for that the
+        // queue._oldestUnfetchedIndex property is updated. When we defrost the
+        // queue however, the property will be set correctly and "catch up"
+        function testQueue(crawler, oldestUnfetchedIndex) {
+            crawler.queue.length.should.equal(4);
+            crawler.queue._oldestUnfetchedIndex.should.equal(oldestUnfetchedIndex);
 
-            // Lets the queue be populated
-            process.nextTick(function() {
-                localCrawler.queue.length.should.equal(3);
-                localCrawler.queue._oldestUnfetchedIndex.should.equal(1);
-                localCrawler.queue._scanIndex["http://127.0.0.1:3000/"].should.equal(true);
-                localCrawler.queue._scanIndex["http://127.0.0.1:3000/stage2"].should.equal(true);
-                localCrawler.queue._scanIndex["http://127.0.0.1:3000/stage/3"].should.equal(true);
+            crawler.queue._scanIndex["http://127.0.0.1:3000/"].should.equal(true);
+            crawler.queue._scanIndex["http://127.0.0.1:3000/stage2"].should.equal(true);
+            crawler.queue._scanIndex["http://127.0.0.1:3000/stage/3"].should.equal(true);
+            crawler.queue._scanIndex["http://127.0.0.1:3000/stage/4"].should.equal(true);
 
-                localCrawler.queue[0].status.should.equal("downloaded");
-                localCrawler.queue[1].status.should.equal("downloaded");
-                localCrawler.queue[2].status.should.equal("queued");
+            crawler.queue[0].status.should.equal("downloaded");
+            crawler.queue[1].status.should.equal("downloaded");
+            crawler.queue[2].status.should.equal("queued");
+            crawler.queue[3].status.should.equal("queued");
+        }
 
-                localCrawler.queue.freeze(tmp, defrost);
+        function testFreezeDefrost() {
+            testQueue(localCrawler, 1);
+
+            localCrawler.queue.freeze(tmp, function() {
+                newCrawler.queue.defrost(tmp, function() {
+                    testQueue(newCrawler, 2);
+
+                    newCrawler.queue.oldestUnfetchedItem(function(err, queueItem) {
+                        should.equal(err, null);
+                        queueItem.url.should.equal("http://127.0.0.1:3000/stage/4");
+                        done();
+                    });
+                });
             });
         }
 
-        function defrost() {
-            newCrawler.queue.defrost(tmp, checkDefrost);
-        }
+        var i = 0;
 
-        function checkDefrost() {
-            newCrawler.queue.length.should.equal(3);
-            newCrawler.queue._oldestUnfetchedIndex.should.equal(2);
-            newCrawler.queue._scanIndex["http://127.0.0.1:3000/"].should.equal(true);
-            newCrawler.queue._scanIndex["http://127.0.0.1:3000/stage2"].should.equal(true);
-            newCrawler.queue._scanIndex["http://127.0.0.1:3000/stage/3"].should.equal(true);
+        localCrawler.on("fetchcomplete", function() {
+            if (++i === 2) {
+                this.stop();
+                // Queue an additional URL so that we can test the
+                // queue._oldestUnfetchedItem reviving properly
+                localCrawler.queueURL("http://127.0.0.1:3000/stage/4");
 
-            newCrawler.queue[0].status.should.equal("downloaded");
-            newCrawler.queue[1].status.should.equal("downloaded");
-            newCrawler.queue[2].status.should.equal("queued");
-
-            newCrawler.queue.oldestUnfetchedItem(function(err, queueItem) {
-                should.equal(err, null);
-                queueItem.url.should.equal("http://127.0.0.1:3000/stage/3");
-                done();
-            });
-        }
-
-        localCrawler.once("fetchcomplete", function () {
-            localCrawler.once("fetchcomplete", test);
+                // Lets the queue be populated
+                process.nextTick(testFreezeDefrost);
+            }
         });
 
         localCrawler.start();

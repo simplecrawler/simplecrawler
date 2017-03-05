@@ -184,7 +184,8 @@ in parentheses.
 * `fetchtimeout` (queueItem, crawlerTimeoutValue) -
     Fired when a request time exceeds the internal crawler threshold.
 * `fetchcomplete` (queueItem, responseBody, responseObject) -
-    Fired when the resource is completely downloaded. The response body is
+    Fired after a resource has been completely downloaded and the server
+    returned an HTTP status code between 200 and 300. The response body is
     provided as a Buffer per default, unless `decodeResponses` is truthy, in
     which case it's a decoded string representation of the body.
 * `fetcherror` (queueItem, responseObject) -
