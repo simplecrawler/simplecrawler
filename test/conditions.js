@@ -304,7 +304,7 @@ describe("Download conditions", function() {
             response.should.be.an("object");
             response.should.be.an.instanceof(http.IncomingMessage);
 
-            crawler.stop();
+            crawler.stop(true);
             done();
         });
 
@@ -316,7 +316,7 @@ describe("Download conditions", function() {
             queueItem.should.be.an("object");
             error.should.be.an.instanceof(Error);
 
-            crawler.stop();
+            crawler.stop(true);
             done();
         };
     }
