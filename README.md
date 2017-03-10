@@ -143,9 +143,25 @@ in parentheses.
     Fired when an item cannot be added to the queue due to an error.
 * `robotstxterror` (error) -
     Fired when robots.txt couldn't be fetched.
+* `invaliddomain` (queueItem) -
+    Fired when a resource wasn't queued because it had an invalid domain. See
+    `crawler.filterByDomain`, `crawler.ignoreWWWDomain`,
+    `crawler.scanSubdomains` and `crawler.domainWhitelist` for different ways to
+    configure which domains are considered valid.
 * `fetchdisallowed` (queueItem) -
-    Fired when a resource isn't fetched due to robots.txt rules. See
+    Fired when a resource wasn't queued because of robots.txt rules. See
     `respectRobotsTxt` option.
+* `fetchprevented` (queueItem) -
+    Fired when a resource wasn't queued because of a [fetch
+    condition](#fetch-conditions).
+* `fetchconditionerror` (queueItem, error) -
+    Fired when one of the fetch conditions returns an error. Provides the queue
+    item that was processed when the error was encountered as well as the error
+    itself.
+* `downloadconditionerror` (queueItem, error) -
+    Fired when one of the download conditions returns an error. Provides the
+    queue item that was processed when the error was encountered as well as the
+    error itself.
 * `fetchstart` (queueItem, requestOptions) -
     Fired when an item is spooled for fetching. If your event handler is
     synchronous, you can modify the crawler request options (including headers
@@ -364,16 +380,18 @@ change to adapt it to your specific needs.
 
 simplecrawler has an concept called fetch conditions that offers a flexible API
 for filtering discovered resources before they're put in the queue. A fetch
-condition is a function that's evaluated with a queue item object for every
-discovered resource and returns a value that indicates whether that item should
-be added to the queue. This API is complemented by [download
-conditions](#download-conditions) that determine whether a resource's body data
-should be downloaded.
+condition is a function that takes a queue item candidate and evaluates
+(synchronously or asynchronously) whether it should be added to the queue or
+not. *Please note: with the next major release, all fetch conditions will be
+asynchronous.*
 
 You may add as many fetch conditions as you like, and remove them at runtime.
-simplecrawler will evaluate every fetch condition until one is encountered that
-returns a falsy value. If that happens, the resource in question will not be
-fetched.
+simplecrawler will evaluate every fetch condition in parallel until one is
+encountered that returns a falsy value. If that happens, the resource in
+question will not be fetched.
+
+This API is complemented by [download conditions](#download-conditions) that
+determine whether a resource's body data should be downloaded.
 
 ### Adding a fetch condition
 
@@ -383,24 +401,37 @@ downloaded. Adding a fetch condition assigns it an ID, which the
 condition later.
 
 ```js
-var conditionID = myCrawler.addFetchCondition(function(queueItem, referrerQueueItem) {
-    return !queueItem.path.match(/\.pdf$/i);
+var conditionID = myCrawler.addFetchCondition(function(queueItem, referrerQueueItem, callback) {
+    callback(!queueItem.path.match(/\.pdf$/i));
 });
 ```
 
-Fetch conditions are called with two arguments: `queueItem` and
-`referrerQueueItem`. The former represents the resource to be fetched (or not),
-and the latter represents the resource where the new `queueItem` was discovered.
-See the [queue item documentation](#queue-items) for details on their structure.
+Fetch conditions are called with three arguments: `queueItem`,
+`referrerQueueItem` and `callback`. `queueItem` represents the resource to be
+fetched (or not), and `referrerQueueItem` represents the resource where the new
+`queueItem` was discovered. See the [queue item documentation](#queue-items) for
+details on their structure. The `callback` argument is optional, since fetch
+conditions were always synchronous before simplecrawler 1.1.0, but this is due
+to change with the next major release when all fetch conditions will need to
+call the `callback`.
 
 With this information, you can write sophisticated logic for determining which
 pages to fetch and which to avoid. For example, you could write a program that
 ensures all links on a website - both internal and external - return good HTTP
-statuses. One way to achieve this would be to set `filterByDomain` to false and
-add a fetch condition that returns false if  `queueItem.host` is the same as
-`referrerQueueItem.host`, unless they both equal `crawler.host`. That would make
-the crawler go just one resource beyond the original host - ie. not follow any
-links it discovers on the new site.
+statuses. Here's an example:
+
+```js
+var crawler = new Crawler("http://example.com");
+crawler.filterByDomain = false;
+
+crawler.addFetchCondition(function(queueItem, referrerQueueItem, callback) {
+    // We only ever want to move one step away from example.com, so if the
+    // referrer queue item reports a different domain, don't proceed
+    callback(referrerQueueItem.host === crawler.host);
+});
+
+crawler.start();
+```
 
 ### Removing a fetch condition
 
@@ -425,7 +456,9 @@ myCrawler.removeFetchCondition(listener);
 
 While fetch conditions let you determine which resources to put in the queue,
 download conditions offer the same kind of flexible API for determining which
-resources' data to download.
+resources' data to download. Download conditions support both a synchronous and
+an asynchronous API, but *with the next major release, all download conditions
+will be asynchronous.*
 
 Download conditions are evaluated after the headers of a resource have been
 downloaded, if that resource returned an HTTP status between 200 and 299. This
@@ -440,17 +473,17 @@ Download conditions are added in much the same way as fetch conditions, with the
 used to remove the condition later.
 
 ```js
-var conditionID = myCrawler.addDownloadCondition(function(queueItem, response) {
-    return (
+var conditionID = myCrawler.addDownloadCondition(function(queueItem, response, callback) {
+    callback(
         queueItem.stateData.contentType === "image/png" &&
         queueItem.stateData.contentLength < 5 * 1000 * 1000
     );
 });
 ```
 
-Download conditions are called with two arguments: `queueItem` and `response`.
-The former represents the resource that's being fetched ([queue item
-structure](#queue-items)), and the latter is an instance of
+Download conditions are called with three arguments: `queueItem`, `response` and
+`callback`. `queueItem` represents the resource that's being fetched ([queue
+item structure](#queue-items)) and `response` is an instance of
 `http.IncomingMessage`. Please see the [node
 documentation](https://nodejs.org/api/http.html#http_class_http_incomingmessage)
 for that class for more details on what it looks like.
@@ -462,7 +495,7 @@ returned from the `addDownloadCondition` method, or with a reference to the same
 callback function. `crawler.removeDownloadCondition` is the method you'll use:
 
 ```js
-function listener(queueItem, stateData) {
+function listener(queueItem, response, callback) {
     // Do something
 }
 
