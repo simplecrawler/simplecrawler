@@ -402,7 +402,7 @@ condition later.
 
 ```js
 var conditionID = myCrawler.addFetchCondition(function(queueItem, referrerQueueItem, callback) {
-    callback(!queueItem.path.match(/\.pdf$/i));
+    callback(null, !queueItem.path.match(/\.pdf$/i));
 });
 ```
 
@@ -410,10 +410,13 @@ Fetch conditions are called with three arguments: `queueItem`,
 `referrerQueueItem` and `callback`. `queueItem` represents the resource to be
 fetched (or not), and `referrerQueueItem` represents the resource where the new
 `queueItem` was discovered. See the [queue item documentation](#queue-items) for
-details on their structure. The `callback` argument is optional, since fetch
-conditions were always synchronous before simplecrawler 1.1.0, but this is due
-to change with the next major release when all fetch conditions will need to
-call the `callback`.
+details on their structure. The `callback` argument is optional, but if your
+function takes 3 arguments, simplecrawler will consider it asynchronous and wait
+for the `callback` to be called. If your function takes 2 arguments or less,
+simplecrawler will consider it synchronous and look at its return value instead.
+**Please note** however, that this flexibility in sync and async behavior is due
+to change with the next major release when all fetch conditions will need to use
+the asynchronous API.
 
 With this information, you can write sophisticated logic for determining which
 pages to fetch and which to avoid. For example, you could write a program that
@@ -427,7 +430,7 @@ crawler.filterByDomain = false;
 crawler.addFetchCondition(function(queueItem, referrerQueueItem, callback) {
     // We only ever want to move one step away from example.com, so if the
     // referrer queue item reports a different domain, don't proceed
-    callback(referrerQueueItem.host === crawler.host);
+    callback(null, referrerQueueItem.host === crawler.host);
 });
 
 crawler.start();
@@ -474,7 +477,7 @@ used to remove the condition later.
 
 ```js
 var conditionID = myCrawler.addDownloadCondition(function(queueItem, response, callback) {
-    callback(
+    callback(null,
         queueItem.stateData.contentType === "image/png" &&
         queueItem.stateData.contentLength < 5 * 1000 * 1000
     );
