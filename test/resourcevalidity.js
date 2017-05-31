@@ -141,6 +141,20 @@ describe("Resource validity checker", function() {
         crawler.processURL("http://example.com/test?q=crawler&foo=bar").path.should.equal("/test?q=crawler&foo=bar");
     });
 
+    it("should canonicalize query strings by sorting parameters", function() {
+
+        var crawler = makeCrawler("http://example.com");
+
+        crawler.sortQueryParameters = true;
+        crawler.processURL("http://example.com/example?s=1&r=9&b=3&r=2&r=7").path.should.equal("/example?b=3&r=9&r=2&r=7&s=1");
+        crawler.processURL("http://example.com/test?q=crawler&foo=bar").path.should.equal("/test?foo=bar&q=crawler");
+
+        crawler.sortQueryParameters = false;
+        crawler.processURL("http://example.com/example?s=1&r=9&b=3&r=2&r=7").path.should.equal("/example?s=1&r=9&r=2&r=7&b=3");
+        // ^^^ note: urijs normalize() rearranges the query parameters, grouping those with same name.
+        crawler.processURL("http://example.com/test?q=crawler&foo=bar").path.should.equal("/test?q=crawler&foo=bar");
+    });
+
     it("should throw out junky or invalid URLs without dying", function() {
 
         var crawler = makeCrawler("http://127.0.0.1:3000");

@@ -329,4 +329,15 @@ describe("Queue methods", function() {
 
         crawler.start();
     });
+
+    it("Doesn't queue URL with reordered query parameters", function(done) {
+        var crawler = new Crawler("http://127.0.0.1:3000");
+        crawler.sortQueryParameters = true;
+        crawler.queueURL("http://127.0.0.1:3000/sample.jsp?a=1&b=2");
+        crawler.queueURL("http://127.0.0.1:3000/sample.jsp?b=2&a=1");
+        crawler.queue.getLength(function(error, length) {
+            length.should.equal(1);
+            done();
+        });
+    });
 });
