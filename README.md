@@ -295,6 +295,9 @@ change to adapt it to your specific needs.
     Or go even further and strip WWW subdomain from requests altogether!
 * `crawler.stripQuerystring=false` -
     Specify to strip querystring parameters from URL's.
+* `crawler.sortQueryParameters=false` -
+    Specify to sort the querystring parameters before queueing URL's. This is
+    to canonicalize URLs so that foo?a=1&b=2 is considered same as foo?b=2&a=1.
 * `crawler.discoverResources` -
     simplecrawler's default resource discovery function -
     which, given a buffer containing a resource, returns an array of URLs.
