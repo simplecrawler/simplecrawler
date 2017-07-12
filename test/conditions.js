@@ -107,6 +107,32 @@ describe("Fetch conditions", function() {
         crawler._fetchConditions[conditionID].should.equal(condition);
     });
 
+    it("should throw when removing a fetch condition twice by ID", function() {
+        var crawler = makeCrawler("http://127.0.0.1:3000"),
+            condition = function() {},
+            conditionID = crawler.addFetchCondition(condition);
+
+        crawler._fetchConditions[conditionID].should.equal(condition);
+        crawler.removeFetchCondition(conditionID);
+        crawler._fetchConditions[conditionID].should.not.equal(condition);
+        (function () {
+            crawler.removeFetchCondition(conditionID);
+        }).should.throw();
+    });
+
+    it("should throw when removing a fetch condition twice by reference", function() {
+        var crawler = makeCrawler("http://127.0.0.1:3000"),
+            condition = function() {},
+            conditionID = crawler.addFetchCondition(condition);
+
+        crawler._fetchConditions[conditionID].should.equal(condition);
+        crawler.removeFetchCondition(condition);
+        crawler._fetchConditions[conditionID].should.not.equal(condition);
+        (function () {
+            crawler.removeFetchCondition(condition);
+        }).should.throw();
+    });
+
     it("should provide fetch conditions with the right data", function(done) {
         var crawler = makeCrawler("http://127.0.0.1:3000"),
             fetchConditionCalled = false;
@@ -321,6 +347,32 @@ describe("Download conditions", function() {
             crawler.removeDownloadCondition(function() {});
         }).should.throw();
         crawler._downloadConditions[conditionID].should.equal(condition);
+    });
+
+    it("should throw when removing a download condition twice by ID", function() {
+        var crawler = makeCrawler("http://127.0.0.1:3000"),
+            condition = function() {},
+            conditionID = crawler.addDownloadCondition(condition);
+
+        crawler._downloadConditions[conditionID].should.equal(condition);
+        crawler.removeDownloadCondition(conditionID);
+        crawler._downloadConditions[conditionID].should.not.equal(condition);
+        (function () {
+            crawler.removeDownloadCondition(conditionID);
+        }).should.throw();
+    });
+
+    it("should throw when removing a download condition twice by reference", function() {
+        var crawler = makeCrawler("http://127.0.0.1:3000"),
+            condition = function() {},
+            conditionID = crawler.addDownloadCondition(condition);
+
+        crawler._downloadConditions[conditionID].should.equal(condition);
+        crawler.removeDownloadCondition(condition);
+        crawler._downloadConditions[conditionID].should.not.equal(condition);
+        (function () {
+            crawler.removeDownloadCondition(condition);
+        }).should.throw();
     });
 
     it("should provide download conditions with the right data", function(done) {
