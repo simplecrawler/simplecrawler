@@ -24,113 +24,117 @@ describe("Fetch conditions", function() {
         conditionID.should.be.a("number");
     });
 
-    it("should be able to remove a fetch condition by ID", function() {
-        var crawler = makeCrawler("http://127.0.0.1:3000"),
-            condition = function() {},
-            conditionID = crawler.addFetchCondition(condition);
+    describe("Removing fetch conditions", function() {
 
-        crawler._fetchConditions[conditionID].should.equal(condition);
-        crawler.removeFetchCondition(conditionID);
-        crawler._fetchConditions[conditionID].should.not.equal(condition);
-    });
+        it("should be able to remove a fetch condition by ID", function() {
+            var crawler = makeCrawler("http://127.0.0.1:3000"),
+                condition = function() {},
+                conditionID = crawler.addFetchCondition(condition);
 
-    it("should be able to remove a fetch condition by reference", function() {
-        var crawler = makeCrawler("http://127.0.0.1:3000"),
-            condition = function() {},
-            conditionID = crawler.addFetchCondition(condition);
-
-        crawler._fetchConditions[conditionID].should.equal(condition);
-        crawler.removeFetchCondition(condition);
-        crawler._fetchConditions[conditionID].should.not.equal(condition);
-    });
-
-    it("should be able to remove a fetch condition by ID (multiple)", function() {
-        var crawler = makeCrawler("http://127.0.0.1:3000"),
-            condition1 = function() {},
-            condition2 = function() {},
-            condition3 = function() {},
-            conditionID1 = crawler.addFetchCondition(condition1),
-            conditionID2 = crawler.addFetchCondition(condition2),
-            conditionID3 = crawler.addFetchCondition(condition3);
-
-        crawler._fetchConditions[conditionID1].should.equal(condition1);
-        crawler._fetchConditions[conditionID2].should.equal(condition2);
-        crawler._fetchConditions[conditionID3].should.equal(condition3);
-        crawler.removeFetchCondition(conditionID2);
-        crawler._fetchConditions[conditionID1].should.equal(condition1);
-        crawler._fetchConditions[conditionID2].should.not.equal(condition2);
-        crawler._fetchConditions[conditionID3].should.equal(condition3);
-    });
-
-    it("should be able to remove a fetch condition by reference (multiple)", function() {
-        var crawler = makeCrawler("http://127.0.0.1:3000"),
-            condition1 = function() {},
-            condition2 = function() {},
-            condition3 = function() {},
-            conditionID1 = crawler.addFetchCondition(condition1),
-            conditionID2 = crawler.addFetchCondition(condition2),
-            conditionID3 = crawler.addFetchCondition(condition3);
-
-        crawler._fetchConditions[conditionID1].should.equal(condition1);
-        crawler._fetchConditions[conditionID2].should.equal(condition2);
-        crawler._fetchConditions[conditionID3].should.equal(condition3);
-        crawler.removeFetchCondition(condition2);
-        crawler._fetchConditions[conditionID1].should.equal(condition1);
-        crawler._fetchConditions[conditionID2].should.not.equal(condition2);
-        crawler._fetchConditions[conditionID3].should.equal(condition3);
-    });
-
-    it("should throw when it can't remove a fetch condition by ID", function() {
-        var crawler = makeCrawler("http://127.0.0.1:3000"),
-            condition = function() {},
-            conditionID = crawler.addFetchCondition(condition);
-
-        crawler._fetchConditions[conditionID].should.equal(condition);
-        (function () {
-            crawler.removeFetchCondition(-1);
-        }).should.throw();
-        (function () {
-            crawler.removeFetchCondition(conditionID + 1);
-        }).should.throw();
-        crawler._fetchConditions[conditionID].should.equal(condition);
-    });
-
-    it("should throw when it can't remove a fetch condition by reference", function() {
-        var crawler = makeCrawler("http://127.0.0.1:3000"),
-            condition = function() {},
-            conditionID = crawler.addFetchCondition(condition);
-
-        crawler._fetchConditions[conditionID].should.equal(condition);
-        (function () {
-            crawler.removeFetchCondition(function() {});
-        }).should.throw();
-        crawler._fetchConditions[conditionID].should.equal(condition);
-    });
-
-    it("should throw when removing a fetch condition twice by ID", function() {
-        var crawler = makeCrawler("http://127.0.0.1:3000"),
-            condition = function() {},
-            conditionID = crawler.addFetchCondition(condition);
-
-        crawler._fetchConditions[conditionID].should.equal(condition);
-        crawler.removeFetchCondition(conditionID);
-        crawler._fetchConditions[conditionID].should.not.equal(condition);
-        (function () {
+            crawler._fetchConditions[conditionID].should.equal(condition);
             crawler.removeFetchCondition(conditionID);
-        }).should.throw();
-    });
+            crawler._fetchConditions[conditionID].should.not.equal(condition);
+        });
 
-    it("should throw when removing a fetch condition twice by reference", function() {
-        var crawler = makeCrawler("http://127.0.0.1:3000"),
-            condition = function() {},
-            conditionID = crawler.addFetchCondition(condition);
+        it("should be able to remove a fetch condition by reference", function() {
+            var crawler = makeCrawler("http://127.0.0.1:3000"),
+                condition = function() {},
+                conditionID = crawler.addFetchCondition(condition);
 
-        crawler._fetchConditions[conditionID].should.equal(condition);
-        crawler.removeFetchCondition(condition);
-        crawler._fetchConditions[conditionID].should.not.equal(condition);
-        (function () {
+            crawler._fetchConditions[conditionID].should.equal(condition);
             crawler.removeFetchCondition(condition);
-        }).should.throw();
+            crawler._fetchConditions[conditionID].should.not.equal(condition);
+        });
+
+        it("should be able to remove a fetch condition by ID (multiple)", function() {
+            var crawler = makeCrawler("http://127.0.0.1:3000"),
+                condition1 = function() {},
+                condition2 = function() {},
+                condition3 = function() {},
+                conditionID1 = crawler.addFetchCondition(condition1),
+                conditionID2 = crawler.addFetchCondition(condition2),
+                conditionID3 = crawler.addFetchCondition(condition3);
+
+            crawler._fetchConditions[conditionID1].should.equal(condition1);
+            crawler._fetchConditions[conditionID2].should.equal(condition2);
+            crawler._fetchConditions[conditionID3].should.equal(condition3);
+            crawler.removeFetchCondition(conditionID2);
+            crawler._fetchConditions[conditionID1].should.equal(condition1);
+            crawler._fetchConditions[conditionID2].should.not.equal(condition2);
+            crawler._fetchConditions[conditionID3].should.equal(condition3);
+        });
+
+        it("should be able to remove a fetch condition by reference (multiple)", function() {
+            var crawler = makeCrawler("http://127.0.0.1:3000"),
+                condition1 = function() {},
+                condition2 = function() {},
+                condition3 = function() {},
+                conditionID1 = crawler.addFetchCondition(condition1),
+                conditionID2 = crawler.addFetchCondition(condition2),
+                conditionID3 = crawler.addFetchCondition(condition3);
+
+            crawler._fetchConditions[conditionID1].should.equal(condition1);
+            crawler._fetchConditions[conditionID2].should.equal(condition2);
+            crawler._fetchConditions[conditionID3].should.equal(condition3);
+            crawler.removeFetchCondition(condition2);
+            crawler._fetchConditions[conditionID1].should.equal(condition1);
+            crawler._fetchConditions[conditionID2].should.not.equal(condition2);
+            crawler._fetchConditions[conditionID3].should.equal(condition3);
+        });
+
+        it("should throw when it can't remove a fetch condition by ID", function() {
+            var crawler = makeCrawler("http://127.0.0.1:3000"),
+                condition = function() {},
+                conditionID = crawler.addFetchCondition(condition);
+
+            crawler._fetchConditions[conditionID].should.equal(condition);
+            (function () {
+                crawler.removeFetchCondition(-1);
+            }).should.throw();
+            (function () {
+                crawler.removeFetchCondition(conditionID + 1);
+            }).should.throw();
+            crawler._fetchConditions[conditionID].should.equal(condition);
+        });
+
+        it("should throw when it can't remove a fetch condition by reference", function() {
+            var crawler = makeCrawler("http://127.0.0.1:3000"),
+                condition = function() {},
+                conditionID = crawler.addFetchCondition(condition);
+
+            crawler._fetchConditions[conditionID].should.equal(condition);
+            (function () {
+                crawler.removeFetchCondition(function() {});
+            }).should.throw();
+            crawler._fetchConditions[conditionID].should.equal(condition);
+        });
+
+        it("should throw when removing a fetch condition twice by ID", function() {
+            var crawler = makeCrawler("http://127.0.0.1:3000"),
+                condition = function() {},
+                conditionID = crawler.addFetchCondition(condition);
+
+            crawler._fetchConditions[conditionID].should.equal(condition);
+            crawler.removeFetchCondition(conditionID);
+            crawler._fetchConditions[conditionID].should.not.equal(condition);
+            (function () {
+                crawler.removeFetchCondition(conditionID);
+            }).should.throw();
+        });
+
+        it("should throw when removing a fetch condition twice by reference", function() {
+            var crawler = makeCrawler("http://127.0.0.1:3000"),
+                condition = function() {},
+                conditionID = crawler.addFetchCondition(condition);
+
+            crawler._fetchConditions[conditionID].should.equal(condition);
+            crawler.removeFetchCondition(condition);
+            crawler._fetchConditions[conditionID].should.not.equal(condition);
+            (function () {
+                crawler.removeFetchCondition(condition);
+            }).should.throw();
+        });
+
     });
 
     it("should provide fetch conditions with the right data", function(done) {
@@ -266,113 +270,117 @@ describe("Download conditions", function() {
         conditionID.should.be.a("number");
     });
 
-    it("should be able to remove a download condition by ID", function() {
-        var crawler = makeCrawler("http://127.0.0.1:3000"),
-            condition = function() {},
-            conditionID = crawler.addDownloadCondition(condition);
+    describe("Removing download conditions", function() {
 
-        crawler._downloadConditions[conditionID].should.equal(condition);
-        crawler.removeDownloadCondition(conditionID);
-        crawler._downloadConditions[conditionID].should.not.equal(condition);
-    });
+        it("should be able to remove a download condition by ID", function() {
+            var crawler = makeCrawler("http://127.0.0.1:3000"),
+                condition = function() {},
+                conditionID = crawler.addDownloadCondition(condition);
 
-    it("should be able to remove a download condition by reference", function() {
-        var crawler = makeCrawler("http://127.0.0.1:3000"),
-            condition = function() {},
-            conditionID = crawler.addDownloadCondition(condition);
-
-        crawler._downloadConditions[conditionID].should.equal(condition);
-        crawler.removeDownloadCondition(condition);
-        crawler._downloadConditions[conditionID].should.not.equal(condition);
-    });
-
-    it("should be able to remove a download condition by ID (multiple)", function() {
-        var crawler = makeCrawler("http://127.0.0.1:3000"),
-            condition1 = function() {},
-            condition2 = function() {},
-            condition3 = function() {},
-            conditionID1 = crawler.addDownloadCondition(condition1),
-            conditionID2 = crawler.addDownloadCondition(condition2),
-            conditionID3 = crawler.addDownloadCondition(condition3);
-
-        crawler._downloadConditions[conditionID1].should.equal(condition1);
-        crawler._downloadConditions[conditionID2].should.equal(condition2);
-        crawler._downloadConditions[conditionID3].should.equal(condition3);
-        crawler.removeDownloadCondition(conditionID2);
-        crawler._downloadConditions[conditionID1].should.equal(condition1);
-        crawler._downloadConditions[conditionID2].should.not.equal(condition2);
-        crawler._downloadConditions[conditionID3].should.equal(condition3);
-    });
-
-    it("should be able to remove a download condition by reference (multiple)", function() {
-        var crawler = makeCrawler("http://127.0.0.1:3000"),
-            condition1 = function() {},
-            condition2 = function() {},
-            condition3 = function() {},
-            conditionID1 = crawler.addDownloadCondition(condition1),
-            conditionID2 = crawler.addDownloadCondition(condition2),
-            conditionID3 = crawler.addDownloadCondition(condition3);
-
-        crawler._downloadConditions[conditionID1].should.equal(condition1);
-        crawler._downloadConditions[conditionID2].should.equal(condition2);
-        crawler._downloadConditions[conditionID3].should.equal(condition3);
-        crawler.removeDownloadCondition(condition2);
-        crawler._downloadConditions[conditionID1].should.equal(condition1);
-        crawler._downloadConditions[conditionID2].should.not.equal(condition2);
-        crawler._downloadConditions[conditionID3].should.equal(condition3);
-    });
-
-    it("should throw when it can't remove a download condition by ID", function() {
-        var crawler = makeCrawler("http://127.0.0.1:3000"),
-            condition = function() {},
-            conditionID = crawler.addDownloadCondition(condition);
-
-        crawler._downloadConditions[conditionID].should.equal(condition);
-        (function () {
-            crawler.removeDownloadCondition(-1);
-        }).should.throw();
-        (function () {
-            crawler.removeDownloadCondition(conditionID + 1);
-        }).should.throw();
-        crawler._downloadConditions[conditionID].should.equal(condition);
-    });
-
-    it("should throw when it can't remove a download condition by reference", function() {
-        var crawler = makeCrawler("http://127.0.0.1:3000"),
-            condition = function() {},
-            conditionID = crawler.addDownloadCondition(condition);
-
-        crawler._downloadConditions[conditionID].should.equal(condition);
-        (function () {
-            crawler.removeDownloadCondition(function() {});
-        }).should.throw();
-        crawler._downloadConditions[conditionID].should.equal(condition);
-    });
-
-    it("should throw when removing a download condition twice by ID", function() {
-        var crawler = makeCrawler("http://127.0.0.1:3000"),
-            condition = function() {},
-            conditionID = crawler.addDownloadCondition(condition);
-
-        crawler._downloadConditions[conditionID].should.equal(condition);
-        crawler.removeDownloadCondition(conditionID);
-        crawler._downloadConditions[conditionID].should.not.equal(condition);
-        (function () {
+            crawler._downloadConditions[conditionID].should.equal(condition);
             crawler.removeDownloadCondition(conditionID);
-        }).should.throw();
-    });
+            crawler._downloadConditions[conditionID].should.not.equal(condition);
+        });
 
-    it("should throw when removing a download condition twice by reference", function() {
-        var crawler = makeCrawler("http://127.0.0.1:3000"),
-            condition = function() {},
-            conditionID = crawler.addDownloadCondition(condition);
+        it("should be able to remove a download condition by reference", function() {
+            var crawler = makeCrawler("http://127.0.0.1:3000"),
+                condition = function() {},
+                conditionID = crawler.addDownloadCondition(condition);
 
-        crawler._downloadConditions[conditionID].should.equal(condition);
-        crawler.removeDownloadCondition(condition);
-        crawler._downloadConditions[conditionID].should.not.equal(condition);
-        (function () {
+            crawler._downloadConditions[conditionID].should.equal(condition);
             crawler.removeDownloadCondition(condition);
-        }).should.throw();
+            crawler._downloadConditions[conditionID].should.not.equal(condition);
+        });
+
+        it("should be able to remove a download condition by ID (multiple)", function() {
+            var crawler = makeCrawler("http://127.0.0.1:3000"),
+                condition1 = function() {},
+                condition2 = function() {},
+                condition3 = function() {},
+                conditionID1 = crawler.addDownloadCondition(condition1),
+                conditionID2 = crawler.addDownloadCondition(condition2),
+                conditionID3 = crawler.addDownloadCondition(condition3);
+
+            crawler._downloadConditions[conditionID1].should.equal(condition1);
+            crawler._downloadConditions[conditionID2].should.equal(condition2);
+            crawler._downloadConditions[conditionID3].should.equal(condition3);
+            crawler.removeDownloadCondition(conditionID2);
+            crawler._downloadConditions[conditionID1].should.equal(condition1);
+            crawler._downloadConditions[conditionID2].should.not.equal(condition2);
+            crawler._downloadConditions[conditionID3].should.equal(condition3);
+        });
+
+        it("should be able to remove a download condition by reference (multiple)", function() {
+            var crawler = makeCrawler("http://127.0.0.1:3000"),
+                condition1 = function() {},
+                condition2 = function() {},
+                condition3 = function() {},
+                conditionID1 = crawler.addDownloadCondition(condition1),
+                conditionID2 = crawler.addDownloadCondition(condition2),
+                conditionID3 = crawler.addDownloadCondition(condition3);
+
+            crawler._downloadConditions[conditionID1].should.equal(condition1);
+            crawler._downloadConditions[conditionID2].should.equal(condition2);
+            crawler._downloadConditions[conditionID3].should.equal(condition3);
+            crawler.removeDownloadCondition(condition2);
+            crawler._downloadConditions[conditionID1].should.equal(condition1);
+            crawler._downloadConditions[conditionID2].should.not.equal(condition2);
+            crawler._downloadConditions[conditionID3].should.equal(condition3);
+        });
+
+        it("should throw when it can't remove a download condition by ID", function() {
+            var crawler = makeCrawler("http://127.0.0.1:3000"),
+                condition = function() {},
+                conditionID = crawler.addDownloadCondition(condition);
+
+            crawler._downloadConditions[conditionID].should.equal(condition);
+            (function () {
+                crawler.removeDownloadCondition(-1);
+            }).should.throw();
+            (function () {
+                crawler.removeDownloadCondition(conditionID + 1);
+            }).should.throw();
+            crawler._downloadConditions[conditionID].should.equal(condition);
+        });
+
+        it("should throw when it can't remove a download condition by reference", function() {
+            var crawler = makeCrawler("http://127.0.0.1:3000"),
+                condition = function() {},
+                conditionID = crawler.addDownloadCondition(condition);
+
+            crawler._downloadConditions[conditionID].should.equal(condition);
+            (function () {
+                crawler.removeDownloadCondition(function() {});
+            }).should.throw();
+            crawler._downloadConditions[conditionID].should.equal(condition);
+        });
+
+        it("should throw when removing a download condition twice by ID", function() {
+            var crawler = makeCrawler("http://127.0.0.1:3000"),
+                condition = function() {},
+                conditionID = crawler.addDownloadCondition(condition);
+
+            crawler._downloadConditions[conditionID].should.equal(condition);
+            crawler.removeDownloadCondition(conditionID);
+            crawler._downloadConditions[conditionID].should.not.equal(condition);
+            (function () {
+                crawler.removeDownloadCondition(conditionID);
+            }).should.throw();
+        });
+
+        it("should throw when removing a download condition twice by reference", function() {
+            var crawler = makeCrawler("http://127.0.0.1:3000"),
+                condition = function() {},
+                conditionID = crawler.addDownloadCondition(condition);
+
+            crawler._downloadConditions[conditionID].should.equal(condition);
+            crawler.removeDownloadCondition(condition);
+            crawler._downloadConditions[conditionID].should.not.equal(condition);
+            (function () {
+                crawler.removeDownloadCondition(condition);
+            }).should.throw();
+        });
+
     });
 
     it("should provide download conditions with the right data", function(done) {
