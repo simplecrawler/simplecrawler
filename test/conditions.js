@@ -4,7 +4,7 @@ var chai = require("chai"),
     http = require("http"),
     Crawler = require("../");
 
-chai.should();
+var should = chai.should();
 
 var makeCrawler = function (url) {
     var crawler = new Crawler(url);
@@ -33,7 +33,7 @@ describe("Fetch conditions", function() {
 
             crawler._fetchConditions[conditionID].should.equal(condition);
             crawler.removeFetchCondition(conditionID);
-            crawler._fetchConditions[conditionID].should.not.equal(condition);
+            should.not.equal(crawler._fetchConditions[conditionID], condition);
         });
 
         it("should be able to remove a fetch condition by reference", function() {
@@ -43,7 +43,7 @@ describe("Fetch conditions", function() {
 
             crawler._fetchConditions[conditionID].should.equal(condition);
             crawler.removeFetchCondition(condition);
-            crawler._fetchConditions[conditionID].should.not.equal(condition);
+            should.not.equal(crawler._fetchConditions[conditionID], condition);
         });
 
         it("should be able to remove a fetch condition by ID (multiple)", function() {
@@ -60,7 +60,7 @@ describe("Fetch conditions", function() {
             crawler._fetchConditions[conditionID3].should.equal(condition3);
             crawler.removeFetchCondition(conditionID2);
             crawler._fetchConditions[conditionID1].should.equal(condition1);
-            crawler._fetchConditions[conditionID2].should.not.equal(condition2);
+            should.not.equal(crawler._fetchConditions[conditionID2], condition2);
             crawler._fetchConditions[conditionID3].should.equal(condition3);
         });
 
@@ -78,7 +78,7 @@ describe("Fetch conditions", function() {
             crawler._fetchConditions[conditionID3].should.equal(condition3);
             crawler.removeFetchCondition(condition2);
             crawler._fetchConditions[conditionID1].should.equal(condition1);
-            crawler._fetchConditions[conditionID2].should.not.equal(condition2);
+            should.not.equal(crawler._fetchConditions[conditionID2], condition2);
             crawler._fetchConditions[conditionID3].should.equal(condition3);
         });
 
@@ -116,7 +116,7 @@ describe("Fetch conditions", function() {
 
             crawler._fetchConditions[conditionID].should.equal(condition);
             crawler.removeFetchCondition(conditionID);
-            crawler._fetchConditions[conditionID].should.not.equal(condition);
+            should.not.equal(crawler._fetchConditions[conditionID], condition);
             (function () {
                 crawler.removeFetchCondition(conditionID);
             }).should.throw();
@@ -129,7 +129,7 @@ describe("Fetch conditions", function() {
 
             crawler._fetchConditions[conditionID].should.equal(condition);
             crawler.removeFetchCondition(condition);
-            crawler._fetchConditions[conditionID].should.not.equal(condition);
+            should.not.equal(crawler._fetchConditions[conditionID], condition);
             (function () {
                 crawler.removeFetchCondition(condition);
             }).should.throw();
@@ -279,7 +279,7 @@ describe("Download conditions", function() {
 
             crawler._downloadConditions[conditionID].should.equal(condition);
             crawler.removeDownloadCondition(conditionID);
-            crawler._downloadConditions[conditionID].should.not.equal(condition);
+            should.not.equal(crawler._downloadConditions[conditionID], condition);
         });
 
         it("should be able to remove a download condition by reference", function() {
@@ -289,7 +289,7 @@ describe("Download conditions", function() {
 
             crawler._downloadConditions[conditionID].should.equal(condition);
             crawler.removeDownloadCondition(condition);
-            crawler._downloadConditions[conditionID].should.not.equal(condition);
+            should.not.equal(crawler._downloadConditions[conditionID], condition);
         });
 
         it("should be able to remove a download condition by ID (multiple)", function() {
@@ -306,7 +306,7 @@ describe("Download conditions", function() {
             crawler._downloadConditions[conditionID3].should.equal(condition3);
             crawler.removeDownloadCondition(conditionID2);
             crawler._downloadConditions[conditionID1].should.equal(condition1);
-            crawler._downloadConditions[conditionID2].should.not.equal(condition2);
+            should.not.equal(crawler._downloadConditions[conditionID2], condition2);
             crawler._downloadConditions[conditionID3].should.equal(condition3);
         });
 
@@ -324,7 +324,7 @@ describe("Download conditions", function() {
             crawler._downloadConditions[conditionID3].should.equal(condition3);
             crawler.removeDownloadCondition(condition2);
             crawler._downloadConditions[conditionID1].should.equal(condition1);
-            crawler._downloadConditions[conditionID2].should.not.equal(condition2);
+            should.not.equal(crawler._downloadConditions[conditionID2], condition2);
             crawler._downloadConditions[conditionID3].should.equal(condition3);
         });
 
@@ -362,7 +362,7 @@ describe("Download conditions", function() {
 
             crawler._downloadConditions[conditionID].should.equal(condition);
             crawler.removeDownloadCondition(conditionID);
-            crawler._downloadConditions[conditionID].should.not.equal(condition);
+            should.not.equal(crawler._downloadConditions[conditionID], condition);
             (function () {
                 crawler.removeDownloadCondition(conditionID);
             }).should.throw();
@@ -375,7 +375,7 @@ describe("Download conditions", function() {
 
             crawler._downloadConditions[conditionID].should.equal(condition);
             crawler.removeDownloadCondition(condition);
-            crawler._downloadConditions[conditionID].should.not.equal(condition);
+            should.not.equal(crawler._downloadConditions[conditionID], condition);
             (function () {
                 crawler.removeDownloadCondition(condition);
             }).should.throw();
