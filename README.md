@@ -884,14 +884,10 @@ list below before submitting an issue.
 ## Node Support Policy
 
 Simplecrawler will officially support stable and LTS versions of Node which are
-currently supported by the Node Foundation. We will endeavour to continue to
-support Node 0.10.x — but now that it has fallen out of LTS it is likely we will
-adopt newer JS syntax and APIs which 0.10.x does not support.
+currently supported by the Node Foundation.
 
 Currently supported versions:
 
-- 0.10.x
-- 0.12.x
 - 4.x
 - 5.x
 - 6.x
