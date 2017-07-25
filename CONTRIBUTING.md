@@ -96,6 +96,17 @@ your WIP commits are merged, they become part of Simplecrawler mainline's
 history — and everything gets messy. Squash your commits if required, and
 rename any commits with unstructured or unclear messages.
 
+#### Code formatting
+
+We use prettier for formatting the source code of Simplecrawler. prettier is
+useful because it eliminates arguments around code formatting - it will almost
+completely disregard the original formatting of the code and output consistently
+formatted code. Run `npm run format` to format all source code files.
+
+Editor integrations like [prettier-atom](https://atom.io/packages/prettier-atom)
+will help speed up your development workflow. Make sure to enable the "ESLint
+integration" option (or equivalent).
+
 #### Linting
 
 Ensure you have linted your code with ESLint. You may run `npm test` from the
