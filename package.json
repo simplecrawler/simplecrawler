@@ -26,9 +26,10 @@
     "eventemitter"
   ],
   "scripts": {
-    "lint": "eslint example/ lib/ test/",
+    "lint": "eslint example/ lib/ test/ && prettier-eslint --list-different \"lib/*.js\" \"test/**/*.js\" \"example/**/*.js\"",
     "mocha": "mocha -R spec -t 5000",
     "test": "npm run lint && npm run mocha",
+    "format": "prettier-eslint --write \"lib/*.js\" \"test/**/*.js\" \"example/**/*.js\"",
     "docs": "jsdoc -c jsdoc.json"
   },
   "bin": {
@@ -45,7 +46,8 @@
     "chai": "^3.2.0",
     "eslint": "^2.0.0",
     "jsdoc": "^3.4.0",
-    "mocha": "^3.0.0"
+    "mocha": "^3.0.0",
+    "prettier-eslint-cli": "^4.1.1"
   },
   "engines": {
     "node": ">=0.10.0"
