@@ -34,4 +34,4 @@ matrix:
     fast_finish: true
 
 cache:
-    - node_modules -> package.json
+    - node_modules -> package.json,package-lock.json
