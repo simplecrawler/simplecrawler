@@ -39,7 +39,7 @@
     "async": "^2.1.4",
     "iconv-lite": "^0.4.13",
     "robots-parser": "^1.0.0",
-    "urijs": "^1.16.1"
+    "urijs": "^1.18.11"
   },
   "devDependencies": {
     "chai": "^3.2.0",
