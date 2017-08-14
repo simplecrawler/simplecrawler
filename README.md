@@ -7,8 +7,8 @@
 [![devDependency Status](https://img.shields.io/david/dev/cgiffard/node-simplecrawler.svg)](https://david-dm.org/cgiffard/node-simplecrawler#info=devDependencies)
 
 simplecrawler is designed to provide a basic, flexible and robust API for
-crawling websites. I wrote simplecrawler to archive, analyse, and search some
-very large websites. It has happily chewed through hundreds of thousands of
+crawling websites. It was written to archive, analyse, and search some
+very large websites and has happily chewed through hundreds of thousands of
 pages and written tens of gigabytes to disk without issue.
 
 ## What does simplecrawler do?
