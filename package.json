@@ -1,7 +1,7 @@
 {
   "name": "simplecrawler",
   "description": "Very straightforward, event driven web crawler. Features a flexible queue interface and a basic cache mechanism with extensible backend.",
-  "version": "1.1.4",
+  "version": "1.1.5",
   "homepage": "https://github.com/cgiffard/node-simplecrawler",
   "author": "Christopher Giffard <christopher.giffard@cgiffard.com>",
   "maintainers": [
@@ -40,7 +40,7 @@
     "async": "^2.1.4",
     "iconv-lite": "^0.4.13",
     "robots-parser": "^1.0.0",
-    "urijs": "^1.16.1"
+    "urijs": "^1.18.11"
   },
   "devDependencies": {
     "chai": "^3.2.0",
