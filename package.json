@@ -47,8 +47,7 @@
     "eslint": "^4.4.1",
     "jsdoc": "^3.4.0",
     "mocha": "^3.0.0",
-    "prettier": "^1.5.3",
-    "prettier-eslint-cli": "^4.1.1"
+    "prettier-eslint-cli": "^4.2.1"
   },
   "engines": {
     "node": ">=0.10.0"
