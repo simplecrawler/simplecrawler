@@ -48,9 +48,28 @@ describe("Test Crawl", function() {
 
         crawler.on("fetchstart", function(queueItem, requestOptions) {
             if (i++) {
-                requestOptions.headers.cookie.should.be.an("array");
-                requestOptions.headers.cookie.should.have.lengthOf(1);
-                requestOptions.headers.cookie[0].should.match(/^thing=stuff/);
+                requestOptions.headers.cookie.should.be.a("string");
+                requestOptions.headers.cookie.should.match(/^thing=stuff$/);
+                done();
+            }
+        });
+
+        crawler.start();
+    });
+
+    it("should send multiple cookies properly", function(done) {
+        var crawler = makeCrawler("http://127.0.0.1:3000/"),
+            i = 0;
+
+        crawler.cookies.addFromHeaders([
+            "name1=value1",
+            "name2=value2",
+            "name3=value3"
+        ]);
+        crawler.on("fetchstart", function(queueItem, requestOptions) {
+            requestOptions.headers.cookie.should.be.a("string");
+            requestOptions.headers.cookie.should.match(/^(name\d=value\d; ){2}(name\d=value\d)$/);
+            if (i++ === 6) {
                 done();
             }
         });
