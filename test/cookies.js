@@ -193,10 +193,6 @@ describe("Cookies", function() {
 
                 parsedCookie2.name.should.equal(parsedCookie.name);
                 parsedCookie2.value.should.equal(parsedCookie.value);
-                parsedCookie2.expires.should.equal(parsedCookie.expires);
-                parsedCookie2.path.should.equal(parsedCookie.path);
-                parsedCookie2.domain.should.equal(parsedCookie.domain);
-                parsedCookie2.httponly.should.equal(parsedCookie.httponly);
             });
         });
 
