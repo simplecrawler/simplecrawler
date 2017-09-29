@@ -50,7 +50,7 @@ module.exports = {
     },
 
     "/nofollow": function(write) {
-        write(200, "<meta name='robots' value='nofollow'><a href='/stage7'>Don't go here!</a>");
+        write(200, "<meta name='robots' content='nofollow'><a href='/stage7'>Don't go here!</a>");
     },
 
     "/cookie": function(write) {
