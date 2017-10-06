@@ -560,6 +560,8 @@ is expected to have:
 * `uriPath` - The URL path, excluding the query string
 * `depth` - How many steps simplecrawler has taken from the initial page (which
 is depth 1) to this resource.
+* `referrer` - The URL of the resource where the URL of this queue item was
+discovered
 * `fetched` - Has the request for this item been completed? You can monitor this
 as requests are processed.
 * `status` - The internal status of the item, always a string. This can be one
