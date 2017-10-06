@@ -278,7 +278,9 @@ change to adapt it to your specific needs.
     to do the actual parsing. This property will also make the default
     `crawler.discoverResources` method respect
     `<meta name="robots" value="nofollow">` tags - meaning that no resources
-    will be extracted from pages that include such a tag.
+    will be extracted from pages that include such a tag. **Please note** that
+    this attribute also controls whether to queue sitemap directives found in
+    robots.txt.
 * `crawler.queue` -
     The queue in use by the crawler (Must implement the `FetchQueue` interface)
 * `crawler.allowInitialDomainChange=false` -
