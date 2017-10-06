@@ -44,10 +44,10 @@ describe("Test Crawl", function() {
 
     it("should parse, store and send cookies properly", function(done) {
         var crawler = makeCrawler("http://localhost:3000/cookie"),
-            i = 0;
+            fetchstartCount = 0;
 
         crawler.on("fetchstart", function(queueItem, requestOptions) {
-            if (i++) {
+            if (fetchstartCount++ === 2) {
                 requestOptions.headers.cookie.should.be.a("string");
                 requestOptions.headers.cookie.should.match(/^thing=stuff$/);
                 done();
@@ -59,17 +59,19 @@ describe("Test Crawl", function() {
 
     it("should send multiple cookies properly", function(done) {
         var crawler = makeCrawler("http://127.0.0.1:3000/"),
-            i = 0;
+            fetchstartCount = 0;
 
         crawler.cookies.addFromHeaders([
             "name1=value1",
             "name2=value2",
             "name3=value3"
         ]);
+
         crawler.on("fetchstart", function(queueItem, requestOptions) {
             requestOptions.headers.cookie.should.be.a("string");
             requestOptions.headers.cookie.should.match(/^(name\d=value\d; ){2}(name\d=value\d)$/);
-            if (i++ === 6) {
+
+            if (fetchstartCount++ === 6) {
                 done();
             }
         });
@@ -189,6 +191,22 @@ describe("Test Crawl", function() {
         });
     });
 
+    it("should discover sitemap directives in robots.txt files", function(done) {
+        var crawler = makeCrawler("http://127.0.0.1:3000/"),
+            queueaddCount = 0;
+
+        crawler.on("queueadd", function(queueItem) {
+            if (queueaddCount++ > 0) {
+                return;
+            }
+
+            queueItem.path.should.equal("/sitemap.xml");
+            done();
+        });
+
+        crawler.start();
+    });
+
     it("should support async event listeners for manual discovery", function(done) {
         var crawler = makeCrawler("http://127.0.0.1:3000/"),
             fetchedResources = [];
@@ -269,14 +287,17 @@ describe("Test Crawl", function() {
     });
 
     it("should allow initial redirect to different domain if configured", function(done) {
-        var crawler = makeCrawler("http://127.0.0.1:3000/domain-redirect");
+        var crawler = makeCrawler("http://127.0.0.1:3000/domain-redirect"),
+            queueaddCount = 0;
 
         crawler.allowInitialDomainChange = true;
 
         crawler.on("queueadd", function(queueItem) {
-            queueItem.host.should.equal("localhost");
-            crawler.stop();
-            done();
+            if (queueaddCount++ === 1) {
+                queueItem.host.should.equal("localhost");
+                crawler.stop(true);
+                done();
+            }
         });
 
         crawler.start();
@@ -315,7 +336,7 @@ describe("Test Crawl", function() {
     });
 
     it("should not increase depth on multiple redirects on the initial request", function(done) {
-        var crawler = makeCrawler("http://localhost:3000/domain-redirect2"),
+        var crawler = makeCrawler("http://127.0.0.1:3000/domain-redirect2"),
             depth = 1;
 
         crawler.on("fetchredirect", function(queueItem) {

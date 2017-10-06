@@ -139,53 +139,51 @@ describe("Fetch conditions", function() {
 
     it("should provide fetch conditions with the right data", function(done) {
         var crawler = makeCrawler("http://127.0.0.1:3000"),
-            fetchConditionCalled = false;
+            fetchConditionCallCount = 0;
 
         crawler.addFetchCondition(function(queueItem, referrerQueueItem) {
-            if (fetchConditionCalled) {
-                return false;
+            if (fetchConditionCallCount++ > 0) {
+                referrerQueueItem.should.be.an("object");
+                referrerQueueItem.should.include({
+                    url: "http://127.0.0.1:3000/",
+                    depth: 1,
+                    protocol: "http",
+                    host: "127.0.0.1",
+                    port: "3000",
+                    path: "/"
+                });
+
+                referrerQueueItem.stateData.should.be.an("object");
+                referrerQueueItem.stateData.should.have.property("requestLatency");
+                referrerQueueItem.stateData.should.have.property("requestTime");
+                referrerQueueItem.stateData.should.include({
+                    contentLength: 68,
+                    contentType: "text/html",
+                    code: 200
+                });
+                referrerQueueItem.stateData.should.have.property("headers").that.includes({
+                    "content-length": "68"
+                });
+
+                queueItem.should.be.an("object");
+                queueItem.should.include({
+                    url: "http://127.0.0.1:3000/stage2",
+                    status: "created",
+                    fetched: false,
+                    depth: 2,
+                    protocol: "http",
+                    host: "127.0.0.1",
+                    port: "3000",
+                    path: "/stage2"
+                });
+
+                crawler.stop(true);
+                done();
             }
+        });
 
-            fetchConditionCalled = true;
-
-            referrerQueueItem.should.be.an("object");
-            referrerQueueItem.should.include({
-                url: "http://127.0.0.1:3000/",
-                status: "downloaded",
-                fetched: true,
-                depth: 1,
-                protocol: "http",
-                host: "127.0.0.1",
-                port: "3000",
-                path: "/"
-            });
-
-            referrerQueueItem.stateData.should.be.an("object");
-            referrerQueueItem.stateData.should.have.property("requestLatency");
-            referrerQueueItem.stateData.should.have.property("requestTime");
-            referrerQueueItem.stateData.should.include({
-                contentLength: 68,
-                contentType: "text/html",
-                code: 200
-            });
-            referrerQueueItem.stateData.should.have.property("headers").that.includes({
-                "content-length": "68"
-            });
-
-            queueItem.should.be.an("object");
-            queueItem.should.include({
-                url: "http://127.0.0.1:3000/stage2",
-                status: "created",
-                fetched: false,
-                depth: 2,
-                protocol: "http",
-                host: "127.0.0.1",
-                port: "3000",
-                path: "/stage2"
-            });
-
-            crawler.stop(true);
-            done();
+        crawler.on("fetchconditionerror", function(queueItem, error) {
+            done(error);
         });
 
         crawler.start();
@@ -227,14 +225,19 @@ describe("Fetch conditions", function() {
 
     it("should emit fetchprevented events", function(done) {
         var crawler = makeCrawler("http://127.0.0.1:3000");
+        var fetchPrevented = false;
 
         crawler.addFetchCondition(function(queueItem, referrerQueueItem, callback) {
             callback(null, false);
         });
 
         crawler.on("fetchprevented", function(queueItem) {
-            queueItem.url.should.equal("http://127.0.0.1:3000/stage2");
-            crawler.stop(true);
+            queueItem.url.should.contain("http://127.0.0.1:3000/");
+            fetchPrevented = true;
+        });
+
+        crawler.on("complete", function() {
+            fetchPrevented.should.equal(true);
             done();
         });
 
@@ -243,16 +246,20 @@ describe("Fetch conditions", function() {
 
     it("should emit fetchconditionerror events", function(done) {
         var crawler = makeCrawler("http://127.0.0.1:3000");
+        var caughtFetchError = false;
 
         crawler.addFetchCondition(function(queueItem, referrerQueueItem, callback) {
             callback("error");
         });
 
         crawler.on("fetchconditionerror", function(queueItem, error) {
-            queueItem.url.should.equal("http://127.0.0.1:3000/stage2");
+            queueItem.url.should.contain("http://127.0.0.1:3000/");
             error.should.equal("error");
+            caughtFetchError = true;
+        });
 
-            crawler.stop(true);
+        crawler.on("complete", function() {
+            caughtFetchError.should.equal(true);
             done();
         });
 
@@ -419,7 +426,7 @@ describe("Download conditions", function() {
     function downloadConditionCompleteListener(crawler, done) {
         return function() {
             crawler.queue.getLength(function(error, length) {
-                length.should.equal(1);
+                length.should.equal(2);
 
                 crawler.queue.get(0, function(error, queueItem) {
                     queueItem.status.should.equal("downloadprevented");

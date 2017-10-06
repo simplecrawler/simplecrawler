@@ -113,6 +113,7 @@ describe("Crawler reliability", function() {
         var localCrawler = makeCrawler("http://127.0.0.1:3000/404");
 
         localCrawler.on("fetch404", function() {
+            localCrawler.stop(true);
             done();
         });
 
@@ -144,26 +145,42 @@ describe("Crawler reliability", function() {
         // queue._oldestUnfetchedIndex property is updated. When we defrost the
         // queue however, the property will be set correctly and "catch up"
         function testQueue(crawler, oldestUnfetchedIndex) {
-            crawler.queue.length.should.equal(4);
+            crawler.queue.length.should.equal(5);
             crawler.queue._oldestUnfetchedIndex.should.equal(oldestUnfetchedIndex);
 
-            crawler.queue._scanIndex["http://127.0.0.1:3000/"].should.equal(true);
-            crawler.queue._scanIndex["http://127.0.0.1:3000/stage2"].should.equal(true);
-            crawler.queue._scanIndex["http://127.0.0.1:3000/stage/3"].should.equal(true);
-            crawler.queue._scanIndex["http://127.0.0.1:3000/stage/4"].should.equal(true);
+            crawler.queue._scanIndex.should.have.all.keys(
+                "http://127.0.0.1:3000/",
+                "http://127.0.0.1:3000/sitemap.xml",
+                "http://127.0.0.1:3000/stage2",
+                "http://127.0.0.1:3000/stage/3",
+                "http://127.0.0.1:3000/stage/4"
+            );
 
-            crawler.queue[0].status.should.equal("downloaded");
-            crawler.queue[1].status.should.equal("downloaded");
-            crawler.queue[2].status.should.equal("queued");
-            crawler.queue[3].status.should.equal("queued");
+            crawler.queue.filterItems(function() {
+                return true;
+            }, function(error, items) {
+                if (error) {
+                    return done(error);
+                }
+
+                items.map(function(item) {
+                    return item.status;
+                }).should.eql([
+                    "downloaded",
+                    "notfound",
+                    "downloaded",
+                    "queued",
+                    "queued"
+                ]);
+            });
         }
 
         function testFreezeDefrost() {
-            testQueue(localCrawler, 1);
+            testQueue(localCrawler, 2);
 
             localCrawler.queue.freeze(tmp, function() {
                 newCrawler.queue.defrost(tmp, function() {
-                    testQueue(newCrawler, 2);
+                    testQueue(newCrawler, 3);
 
                     newCrawler.queue.oldestUnfetchedItem(function(err, queueItem) {
                         should.equal(err, null);
@@ -177,7 +194,7 @@ describe("Crawler reliability", function() {
         var i = 0;
 
         localCrawler.on("fetchcomplete", function() {
-            if (++i === 2) {
+            if (i++ === 1) {
                 this.stop();
                 // Queue an additional URL so that we can test the
                 // queue._oldestUnfetchedItem reviving properly
