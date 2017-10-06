@@ -134,7 +134,7 @@ in parentheses.
 
 * `crawlstart` -
     Fired when the crawl begins or is restarted.
-* `queueadd` (queueItem) -
+* `queueadd` (queueItem, referrerQueueItem) -
     Fired when a new item is added to the queue.
 * `queueduplicate` (URLData) -
     Fired when an item cannot be added to the queue because it is already
@@ -171,6 +171,8 @@ in parentheses.
     `http` response object is returned for your perusal.
 * `cookieerror` (queueItem, error, setCookieHeader) -
     Fired when an error was caught trying to add a cookie to the cookie jar.
+    `setCookieHeader` is the Set-Cookie header that was provided in the HTTP
+    response.
 * `fetchredirect` (oldQueueItem, redirectQueueItem, responseObject) -
     Fired when a redirect header is encountered. The new URL is processed and
     passed as `redirectQueueItem`.
