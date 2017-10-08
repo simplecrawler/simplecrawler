@@ -907,7 +907,30 @@ It can be convenient to be able to save the crawl progress and later be able to 
 
 Note that the methods themselves are asynchronous, so if you are going to exit the process after you do the freezing, make sure you wait for callback - otherwise you'll get an empty file.
 
-ERROR, Cannot find identifier.ERROR, Cannot find identifier.
+<a name="FetchQueue+freeze"></a>
+
+#### fetchQueue.freeze(filename, callback)
+Writes the queue to disk in a JSON file. This file can later be imported
+using [defrost](#FetchQueue+defrost)
+
+
+| Param | Type | Description |
+| --- | --- | --- |
+| filename | <code>String</code> | Filename passed directly to [fs.writeFile](https://nodejs.org/api/fs.html#fs_fs_writefile_file_data_options_callback) |
+| callback | <code>function</code> | Gets a single `error` parameter. If the operation was successful, this parameter will be `null`. |
+
+<a name="FetchQueue+defrost"></a>
+
+#### fetchQueue.defrost(filename, callback)
+Import the queue from a frozen JSON file on disk.
+
+
+| Param | Type | Description |
+| --- | --- | --- |
+| filename | <code>String</code> | Filename passed directly to [fs.readFile](https://nodejs.org/api/fs.html#fs_fs_readfile_file_options_callback) |
+| callback | <code>function</code> | Gets a single `error` parameter. If the operation was successful, this parameter will be `null`. |
+
+
 ## Cookies
 
 simplecrawler has an internal cookie jar, which collects and resends cookies automatically and by default. If you want to turn this off, set the <code><a href="#Crawler+acceptCookies">crawler.acceptCookies</a></code> option to `false`. The cookie jar is accessible via <code><a href="#Crawler+cookies">crawler.cookies</a></code>, and is an event emitter itself.
