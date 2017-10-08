@@ -186,13 +186,11 @@ Download conditions are evaluated after the headers of a resource have been down
 
 ## The queue
 
-Like any other web crawler, simplecrawler has a queue. It can be directly accessed through {{>link to="Crawler#queue" html=true caption="crawler.queue"}} and implements an asynchronous interface for accessing queue items and statistics. There are several methods for interacting with the queue, the simplest being `crawler.queue.get`, which lets you get a queue item at a specific index in the queue.
+Like any other web crawler, simplecrawler has a queue. It can be directly accessed through {{>link to="Crawler#queue" html=true caption="crawler.queue"}} and implements an asynchronous interface for accessing queue items and statistics. There are several methods for interacting with the queue, the simplest being {{>link to="FetchQueue#get" html=true caption="crawler.queue.get"}}, which lets you get a queue item at a specific index in the queue.
 
-```js
-crawler.queue.get(5, function (queueItem) {
-    // Do something with the queueItem
-});
-```
+{{#identifier id="FetchQueue#get"}}
+{{>docs}}
+{{/identifier}}
 
 *All queue method are in reality synchronous by default, but simplecrawler is built to be able to use different queues that implement the same interface, and those implementations can be asynchronous - which means they could eg. be backed by a database.*
 
@@ -206,40 +204,11 @@ To add items to the queue, use {{>link to="Crawler#queueURL" html=true caption="
 
 ### Queue items
 
-Because when working with simplecrawler, you'll constantly be handed queue items, it helps to know what's inside them. These are the properties every queue item is expected to have:
+Because when working with simplecrawler, you'll constantly be handed queue items, it helps to know what's inside them. Here's the formal documentation of the properties that they contain.
 
-* `id` - A unique ID assigned by the queue when the queue item is added
-* `url` - The complete, canonical URL of the resource
-* `protocol` - The protocol of the resource (http, https)
-* `host` - The full domain/hostname of the resource
-* `port` - The port of the resource
-* `path` - The URL path, including the query string
-* `uriPath` - The URL path, excluding the query string
-* `depth` - How many steps simplecrawler has taken from the initial page (which
-is depth 1) to this resource.
-* `referrer` - The URL of the resource where the URL of this queue item was discovered
-* `fetched` - Has the request for this item been completed? You can monitor this as requests are processed.
-* `status` - The internal status of the item, always a string. This can be one of:
-    * `"queued"` - The resource is in the queue to be fetched, but nothing's happened to it yet.
-    * `"spooled"` - A request has been made to the remote server, but we're still waiting for a response.
-    * `"headers"` - The headers for the resource have been received.
-    * `"downloaded"` - The item has been entirely downloaded.
-    * `"redirected"` - The resource request returned a 300 series response, with a Location header and a new URL.
-    * `"notfound"` - The resource could not be found, ie. returned a 404 or 410
-    HTTP status.
-    * `"failed"` - An error occurred when attempting to fetch the resource.
-* `stateData` - An object containing state data and other information about the request:
-    * `requestLatency` - The time taken for headers to be received after the request was made.
-    * `requestTime` - The total time taken for the request (including download time.)
-    * `downloadTime` - The total time taken for the resource to be downloaded.
-    * `contentLength` - The length (in bytes) of the returned content. Calculated based on the `content-length` header.
-    * `contentType` - The MIME type of the content.
-    * `code` - The HTTP status code returned for the request. Note that this code is `600` if an error occurred in the client and a fetch operation could not take place successfully.
-    * `headers` - An object containing the header information returned by the server. This is the object node returns as part of the `response` object.
-    * `actualDataSize` - The length (in bytes) of the returned content. Calculated based on what is actually received, not the `content-length` header.
-    * `sentIncorrectSize` - True if the data length returned by the server did not match what we were told to expect by the `content-length` header.
-
-As you can see, you can get a lot of meta-information out about each request. This has been put to use by providing some convenient methods for getting simple aggregate data about the queue.
+{{#identifier id="QueueItem"}}
+{{>docs}}
+{{/identifier}}
 
 ### Queue statistics and reporting
 
@@ -251,31 +220,26 @@ First of all, the queue can provide some basic statistics about the network perf
 * `contentLength`
 * `actualDataSize`
 
-You can get the maximum, minimum, and average values for each with the `crawler.queue.max`, `crawler.queue.min`, and `crawler.queue.avg` functions respectively.
+You can get the maximum, minimum, and average values for each with the {{>link to="FetchQueue#max" html=true caption="crawler.queue.max"}}, {{>link to="FetchQueue#min" html=true caption="crawler.queue.min"}}, and {{>link to="FetchQueue#avg" html=true caption="crawler.queue.avg"}} functions respectively.
 
-```js
-crawler.queue.max("requestLatency", function(error, max) {
-    console.log("The maximum request latency was %dms.", max);
-});
-crawler.queue.min("downloadTime", function(error, min) {
-    console.log("The minimum download time was %dms.", min);
-});
-crawler.queue.avg("actualDataSize", function(error, avg) {
-    console.log("The average resource size received is %d bytes.", avg);
-});
-```
+{{#identifier id="FetchQueue#max"}}
+{{>docs}}
+{{/identifier}}
+{{#identifier id="FetchQueue#min"}}
+{{>docs}}
+{{/identifier}}
+{{#identifier id="FetchQueue#avg"}}
+{{>docs}}
+{{/identifier}}
 
-For general filtering or counting of queue items, there are two methods: `crawler.queue.filterItems` and `crawler.queue.countItems`. Both take an object comparator and a callback.
+For general filtering or counting of queue items, there are two methods: {{>link to="FetchQueue#filterItems" html=true caption="crawler.queue.filterItems"}} and {{>link to="FetchQueue#countItems" html=true caption="crawler.queue.countItems"}}. Both take an object comparator and a callback.
 
-```js
-crawler.queue.countItems({ fetched: true }, function(error, count) {
-    console.log("The number of completed items is %d", count);
-});
-
-crawler.queue.filterItems({ status: "notfound" }, function(error, items) {
-    console.log("These items returned 404 or 410 HTTP statuses", items);
-});
-```
+{{#identifier id="FetchQueue#filterItems"}}
+{{>docs}}
+{{/identifier}}
+{{#identifier id="FetchQueue#countItems"}}
+{{>docs}}
+{{/identifier}}
 
 The object comparator can also contain other objects, so you may filter queue items based on properties in their `stateData` object as well.
 

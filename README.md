@@ -125,7 +125,7 @@ Fired when a request times out
 
 | Param | Type | Description |
 | --- | --- | --- |
-| queueItem | <code>QueueItem</code> | The queue item for which the request timed out |
+| queueItem | [<code>QueueItem</code>](#QueueItem) | The queue item for which the request timed out |
 | timeout | <code>Number</code> | The delay in milliseconds after which the request timed out |
 
 <a name="Crawler+event_invaliddomain"></a>
@@ -136,7 +136,7 @@ Fired when a resource wasn't queued because of an invalid domain name
 
 | Param | Type | Description |
 | --- | --- | --- |
-| queueItem | <code>QueueItem</code> | The queue item representing the disallowed URL |
+| queueItem | [<code>QueueItem</code>](#QueueItem) | The queue item representing the disallowed URL |
 
 <a name="Crawler+event_fetchdisallowed"></a>
 
@@ -147,7 +147,7 @@ site's robots.txt rules
 
 | Param | Type | Description |
 | --- | --- | --- |
-| queueItem | <code>QueueItem</code> | The queue item representing the disallowed URL |
+| queueItem | [<code>QueueItem</code>](#QueueItem) | The queue item representing the disallowed URL |
 
 <a name="Crawler+event_fetchconditionerror"></a>
 
@@ -157,7 +157,7 @@ Fired when a fetch condition returns an error
 
 | Param | Type | Description |
 | --- | --- | --- |
-| queueItem | <code>QueueItem</code> | The queue item that was processed when the error was encountered |
+| queueItem | [<code>QueueItem</code>](#QueueItem) | The queue item that was processed when the error was encountered |
 | error | <code>\*</code> |  |
 
 <a name="Crawler+event_fetchprevented"></a>
@@ -168,7 +168,7 @@ Fired when a fetch condition prevented the queueing of a URL
 
 | Param | Type | Description |
 | --- | --- | --- |
-| queueItem | <code>QueueItem</code> | The queue item that didn't pass the fetch conditions |
+| queueItem | [<code>QueueItem</code>](#QueueItem) | The queue item that didn't pass the fetch conditions |
 | fetchCondition | <code>function</code> | The first fetch condition that returned false |
 
 <a name="Crawler+event_queueduplicate"></a>
@@ -180,7 +180,7 @@ queue item with the same URL was already in the queue
 
 | Param | Type | Description |
 | --- | --- | --- |
-| queueItem | <code>QueueItem</code> | The queue item that was rejected |
+| queueItem | [<code>QueueItem</code>](#QueueItem) | The queue item that was rejected |
 
 <a name="Crawler+event_queueerror"></a>
 
@@ -190,8 +190,8 @@ Fired when an error was encountered while updating a queue item
 
 | Param | Type | Description |
 | --- | --- | --- |
-| error | <code>QueueItem</code> | The error that was returned by the queue |
-| queueItem | <code>QueueItem</code> | The queue item that the crawler tried to update when it encountered the error |
+| error | [<code>QueueItem</code>](#QueueItem) | The error that was returned by the queue |
+| queueItem | [<code>QueueItem</code>](#QueueItem) | The queue item that the crawler tried to update when it encountered the error |
 
 <a name="Crawler+event_queueadd"></a>
 
@@ -201,8 +201,8 @@ Fired when an item was added to the crawler's queue
 
 | Param | Type | Description |
 | --- | --- | --- |
-| queueItem | <code>QueueItem</code> | The queue item that was added to the queue |
-| referrer | <code>QueueItem</code> | The queue item representing the resource where the new queue item was found |
+| queueItem | [<code>QueueItem</code>](#QueueItem) | The queue item that was added to the queue |
+| referrer | [<code>QueueItem</code>](#QueueItem) | The queue item representing the resource where the new queue item was found |
 
 <a name="Crawler+event_fetchtimeout"></a>
 
@@ -212,7 +212,7 @@ Fired when a request times out
 
 | Param | Type | Description |
 | --- | --- | --- |
-| queueItem | <code>QueueItem</code> | The queue item for which the request timed out |
+| queueItem | [<code>QueueItem</code>](#QueueItem) | The queue item for which the request timed out |
 | timeout | <code>Number</code> | The delay in milliseconds after which the request timed out |
 
 <a name="Crawler+event_fetchclienterror"></a>
@@ -223,7 +223,7 @@ Fired when a request encounters an unknown error
 
 | Param | Type | Description |
 | --- | --- | --- |
-| queueItem | <code>QueueItem</code> | The queue item for which the request has errored |
+| queueItem | [<code>QueueItem</code>](#QueueItem) | The queue item for which the request has errored |
 | error | <code>Object</code> | The error supplied to the `error` event on the request |
 
 <a name="Crawler+event_fetchstart"></a>
@@ -234,7 +234,7 @@ Fired just after a request has been initiated
 
 | Param | Type | Description |
 | --- | --- | --- |
-| queueItem | <code>QueueItem</code> | The queue item for which the request has been initiated |
+| queueItem | [<code>QueueItem</code>](#QueueItem) | The queue item for which the request has been initiated |
 | requestOptions | <code>Object</code> | The options generated for the HTTP request |
 
 <a name="Crawler+event_cookieerror"></a>
@@ -246,7 +246,7 @@ cookie to the cookie jar
 
 | Param | Type | Description |
 | --- | --- | --- |
-| queueItem | <code>QueueItem</code> | The queue item representing the resource that returned the cookie |
+| queueItem | [<code>QueueItem</code>](#QueueItem) | The queue item representing the resource that returned the cookie |
 | error | <code>Error</code> | The error that was encountered |
 | cookie | <code>String</code> | The Set-Cookie header value that was returned from the request |
 
@@ -258,7 +258,7 @@ Fired when the headers for a request have been received
 
 | Param | Type | Description |
 | --- | --- | --- |
-| queueItem | <code>QueueItem</code> | The queue item for which the headers have been received |
+| queueItem | [<code>QueueItem</code>](#QueueItem) | The queue item for which the headers have been received |
 | response | <code>http.IncomingMessage</code> | The [http.IncomingMessage](https://nodejs.org/api/http.html#http_class_http_incomingmessage) for the request's response |
 
 <a name="Crawler+event_downloadconditionerror"></a>
@@ -269,7 +269,7 @@ Fired when a download condition returns an error
 
 | Param | Type | Description |
 | --- | --- | --- |
-| queueItem | <code>QueueItem</code> | The queue item that was processed when the error was encountered |
+| queueItem | [<code>QueueItem</code>](#QueueItem) | The queue item that was processed when the error was encountered |
 | error | <code>\*</code> |  |
 
 <a name="Crawler+event_downloadprevented"></a>
@@ -281,7 +281,7 @@ by a download condition
 
 | Param | Type | Description |
 | --- | --- | --- |
-| queueItem | <code>QueueItem</code> | The queue item representing the resource that was halfway fetched |
+| queueItem | [<code>QueueItem</code>](#QueueItem) | The queue item representing the resource that was halfway fetched |
 | response | <code>http.IncomingMessage</code> | The [http.IncomingMessage](https://nodejs.org/api/http.html#http_class_http_incomingmessage) for the request's response |
 
 <a name="Crawler+event_notmodified"></a>
@@ -292,7 +292,7 @@ Fired when the crawler's cache was enabled and the server responded with a 304 N
 
 | Param | Type | Description |
 | --- | --- | --- |
-| queueItem | <code>QueueItem</code> | The queue item for which the request returned a 304 status |
+| queueItem | [<code>QueueItem</code>](#QueueItem) | The queue item for which the request returned a 304 status |
 | response | <code>http.IncomingMessage</code> | The [http.IncomingMessage](https://nodejs.org/api/http.html#http_class_http_incomingmessage) for the request's response |
 | cacheObject | <code>CacheObject</code> | The CacheObject returned from the cache backend |
 
@@ -304,8 +304,8 @@ Fired when the server returned a redirect HTTP status for the request
 
 | Param | Type | Description |
 | --- | --- | --- |
-| queueItem | <code>QueueItem</code> | The queue item for which the request was redirected |
-| redirectQueueItem | <code>QueueItem</code> | The queue item for the redirect target resource |
+| queueItem | [<code>QueueItem</code>](#QueueItem) | The queue item for which the request was redirected |
+| redirectQueueItem | [<code>QueueItem</code>](#QueueItem) | The queue item for the redirect target resource |
 | response | <code>http.IncomingMessage</code> | The [http.IncomingMessage](https://nodejs.org/api/http.html#http_class_http_incomingmessage) for the request's response |
 
 <a name="Crawler+event_fetch404"></a>
@@ -316,7 +316,7 @@ Fired when the server returned a 404 Not Found status for the request
 
 | Param | Type | Description |
 | --- | --- | --- |
-| queueItem | <code>QueueItem</code> | The queue item for which the request returned a 404 status |
+| queueItem | [<code>QueueItem</code>](#QueueItem) | The queue item for which the request returned a 404 status |
 | response | <code>http.IncomingMessage</code> | The [http.IncomingMessage](https://nodejs.org/api/http.html#http_class_http_incomingmessage) for the request's response |
 
 <a name="Crawler+event_fetch410"></a>
@@ -327,7 +327,7 @@ Fired when the server returned a 410 Gone status for the request
 
 | Param | Type | Description |
 | --- | --- | --- |
-| queueItem | <code>QueueItem</code> | The queue item for which the request returned a 410 status |
+| queueItem | [<code>QueueItem</code>](#QueueItem) | The queue item for which the request returned a 410 status |
 | response | <code>http.IncomingMessage</code> | The [http.IncomingMessage](https://nodejs.org/api/http.html#http_class_http_incomingmessage) for the request's response |
 
 <a name="Crawler+event_fetcherror"></a>
@@ -338,7 +338,7 @@ Fired when the server returned a status code above 400 that isn't 404 or 410
 
 | Param | Type | Description |
 | --- | --- | --- |
-| queueItem | <code>QueueItem</code> | The queue item for which the request failed |
+| queueItem | [<code>QueueItem</code>](#QueueItem) | The queue item for which the request failed |
 | response | <code>http.IncomingMessage</code> | The [http.IncomingMessage](https://nodejs.org/api/http.html#http_class_http_incomingmessage) for the request's response |
 
 <a name="Crawler+event_fetchcomplete"></a>
@@ -349,7 +349,7 @@ Fired when the request has completed
 
 | Param | Type | Description |
 | --- | --- | --- |
-| queueItem | <code>QueueItem</code> | The queue item for which the request has completed |
+| queueItem | [<code>QueueItem</code>](#QueueItem) | The queue item for which the request has completed |
 | responseBody | <code>String</code> \| <code>Buffer</code> | If [decodeResponses](#Crawler+decodeResponses) is true, this will be the decoded HTTP response. Otherwise it will be the raw response buffer. |
 | response | <code>http.IncomingMessage</code> | The [http.IncomingMessage](https://nodejs.org/api/http.html#http_class_http_incomingmessage) for the request's response |
 
@@ -361,7 +361,7 @@ Fired when an error was encountered while unzipping the response data
 
 | Param | Type | Description |
 | --- | --- | --- |
-| queueItem | <code>QueueItem</code> | The queue item for which the unzipping failed |
+| queueItem | [<code>QueueItem</code>](#QueueItem) | The queue item for which the unzipping failed |
 | responseBody | <code>String</code> \| <code>Buffer</code> | If [decodeResponses](#Crawler+decodeResponses) is true, this will be the decoded HTTP response. Otherwise it will be the raw response buffer. |
 | response | <code>http.IncomingMessage</code> | The [http.IncomingMessage](https://nodejs.org/api/http.html#http_class_http_incomingmessage) for the request's response |
 
@@ -373,7 +373,7 @@ Fired when a resource couldn't be downloaded because it exceeded the maximum all
 
 | Param | Type | Description |
 | --- | --- | --- |
-| queueItem | <code>QueueItem</code> | The queue item for which the request failed |
+| queueItem | [<code>QueueItem</code>](#QueueItem) | The queue item for which the request failed |
 | response | <code>http.IncomingMessage</code> | The [http.IncomingMessage](https://nodejs.org/api/http.html#http_class_http_incomingmessage) for the request's response |
 
 <a name="Crawler+event_robotstxterror"></a>
@@ -722,8 +722,8 @@ queue.
 
 | Param | Type | Description |
 | --- | --- | --- |
-| queueItem | <code>QueueItem</code> | The resource to be queued (or not) |
-| referrerQueueItem | <code>QueueItem</code> | The resource where `queueItem` was discovered |
+| queueItem | [<code>QueueItem</code>](#QueueItem) | The resource to be queued (or not) |
+| referrerQueueItem | [<code>QueueItem</code>](#QueueItem) | The resource where `queueItem` was discovered |
 | callback | <code>function</code> |  |
 
 <a name="Crawler+removeFetchCondition"></a>
@@ -767,7 +767,7 @@ determine whether to fetch the resource body.
 
 | Param | Type | Description |
 | --- | --- | --- |
-| queueItem | <code>QueueItem</code> | The resource to be downloaded (or not) |
+| queueItem | [<code>QueueItem</code>](#QueueItem) | The resource to be downloaded (or not) |
 | response | <code>http.IncomingMessage</code> | The response object as returned by node's `http` API |
 | callback | <code>function</code> |  |
 
@@ -785,13 +785,19 @@ Removes a download condition from the download conditions array.
 
 ## The queue
 
-Like any other web crawler, simplecrawler has a queue. It can be directly accessed through <code><a href="#Crawler+queue">crawler.queue</a></code> and implements an asynchronous interface for accessing queue items and statistics. There are several methods for interacting with the queue, the simplest being `crawler.queue.get`, which lets you get a queue item at a specific index in the queue.
+Like any other web crawler, simplecrawler has a queue. It can be directly accessed through <code><a href="#Crawler+queue">crawler.queue</a></code> and implements an asynchronous interface for accessing queue items and statistics. There are several methods for interacting with the queue, the simplest being <code><a href="#FetchQueue+get">crawler.queue.get</a></code>, which lets you get a queue item at a specific index in the queue.
 
-```js
-crawler.queue.get(5, function (queueItem) {
-    // Do something with the queueItem
-});
-```
+<a name="FetchQueue+get"></a>
+
+#### fetchQueue.get(index, callback)
+Get a queue item by index
+
+
+| Param | Type | Description |
+| --- | --- | --- |
+| index | <code>Number</code> | The index of the queue item in the queue |
+| callback | <code>function</code> | Gets two parameters, `error` and `queueItem`. If the operation was successful, `error` will be `null`. |
+
 
 *All queue method are in reality synchronous by default, but simplecrawler is built to be able to use different queues that implement the same interface, and those implementations can be asynchronous - which means they could eg. be backed by a database.*
 
@@ -812,46 +818,45 @@ item from it. If you're queueing a URL manually, use this method rather than
 | Param | Type | Description |
 | --- | --- | --- |
 | url | <code>String</code> | An absolute or relative URL. If relative, [processURL](#Crawler+processURL) will make it absolute to the referrer queue item. |
-| [referrer] | <code>QueueItem</code> | The queue item representing the resource where this URL was discovered. |
+| [referrer] | [<code>QueueItem</code>](#QueueItem) | The queue item representing the resource where this URL was discovered. |
 | [force] | <code>Boolean</code> | If true, the URL will be queued regardless of whether it already exists in the queue or not. |
 
 
 ### Queue items
 
-Because when working with simplecrawler, you'll constantly be handed queue items, it helps to know what's inside them. These are the properties every queue item is expected to have:
+Because when working with simplecrawler, you'll constantly be handed queue items, it helps to know what's inside them. Here's the formal documentation of the properties that they contain.
 
-* `id` - A unique ID assigned by the queue when the queue item is added
-* `url` - The complete, canonical URL of the resource
-* `protocol` - The protocol of the resource (http, https)
-* `host` - The full domain/hostname of the resource
-* `port` - The port of the resource
-* `path` - The URL path, including the query string
-* `uriPath` - The URL path, excluding the query string
-* `depth` - How many steps simplecrawler has taken from the initial page (which
-is depth 1) to this resource.
-* `referrer` - The URL of the resource where the URL of this queue item was discovered
-* `fetched` - Has the request for this item been completed? You can monitor this as requests are processed.
-* `status` - The internal status of the item, always a string. This can be one of:
-    * `"queued"` - The resource is in the queue to be fetched, but nothing's happened to it yet.
-    * `"spooled"` - A request has been made to the remote server, but we're still waiting for a response.
-    * `"headers"` - The headers for the resource have been received.
-    * `"downloaded"` - The item has been entirely downloaded.
-    * `"redirected"` - The resource request returned a 300 series response, with a Location header and a new URL.
-    * `"notfound"` - The resource could not be found, ie. returned a 404 or 410
-    HTTP status.
-    * `"failed"` - An error occurred when attempting to fetch the resource.
-* `stateData` - An object containing state data and other information about the request:
-    * `requestLatency` - The time taken for headers to be received after the request was made.
-    * `requestTime` - The total time taken for the request (including download time.)
-    * `downloadTime` - The total time taken for the resource to be downloaded.
-    * `contentLength` - The length (in bytes) of the returned content. Calculated based on the `content-length` header.
-    * `contentType` - The MIME type of the content.
-    * `code` - The HTTP status code returned for the request. Note that this code is `600` if an error occurred in the client and a fetch operation could not take place successfully.
-    * `headers` - An object containing the header information returned by the server. This is the object node returns as part of the `response` object.
-    * `actualDataSize` - The length (in bytes) of the returned content. Calculated based on what is actually received, not the `content-length` header.
-    * `sentIncorrectSize` - True if the data length returned by the server did not match what we were told to expect by the `content-length` header.
+<a name="QueueItem"></a>
 
-As you can see, you can get a lot of meta-information out about each request. This has been put to use by providing some convenient methods for getting simple aggregate data about the queue.
+#### QueueItem : <code>Object</code>
+QueueItems represent resources in the queue that have been fetched, or will be eventually.
+
+**Properties**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| id | <code>Number</code> | A unique ID assigned by the queue when the queue item is added |
+| url | <code>String</code> | The complete, canonical URL of the resource |
+| protocol | <code>String</code> | The protocol of the resource (http, https) |
+| host | <code>String</code> | The full domain/hostname of the resource |
+| port | <code>Number</code> | The port of the resource |
+| path | <code>String</code> | The URL path, including the query string |
+| uriPath | <code>String</code> | The URL path, excluding the query string |
+| depth | <code>Number</code> | How many steps simplecrawler has taken from the initial page (which is depth 1) to this resource. |
+| referrer | <code>String</code> | The URL of the resource where the URL of this queue item was discovered |
+| fetched | <code>Boolean</code> | Has the request for this item been completed? You can monitor this as requests are processed. |
+| status | <code>&#x27;queued&#x27;</code> \| <code>&#x27;spooled&#x27;</code> \| <code>&#x27;headers&#x27;</code> \| <code>&#x27;downloaded&#x27;</code> \| <code>&#x27;redirected&#x27;</code> \| <code>&#x27;notfound&#x27;</code> \| <code>&#x27;failed&#x27;</code> | The internal status of the item. |
+| stateData | <code>Object</code> | An object containing state data and other information about the request. |
+| stateData.requestLatency | <code>Number</code> | The time (in ms) taken for headers to be received after the request was made. |
+| stateData.requestTime | <code>Number</code> | The total time (in ms) taken for the request (including download time.) |
+| stateData.downloadTime | <code>Number</code> | The total time (in ms) taken for the resource to be downloaded. |
+| stateData.contentLength | <code>Number</code> | The length (in bytes) of the returned content. Calculated based on the `content-length` header. |
+| stateData.contentType | <code>String</code> | The MIME type of the content. |
+| stateData.code | <code>Number</code> | The HTTP status code returned for the request. Note that this code is `600` if an error occurred in the client and a fetch operation could not take place successfully. |
+| stateData.headers | <code>Object</code> | An object containing the header information returned by the server. This is the object node returns as part of the `response` object. |
+| stateData.actualDataSize | <code>Number</code> | The length (in bytes) of the returned content. Calculated based on what is actually received, not the `content-length` header. |
+| stateData.sentIncorrectSize | <code>Boolean</code> | True if the data length returned by the server did not match what we were told to expect by the `content-length` header. |
+
 
 ### Queue statistics and reporting
 
@@ -863,31 +868,73 @@ First of all, the queue can provide some basic statistics about the network perf
 * `contentLength`
 * `actualDataSize`
 
-You can get the maximum, minimum, and average values for each with the `crawler.queue.max`, `crawler.queue.min`, and `crawler.queue.avg` functions respectively.
+You can get the maximum, minimum, and average values for each with the <code><a href="#FetchQueue+max">crawler.queue.max</a></code>, <code><a href="#FetchQueue+min">crawler.queue.min</a></code>, and <code><a href="#FetchQueue+avg">crawler.queue.avg</a></code> functions respectively.
 
-```js
-crawler.queue.max("requestLatency", function(error, max) {
-    console.log("The maximum request latency was %dms.", max);
-});
-crawler.queue.min("downloadTime", function(error, min) {
-    console.log("The minimum download time was %dms.", min);
-});
-crawler.queue.avg("actualDataSize", function(error, avg) {
-    console.log("The average resource size received is %d bytes.", avg);
-});
-```
+<a name="FetchQueue+max"></a>
 
-For general filtering or counting of queue items, there are two methods: `crawler.queue.filterItems` and `crawler.queue.countItems`. Both take an object comparator and a callback.
+#### fetchQueue.max(statisticName, callback)
+Gets the maximum value of a stateData property from all the items in the
+queue. This means you can eg. get the maximum request time, download size
+etc.
 
-```js
-crawler.queue.countItems({ fetched: true }, function(error, count) {
-    console.log("The number of completed items is %d", count);
-});
 
-crawler.queue.filterItems({ status: "notfound" }, function(error, items) {
-    console.log("These items returned 404 or 410 HTTP statuses", items);
-});
-```
+| Param | Type | Description |
+| --- | --- | --- |
+| statisticName | <code>String</code> | Can be any of the strings in [_allowedStatistics](#FetchQueue._allowedStatistics) |
+| callback | <code>function</code> | Gets two parameters, `error` and `max`. If the operation was successful, `error` will be `null`. |
+
+<a name="FetchQueue+min"></a>
+
+#### fetchQueue.min(statisticName, callback)
+Gets the minimum value of a stateData property from all the items in the
+queue. This means you can eg. get the minimum request time, download size
+etc.
+
+
+| Param | Type | Description |
+| --- | --- | --- |
+| statisticName | <code>String</code> | Can be any of the strings in [_allowedStatistics](#FetchQueue._allowedStatistics) |
+| callback | <code>function</code> | Gets two parameters, `error` and `min`. If the operation was successful, `error` will be `null`. |
+
+<a name="FetchQueue+avg"></a>
+
+#### fetchQueue.avg(statisticName, callback)
+Gets the average value of a stateData property from all the items in the
+queue. This means you can eg. get the average request time, download size
+etc.
+
+
+| Param | Type | Description |
+| --- | --- | --- |
+| statisticName | <code>String</code> | Can be any of the strings in [_allowedStatistics](#FetchQueue._allowedStatistics) |
+| callback | <code>function</code> | Gets two parameters, `error` and `avg`. If the operation was successful, `error` will be `null`. |
+
+
+For general filtering or counting of queue items, there are two methods: <code><a href="#FetchQueue+filterItems">crawler.queue.filterItems</a></code> and <code><a href="#FetchQueue+countItems">crawler.queue.countItems</a></code>. Both take an object comparator and a callback.
+
+<a name="FetchQueue+filterItems"></a>
+
+#### fetchQueue.filterItems(comparator, callback)
+Filters and returns the items in the queue that match a selector
+
+
+| Param | Type | Description |
+| --- | --- | --- |
+| comparator | <code>Object</code> | Comparator object used to filter items. Queue items that are returned need to match all the properties of this object. |
+| callback | <code>function</code> | Gets two parameters, `error` and `items`. If the operation was successful, `error` will be `null` and `items` will be an array of QueueItems. |
+
+<a name="FetchQueue+countItems"></a>
+
+#### fetchQueue.countItems(comparator, callback, callback)
+Counts the items in the queue that match a selector
+
+
+| Param | Type | Description |
+| --- | --- | --- |
+| comparator | <code>Object</code> | Comparator object used to filter items. Queue items that are counted need to match all the properties of this object. |
+| callback | <code>FetchQueue~countItemsCallback</code> |  |
+| callback | <code>function</code> | Gets two parameters, `error` and `items`. If the operation was successful, `error` will be `null` and `items` will be an array of QueueItems. |
+
 
 The object comparator can also contain other objects, so you may filter queue items based on properties in their `stateData` object as well.
 
