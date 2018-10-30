@@ -1,10 +1,10 @@
 # Simple web crawler for node.js
 
 [![NPM version](https://img.shields.io/npm/v/simplecrawler.svg)](https://www.npmjs.com/package/simplecrawler)
-[![Linux Build Status](https://img.shields.io/travis/cgiffard/node-simplecrawler/master.svg)](https://travis-ci.org/cgiffard/node-simplecrawler)
-[![Windows Build Status](https://img.shields.io/appveyor/ci/cgiffard/node-simplecrawler/master.svg?label=Windows%20build)](https://ci.appveyor.com/project/cgiffard/node-simplecrawler/branch/master)
-[![Dependency Status](https://img.shields.io/david/cgiffard/node-simplecrawler.svg)](https://david-dm.org/cgiffard/node-simplecrawler)
-[![devDependency Status](https://img.shields.io/david/dev/cgiffard/node-simplecrawler.svg)](https://david-dm.org/cgiffard/node-simplecrawler#info=devDependencies)
+[![Linux Build Status](https://img.shields.io/travis/simplecrawler/simplecrawler/master.svg)](https://travis-ci.org/simplecrawler/simplecrawler)
+[![Windows Build Status](https://img.shields.io/appveyor/ci/simplecrawler/simplecrawler/master.svg?label=Windows%20build)](https://ci.appveyor.com/project/simplecrawler/simplecrawler/branch/master)
+[![Dependency Status](https://img.shields.io/david/simplecrawler/simplecrawler.svg)](https://david-dm.org/simplecrawler/simplecrawler)
+[![devDependency Status](https://img.shields.io/david/dev/simplecrawler/simplecrawler.svg)](https://david-dm.org/simplecrawler/simplecrawler#info=devDependencies)
 
 simplecrawler is designed to provide a basic, flexible and robust API for
 crawling websites. It was written to archive, analyse, and search some
@@ -258,7 +258,7 @@ change to adapt it to your specific needs.
     aborting the request.
 * `crawler.listenerTTL=10000` -
     The maximum time in milliseconds the crawler will wait for async listeners.
-* `crawler.userAgent="Node/simplecrawler <version> (https://github.com/cgiffard/node-simplecrawler)"` -
+* `crawler.userAgent="Node/simplecrawler <version> (https://github.com/simplecrawler/simplecrawler)"` -
     The user agent the crawler will report.
 * `crawler.decompressResponses=true` -
     Response bodies that are compressed will be automatically decompressed
@@ -907,7 +907,7 @@ Currently supported versions:
 
 ## Contributing
 
-Please see the [contributor guidelines](https://github.com/cgiffard/node-simplecrawler/blob/master/CONTRIBUTING.md)
+Please see the [contributor guidelines](https://github.com/simplecrawler/simplecrawler/blob/master/CONTRIBUTING.md)
 before submitting a pull request to ensure that your contribution is able to be
 accepted quickly and easily!
 
@@ -916,7 +916,7 @@ accepted quickly and easily!
 simplecrawler has benefited from the kind efforts of dozens of contributors, to
 whom we are incredibly grateful. We originally listed their individual
 contributions but it became pretty unwieldy - the
-[full list can be found here.](https://github.com/cgiffard/node-simplecrawler/graphs/contributors)
+[full list can be found here.](https://github.com/simplecrawler/simplecrawler/graphs/contributors)
 
 ## License
 
