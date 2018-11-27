@@ -6,9 +6,6 @@ var chai = require("chai"),
 var routes = require("./lib/routes.js"),
     Server = require("./lib/testserver.js");
 
-var server = new Server(routes);
-server.listen(3000);
-
 chai.should();
 
 function depthTest(maxDepth, linksToDiscover) {
@@ -36,6 +33,15 @@ function depthTest(maxDepth, linksToDiscover) {
 
 describe("Crawler max depth", function() {
     this.slow("300ms");
+
+    before(function (done) {
+        this.server = new Server(routes);
+        this.server.listen(3000, done);
+    });
+
+    after(function (done) {
+        this.server.close(done);
+    });
 
     var maxDepthToResourceCount = {
         0: 11, // maxDepth=0 (no max depth) should return 11 resources

@@ -2,3 +2,4 @@ node_modules/
 docs
 /test/queue.json
 /npm-debug.log
+.idea

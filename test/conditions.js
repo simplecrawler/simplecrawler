@@ -4,6 +4,9 @@ var chai = require("chai"),
     http = require("http"),
     Crawler = require("../");
 
+var routes = require("./lib/routes.js"),
+    Server = require("./lib/testserver.js");
+
 var should = chai.should();
 
 var makeCrawler = function (url) {
@@ -14,6 +17,15 @@ var makeCrawler = function (url) {
 
 describe("Fetch conditions", function() {
     this.slow("150ms");
+
+    before(function (done) {
+        this.server = new Server(routes);
+        this.server.listen(3000, done);
+    });
+
+    after(function (done) {
+        this.server.close(done);
+    });
 
     it("should be able to add a fetch condition", function() {
         var crawler = makeCrawler("http://127.0.0.1:3000"),
@@ -268,6 +280,15 @@ describe("Fetch conditions", function() {
 });
 
 describe("Download conditions", function() {
+    before(function (done) {
+        this.server = new Server(routes);
+        this.server.listen(3000, done);
+    });
+
+    after(function (done) {
+        this.server.close(done);
+    });
+
     it("should be able to add a download condition", function() {
         var crawler = makeCrawler("http://127.0.0.1:3000"),
             condition = function() {},
