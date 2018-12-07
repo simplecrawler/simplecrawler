@@ -86,12 +86,12 @@ function findPageLinks() {
     selector = [].slice.call(selector);
 
     return selector
-                .map(function(link) {
-                    return link.href || link.onclick || link.href || link.src;
-                })
-                .filter(function(src) {
-                    return Boolean(src);
-                });
+        .map(function(link) {
+            return link.href || link.onclick || link.href || link.src;
+        })
+        .filter(function(src) {
+            return Boolean(src);
+        });
 }
 
 function makePage(phantom, url, callback) {
