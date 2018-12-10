@@ -27,7 +27,7 @@
   ],
   "scripts": {
     "lint": "eslint example/ lib/ test/",
-    "mocha": "mocha -R spec -t 5000",
+    "mocha": "mocha -t 5000 --exit",
     "test": "npm run lint && npm run mocha",
     "docs": "jsdoc2md -t jsdoc2md/README.hbs --partial jsdoc2md/*.hbs --files lib/*.js > README.md"
   },
@@ -48,7 +48,7 @@
     "mocha": "^5.2.0"
   },
   "engines": {
-    "node": ">=0.10.0"
+    "node": ">=6.0.0"
   },
   "files": [
     "lib"
