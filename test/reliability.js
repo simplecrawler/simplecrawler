@@ -237,6 +237,34 @@ describe("Crawler reliability", function() {
         localCrawler.start();
     });
 
+    it("should only fetch every queue item once", function(done) {
+        var localCrawler = makeCrawler("http://127.0.0.1:3000/");
+        var timeout = localCrawler.interval * 2;
+        var buffer = [];
+
+        var _oldestUnfetchedItem = localCrawler.queue.oldestUnfetchedItem;
+        var _update = localCrawler.queue.update;
+
+        // emulate these methods are slower than crawler.interval
+        localCrawler.queue.oldestUnfetchedItem = function(callback) {
+            setTimeout(_oldestUnfetchedItem.bind(this, callback), timeout);
+        };
+        localCrawler.queue.update = function(id, updates, callback) {
+            setTimeout(_update.bind(this, id, updates, callback), timeout);
+        };
+
+        localCrawler.on("fetchstart", function(queueItem) {
+            buffer.push(queueItem.url);
+        });
+
+        localCrawler.on("complete", function() {
+            buffer.length.should.equal(8);
+            done();
+        });
+
+        localCrawler.start();
+    });
+
     describe("when stopping the crawler", function() {
 
         it("should not terminate open connections unless asked", function(done) {
