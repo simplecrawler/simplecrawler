@@ -10,6 +10,9 @@ chai.should();
 
 var Crawler = require("../");
 
+var routes = require("./lib/routes.js"),
+    Server = require("./lib/testserver.js");
+
 var makeCrawler = function (url) {
     var crawler = new Crawler(url);
     crawler.interval = 5;
@@ -17,6 +20,15 @@ var makeCrawler = function (url) {
 };
 
 describe("Resource validity checker", function() {
+
+    before(function (done) {
+        this.server = new Server(routes);
+        this.server.listen(3000, done);
+    });
+
+    after(function (done) {
+        this.server.close(done);
+    });
 
     it("should be able to determine whether a domain is in crawl scope", function() {
 

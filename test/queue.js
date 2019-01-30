@@ -4,6 +4,9 @@ var chai = require("chai"),
     Crawler = require("../"),
     queue = require("./fixtures/queue.json");
 
+var routes = require("./lib/routes.js"),
+    Server = require("./lib/testserver.js");
+
 var should = chai.should();
 
 function find(array, callback) {
@@ -64,6 +67,15 @@ describe("Queue methods", function() {
             updateItem(0);
         });
     };
+
+    before(function (done) {
+        this.server = new Server(routes);
+        this.server.listen(3000, done);
+    });
+
+    after(function (done) {
+        this.server.close(done);
+    });
 
     it("should add to the queue", addToQueue);
 

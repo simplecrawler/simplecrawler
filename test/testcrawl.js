@@ -6,8 +6,10 @@
 var chai = require("chai"),
     uri = require("urijs");
 
-var Server = require("./lib/testserver.js"),
-    Crawler = require("../");
+var Crawler = require("../");
+
+var routes = require("./lib/routes.js"),
+    Server = require("./lib/testserver.js");
 
 chai.should();
 
@@ -19,6 +21,15 @@ var makeCrawler = function (url) {
 
 describe("Test Crawl", function() {
     this.slow("200ms");
+
+    before(function (done) {
+        this.server = new Server(routes);
+        this.server.listen(3000, done);
+    });
+
+    after(function (done) {
+        this.server.close(done);
+    });
 
     it("should be able to be started", function(done) {
         var crawler = makeCrawler("http://127.0.0.1:3000/");

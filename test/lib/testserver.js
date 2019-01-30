@@ -4,8 +4,19 @@
 // Include HTTP
 var http = require("http");
 
+var sockets = {}, nextSocketId = 0;
+
 var Server = function(routes) {
     http.Server.call(this);
+
+    this.on("connection", function(socket) {
+        var socketId = nextSocketId++;
+        sockets[socketId] = socket;
+
+        socket.on("close", function () {
+            delete sockets[socketId];
+        });
+    });
 
     // Listen to events
     this.on("request", function(req, res) {
@@ -75,5 +86,14 @@ var Server = function(routes) {
 };
 
 Server.prototype = Object.create(http.Server.prototype);
+
+// forcibly closes the server killing active connections
+Server.prototype.destroy = function(callback) {
+    Object.keys(sockets).forEach(function (id) {
+        sockets[id].destroy();
+    });
+
+    this.close(callback);
+};
 
 module.exports = Server;
