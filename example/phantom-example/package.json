@@ -3,14 +3,14 @@
   "version": "1.0.0",
   "description": "Phantom link discovery for simplecrawler",
   "author": "Christopher Giffard <christopher.giffard@cgiffard.com>",
-  "homepage": "https://github.com/cgiffard/node-simplecrawler",
+  "homepage": "https://github.com/simplecrawler/simplecrawler",
   "license": "BSD-2-Clause",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/cgiffard/node-simplecrawler.git"
+    "url": "git+https://github.com/simplecrawler/simplecrawler.git"
   },
   "bugs": {
-    "url": "https://github.com/cgiffard/node-simplecrawler/issues"
+    "url": "https://github.com/simplecrawler/simplecrawler/issues"
   },
   "main": "index.js",
   "keywords": [

@@ -2,7 +2,7 @@
   "name": "simplecrawler",
   "description": "Very straightforward, event driven web crawler. Features a flexible queue interface and a basic cache mechanism with extensible backend.",
   "version": "1.1.6",
-  "homepage": "https://github.com/cgiffard/node-simplecrawler",
+  "homepage": "https://github.com/simplecrawler/simplecrawler",
   "author": "Christopher Giffard <christopher.giffard@cgiffard.com>",
   "maintainers": [
     "Christopher Giffard <christopher.giffard@cgiffard.com>",
@@ -11,10 +11,10 @@
   "license": "BSD-2-Clause",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/cgiffard/node-simplecrawler.git"
+    "url": "git+https://github.com/simplecrawler/simplecrawler.git"
   },
   "bugs": {
-    "url": "https://github.com/cgiffard/node-simplecrawler/issues"
+    "url": "https://github.com/simplecrawler/simplecrawler/issues"
   },
   "keywords": [
     "simple",
@@ -29,7 +29,7 @@
     "lint": "eslint example/ lib/ test/",
     "mocha": "mocha -R spec -t 5000",
     "test": "npm run lint && npm run mocha",
-    "docs": "jsdoc -c jsdoc.json"
+    "docs": "jsdoc2md -t jsdoc2md/README.hbs --partial jsdoc2md/*.hbs --files lib/*.js > README.md"
   },
   "bin": {
     "crawl": "./lib/cli.js"
@@ -44,7 +44,7 @@
   "devDependencies": {
     "chai": "^3.2.0",
     "eslint": "^2.0.0",
-    "jsdoc": "^3.4.0",
+    "jsdoc-to-markdown": "^3.0.0",
     "mocha": "^3.0.0"
   },
   "engines": {
