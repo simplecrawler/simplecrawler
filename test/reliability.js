@@ -6,6 +6,9 @@ var path = require("path"),
 
 var Crawler = require("../");
 
+var routes = require("./lib/routes.js"),
+    Server = require("./lib/testserver.js");
+
 var should = chai.should();
 
 var makeCrawler = function (url) {
@@ -17,6 +20,15 @@ var makeCrawler = function (url) {
 // Runs a very simple crawl on an HTTP server
 describe("Crawler reliability", function() {
     this.slow("600ms");
+
+    before(function (done) {
+        this.server = new Server(routes);
+        this.server.listen(3000, done);
+    });
+
+    after(function (done) {
+        this.server.destroy(done);
+    });
 
     it("should be able to be started, then stopped, then started again", function(done) {
         var crawler = makeCrawler("http://127.0.0.1:3000/"),
