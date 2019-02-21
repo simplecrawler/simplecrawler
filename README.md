@@ -2,9 +2,9 @@
 
 [![NPM version](https://img.shields.io/npm/v/simplecrawler.svg)](https://www.npmjs.com/package/simplecrawler)
 [![Linux Build Status](https://img.shields.io/travis/simplecrawler/simplecrawler/master.svg)](https://travis-ci.org/simplecrawler/simplecrawler)
-[![Windows Build Status](https://img.shields.io/appveyor/ci/simplecrawler/simplecrawler/master.svg?label=Windows%20build)](https://ci.appveyor.com/project/simplecrawler/simplecrawler/branch/master)
+[![Windows Build Status](https://img.shields.io/appveyor/ci/fredrikekelund/simplecrawler.svg?label=Windows%20build)](https://ci.appveyor.com/project/fredrikekelund/simplecrawler/branch/master)
 [![Dependency Status](https://img.shields.io/david/simplecrawler/simplecrawler.svg)](https://david-dm.org/simplecrawler/simplecrawler)
-[![devDependency Status](https://img.shields.io/david/dev/simplecrawler/simplecrawler.svg)](https://david-dm.org/simplecrawler/simplecrawler#info=devDependencies)
+[![devDependency Status](https://img.shields.io/david/dev/simplecrawler/simplecrawler.svg)](https://david-dm.org/simplecrawler/simplecrawler?type=dev)
 
 simplecrawler is designed to provide a basic, flexible and robust API for crawling websites. It was written to archive, analyse, and search some very large websites and has happily chewed through hundreds of thousands of pages and written tens of gigabytes to disk without issue.
 
