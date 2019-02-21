@@ -89,12 +89,13 @@ describe("Cookies", function() {
             cookies.forEach(function(cookie) {
                 var parsedCookie = Cookie.fromString(cookie);
 
-                cookieJar.add(parsedCookie.name,
-                              parsedCookie.value,
-                              parsedCookie.expires,
-                              parsedCookie.path,
-                              parsedCookie.domain,
-                              parsedCookie.httponly);
+                cookieJar.add(
+                    parsedCookie.name,
+                    parsedCookie.value,
+                    parsedCookie.expires,
+                    parsedCookie.path,
+                    parsedCookie.domain,
+                    parsedCookie.httponly);
 
                 var cookiesAdded = cookieJar.get(parsedCookie.name),
                     parsedCookie2 = cookiesAdded.pop();
@@ -116,12 +117,13 @@ describe("Cookies", function() {
             cookies.forEach(function(cookie) {
                 var parsedCookie = Cookie.fromString(cookie);
 
-                cookieJar.add(parsedCookie.name,
-                              parsedCookie.value,
-                              parsedCookie.expires,
-                              parsedCookie.path,
-                              parsedCookie.domain,
-                              parsedCookie.httponly);
+                cookieJar.add(
+                    parsedCookie.name,
+                    parsedCookie.value,
+                    parsedCookie.expires,
+                    parsedCookie.path,
+                    parsedCookie.domain,
+                    parsedCookie.httponly);
             });
 
             cookieJar.cookies.length.should.equal(cookies.length);
@@ -141,12 +143,13 @@ describe("Cookies", function() {
             cookies.forEach(function(cookie) {
                 var parsedCookie = Cookie.fromString(cookie);
 
-                cookieJar.add(parsedCookie.name,
-                              parsedCookie.value,
-                              parsedCookie.expires,
-                              parsedCookie.path,
-                              parsedCookie.domain,
-                              parsedCookie.httponly);
+                cookieJar.add(
+                    parsedCookie.name,
+                    parsedCookie.value,
+                    parsedCookie.expires,
+                    parsedCookie.path,
+                    parsedCookie.domain,
+                    parsedCookie.httponly);
 
                 var returnedCookies = cookieJar.get(parsedCookie.name),
                     parsedCookie2 = returnedCookies.pop();

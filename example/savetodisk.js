@@ -30,7 +30,7 @@ var downloadSite = function(initialURL, callback) {
         var outputDirectory = path.join(__dirname, domain);
 
         // Get directory name in order to create any nested dirs
-        var dirname = outputDirectory + parsed.pathname.replace(/\/[^\/]+$/, "");
+        var dirname = outputDirectory + parsed.pathname.replace(/\/[^/]+$/, "");
 
         // Path to save file
         var filepath = outputDirectory + parsed.pathname;
