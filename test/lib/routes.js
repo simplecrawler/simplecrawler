@@ -189,6 +189,6 @@ module.exports = {
     },
 
     "/big": function(write) {
-        write(200, new Buffer(1024 * 1024 * 17));
+        write(200, Buffer.alloc(1024 * 1024 * 17));
     }
 };
