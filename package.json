@@ -36,19 +36,19 @@
   },
   "main": "./lib/index.js",
   "dependencies": {
-    "async": "^2.6.1",
+    "async": "^2.6.2",
     "iconv-lite": "^0.4.24",
-    "robots-parser": "^1.0.2",
+    "robots-parser": "^2.1.1",
     "urijs": "^1.19.1"
   },
   "devDependencies": {
     "chai": "^4.2.0",
-    "eslint": "^5.10.0",
-    "jsdoc-to-markdown": "^3.0.0",
-    "mocha": "^5.2.0"
+    "eslint": "^5.14.1",
+    "jsdoc-to-markdown": "^4.0.1",
+    "mocha": "^6.0.2"
   },
   "engines": {
-    "node": ">=6.0.0"
+    "node": ">=6.13.0"
   },
   "files": [
     "lib"
