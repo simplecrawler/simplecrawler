@@ -1,0 +1,10 @@
+{
+  "groups": {
+    "default": {
+      "packages": [
+        "example/phantom-example/package.json",
+        "package.json"
+      ]
+    }
+  }
+}
