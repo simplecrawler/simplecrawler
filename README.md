@@ -111,23 +111,23 @@ crawler.start();
 
 simplecrawler's API is event driven, and there are plenty of events emitted during the different stages of the crawl.
 
-<a name="Crawler+event_fetchstart"></a>
+<a name="Crawler+event_crawlstart"></a>
 
-#### "fetchstart"
+#### "crawlstart"
 Fired when the crawl starts. This event gives you the opportunity to
 adjust the crawler's configuration, since the crawl won't actually start
 until the next processor tick.
 
-<a name="Crawler+event_fetchtimeout"></a>
+<a name="Crawler+event_discoverycomplete"></a>
 
-#### "fetchtimeout" (queueItem, timeout)
-Fired when a request times out
+#### "discoverycomplete" (queueItem, resources)
+Fired when the discovery of linked resources has completed
 
 
 | Param | Type | Description |
 | --- | --- | --- |
-| queueItem | [<code>QueueItem</code>](#QueueItem) | The queue item for which the request timed out |
-| timeout | <code>Number</code> | The delay in milliseconds after which the request timed out |
+| queueItem | [<code>QueueItem</code>](#QueueItem) | The queue item that represents the document for the discovered resources |
+| resources | <code>Array</code> | An array of discovered and cleaned URL's |
 
 <a name="Crawler+event_invaliddomain"></a>
 
