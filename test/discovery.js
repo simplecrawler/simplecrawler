@@ -86,6 +86,16 @@ describe("Crawler link discovery", function() {
         links[1].should.equal("http://example.com/resource");
     });
 
+    it("should replace all '&#x2f;'s with slashes", function() {
+
+        var links =
+            discover("<a href='http:&#x2f;&#x2f;example.com&#x2f;resource'>");
+
+        links.should.be.an("array");
+        links.length.should.equal(1);
+        links[0].should.equal("http://example.com/resource");
+    });
+
     it("should find and follow meta redirects", function() {
 
         var links =
