@@ -56,7 +56,7 @@ module.exports = {
     "/cookie": function(write) {
         var expires = new Date();
         expires.setHours(expires.getHours() + 10);
-        var cookie = "thing=stuff; expires=" + expires + "; path=/; domain=.localhost";
+        var cookie = "thing=stuff; expires=" + expires.toUTCString() + "; path=/; domain=.localhost";
 
         write(200, "<a href='/stage7'>Link</a>", { "Set-Cookie": cookie });
     },
