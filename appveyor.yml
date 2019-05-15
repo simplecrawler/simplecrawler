@@ -10,6 +10,8 @@ environment:
           platform: x86
         - nodejs_version: "10"
           platform: x86
+        - nodejs_version: "12"
+          platform: x86
 
 install:
     - ps: Install-Product node $env:nodejs_version $env:platform
