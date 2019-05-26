@@ -36,7 +36,7 @@
   },
   "main": "./lib/index.js",
   "dependencies": {
-    "async": "^2.6.2",
+    "async": "^3.0.1",
     "iconv-lite": "^0.4.24",
     "robots-parser": "^2.1.1",
     "urijs": "^1.19.1"
