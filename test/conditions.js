@@ -479,7 +479,7 @@ describe("Download conditions", function() {
 
         crawler.addDownloadCondition(function(queueItem, response, callback) {
             setTimeout(function() {
-                callback(false);
+                callback(null, false);
             }, 10);
         });
 
@@ -512,7 +512,7 @@ describe("Download conditions", function() {
         var crawler = makeCrawler("http://127.0.0.1:3000");
 
         crawler.addDownloadCondition(function(queueItem, response, callback) {
-            callback(false);
+            callback(null, false);
         });
 
         crawler.on("downloadprevented", function(queueItem, response) {
