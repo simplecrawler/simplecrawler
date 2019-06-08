@@ -146,6 +146,25 @@ module.exports = {
         write(410, "this page no longer exists!");
     },
 
+    "/etag": function(write, redir, req) {
+        var etag = "\"3c1ceb-13e84-5893853673580;589c03961f340\"";
+        if (req.headers["if-none-match"] === etag) {
+            write(304, "Not Modified", { ETag: etag });
+        } else {
+            write(200, "", { ETag: etag });
+        }
+    },
+
+    "/last-modified": function(write, redir, req) {
+        var lastmod = "Sun, 19 May 2019 07:11:34 GMT";
+        var ifmod = req.headers["if-modified-since"];
+        if (ifmod && new Date(lastmod) <= new Date(ifmod)) {
+            write(304, "Not Modified", { "Last-Modified": lastmod });
+        } else {
+            write(200, "", { "Last-Modified": lastmod });
+        }
+    },
+
     "/script": function(write) {
         write(200, "<script src='/not/existent/file.js'></script><script>var foo = 'bar';</script><a href='/stage2'>stage2</a><script>var bar = 'foo';</script>");
     },

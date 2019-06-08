@@ -61,7 +61,7 @@ var Server = function(routes) {
 
             // Pass in a function that takes a status and some data to write back
             // out to the client
-            routes[req.url](write, redir);
+            routes[req.url](write, redir, req);
         } else {
 
             // Otherwise, a 404
