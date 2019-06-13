@@ -1,4 +1,5 @@
 node_modules/
 /test/queue.json
+/test/cache
 /npm-debug.log
 .idea
