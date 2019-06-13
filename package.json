@@ -45,7 +45,7 @@
     "chai": "^4.2.0",
     "eslint": "^5.16.0",
     "jsdoc-to-markdown": "^5.0.0",
-    "mocha": "^6.1.1"
+    "mocha": "^6.1.4"
   },
   "engines": {
     "node": ">=6.13.0"
