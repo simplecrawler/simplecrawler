@@ -1168,7 +1168,6 @@ Simplecrawler will officially support stable and LTS versions of Node which are 
 
 Currently supported versions:
 
-- 6.x
 - 8.x
 - 10.x
 

@@ -48,7 +48,7 @@
     "mocha": "^6.1.4"
   },
   "engines": {
-    "node": ">=6.13.0"
+    "node": ">=8"
   },
   "files": [
     "lib"
