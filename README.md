@@ -1170,6 +1170,7 @@ Currently supported versions:
 
 - 8.x
 - 10.x
+- 12.x
 
 ## Current Maintainers
 
