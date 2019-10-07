@@ -14,3 +14,4 @@ Simplecrawler project maintainers!
 - Try to write a clear and short issue description
 - If you're filing a PR, run `npm test` before opening it to catch linting or test issues
 - If you're changing the `README`, remember that it's generated (and you can regenerate it by running `npm run docs`)
+- Since version 1.1.8 the project uses [Standard Version](https://github.com/conventional-changelog/standard-version) for automated versioning and CHANGELOG generation therefore the commits should follow the [Conventional Commits Specification](https://conventionalcommits.org/)

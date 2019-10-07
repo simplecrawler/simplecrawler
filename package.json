@@ -29,7 +29,8 @@
     "lint": "eslint example/ lib/ test/",
     "mocha": "mocha -t 5000 --exit",
     "test": "npm run lint && npm run mocha",
-    "docs": "jsdoc2md -t jsdoc2md/README.hbs --partial jsdoc2md/*.hbs --files lib/*.js > README.md"
+    "docs": "jsdoc2md -t jsdoc2md/README.hbs --partial jsdoc2md/*.hbs --files lib/*.js > README.md",
+    "release": "standard-version"
   },
   "bin": {
     "crawl": "./lib/cli.js"
@@ -45,7 +46,8 @@
     "chai": "^4.2.0",
     "eslint": "^6.5.1",
     "jsdoc-to-markdown": "^5.0.1",
-    "mocha": "^6.2.1"
+    "mocha": "^6.2.1",
+    "standard-version": "^7.0.0"
   },
   "engines": {
     "node": ">=8"
