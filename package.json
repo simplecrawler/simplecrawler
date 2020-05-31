@@ -44,7 +44,7 @@
   "devDependencies": {
     "chai": "^4.2.0",
     "eslint": "^6.5.1",
-    "jsdoc-to-markdown": "^5.0.1",
+    "jsdoc-to-markdown": "^6.0.1",
     "mocha": "^7.0.1"
   },
   "engines": {
