@@ -1,4 +1,6 @@
-# Simple web crawler for node.js
+# Simple web crawler for node.js [UNMAINTAINED]
+
+**This project is unmaintained and active projects relying on it are advised to migrate to alternative solutions.**
 
 [![NPM version](https://img.shields.io/npm/v/simplecrawler.svg)](https://www.npmjs.com/package/simplecrawler)
 [![Linux Build Status](https://img.shields.io/travis/simplecrawler/simplecrawler/master.svg)](https://travis-ci.org/simplecrawler/simplecrawler)
